@@ -52,9 +52,9 @@ export function useProfileInit(
 
   useEffect(() => {
     const initApp = async () => {
-      const savedName = sessionStorage.getItem('destinyvox_name');
-      const savedBirth = sessionStorage.getItem('destinyvox_birth');
-      const storedLang = sessionStorage.getItem('destinyvox_lang');
+      const savedName = sessionStorage.getItem('destinyvox_name') || localStorage.getItem('destinyvox_name');
+      const savedBirth = sessionStorage.getItem('destinyvox_birth') || localStorage.getItem('destinyvox_birth');
+      const storedLang = sessionStorage.getItem('destinyvox_lang') || localStorage.getItem('destinyvox_lang');
       const savedLang: SupportedLang = storedLang && ['en', 'pt', 'es'].includes(storedLang) ? (storedLang as SupportedLang) : 'en';
       setLang(savedLang);
 
@@ -76,7 +76,6 @@ export function useProfileInit(
         }
 
         // 1. Prioriza reutilizar perfil salvo existente se o usuário já tem mapa cadastrado
-        // Verifica se corresponde ao savedName da sessão ou se é o perfil padrão salvo
         if (saved.charts && saved.charts.length > 0) {
           const matched = savedName 
             ? saved.charts.find(c => c.name.toLowerCase() === savedName.toLowerCase() || (savedBirth && c.birthDate === savedBirth))
@@ -99,7 +98,7 @@ export function useProfileInit(
         // ignore
       }
 
-      // 2. Se não encontrou salvo no banco, mas tem dados no sessionStorage (ex: primeira vez submetendo via splash)
+      // 2. Se tem dados no sessionStorage ou localStorage (enviados via splash)
       if (savedName && savedBirth) {
         setLoadingStep(
           savedLang === 'en'
@@ -139,27 +138,17 @@ export function useProfileInit(
           }
         } catch (err: unknown) {
           console.error('Erro ao gerar:', err);
+          setError(savedLang === 'en' ? 'Failed to connect with the cosmos. Try reloading.' : 'Falha ao conectar com o cosmos. Tente recarregar a página.');
         }
       }
 
-      // 3. Fallback default inicial caso nenhum perfil exista
-      try {
-        const res = await trpc.destinyvox.generateReading.mutate({
-          fullName: savedLang === 'en' ? 'Cosmic Seeker' : savedLang === 'es' ? 'Buscador de Estrellas' : 'Buscador das Estrelas',
-          birthDate: '07/07/1995',
-          language: savedLang,
-        });
-        const synced = syncProfileCycles(res.result, savedLang);
-        setReadingData(synced);
-      } catch {
-        setError(savedLang === 'en' ? 'Failed to connect with the cosmos. Try reloading.' : 'Falha ao conectar com o cosmos. Tente recarregar a página.');
-      } finally {
-        setIsLoading(false);
-      }
+      // 3. Caso nenhum dado tenha sido preenchido pelo usuário, abre o modal de criação diretamente
+      charts.setShowNewChartModal(true);
+      setIsLoading(false);
     };
 
     void initApp();
-  }, [setChartsList]);
+  }, [setChartsList, charts]);
 
   const handleCreateNewChart = async (e: FormEvent, errFullName: string, errBirthDate: string) => {
     e.preventDefault();

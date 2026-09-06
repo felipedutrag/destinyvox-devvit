@@ -187,11 +187,27 @@ export const Splash = () => {
     }
 
     setErrorMessage('');
+    setIsSubmitting(true);
 
     try {
-      sessionStorage.setItem('destinyvox_name', fullName.trim());
+      const cleanName = fullName.trim();
+      sessionStorage.setItem('destinyvox_name', cleanName);
       sessionStorage.setItem('destinyvox_birth', birthDate);
       sessionStorage.setItem('destinyvox_lang', lang);
+
+      localStorage.setItem('destinyvox_name', cleanName);
+      localStorage.setItem('destinyvox_birth', birthDate);
+      localStorage.setItem('destinyvox_lang', lang);
+
+      // Gera e salva a leitura diretamente no Redis antes de expandir
+      void trpc.destinyvox.generateReading.mutate({
+        fullName: cleanName,
+        birthDate: birthDate,
+        language: lang,
+      }).catch((err) => {
+        console.warn('Pré-geração em background:', err);
+      });
+
       requestExpandedMode(ev.nativeEvent, 'game');
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : (lang === 'en' ? 'Connection error' : 'Erro ao conectar ao oráculo'));
