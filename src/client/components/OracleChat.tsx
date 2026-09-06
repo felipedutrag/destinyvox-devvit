@@ -76,9 +76,10 @@ export const OracleChat: React.FC<OracleChatProps> = ({
       {isOracleOpen && (
         <div
           style={{
-            height: viewportHeight > 0 ? `${viewportHeight}px` : undefined,
+            height: viewportHeight > 0 ? `${viewportHeight}px` : '100dvh',
+            maxHeight: '100dvh',
           }}
-          className="fixed inset-0 z-50 bg-[var(--bg-main)] flex flex-col p-2 sm:p-4 shadow-2xl animate-fadeIn"
+          className="fixed inset-0 z-50 bg-[var(--bg-main)] flex flex-col p-2 sm:p-4 shadow-2xl animate-fadeIn overscroll-none"
         >
           {/* Cabecalho do Oraculo */}
           <div className="p-3 sm:p-3.5 border-b border-[var(--border-main)] bg-[var(--bg-card-alt)] flex items-center justify-between gap-2 flex-shrink-0 z-10">
