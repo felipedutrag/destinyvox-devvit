@@ -1,4 +1,4 @@
-﻿import type { GeminiApiResponse } from './types';
+import type { GeminiApiResponse } from './types';
 
 export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
@@ -34,8 +34,9 @@ export async function callGemini(
   });
 
   if (!res.ok) {
-    console.warn(`[Gemini] Requisição retornou status ${res.status}: ${res.statusText}`);
-    throw new Error(`Gemini API HTTP ${res.status}`);
+    const errorBody = await res.text().catch(() => '');
+    console.warn(`[Gemini] Requisição retornou status ${res.status}: ${res.statusText} - ${errorBody}`);
+    throw new Error(`Gemini API HTTP ${res.status}: ${errorBody || res.statusText}`);
   }
 
   const data: GeminiApiResponse = await res.json();

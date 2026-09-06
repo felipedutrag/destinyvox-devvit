@@ -63,29 +63,9 @@ export const OracleChat: React.FC<OracleChatProps> = ({
             type="button"
             onClick={onOpen}
             aria-label={t.oracleTitle}
-            className="flex items-center gap-2 px-3.5 py-2.5 bg-[var(--btn-bg)] text-[var(--btn-text)] border border-[var(--border-main)] rounded-full shadow-2xl hover:opacity-95 active:scale-95 transition-all cursor-pointer group"
+            className="flex items-center px-4 py-2 bg-[var(--btn-bg)] text-[var(--btn-text)] border border-[var(--border-main)] rounded-full shadow-2xl hover:opacity-95 active:scale-95 transition-all cursor-pointer group"
           >
-            {/* Icone / Imagem do Oraculo */}
-            <div className="relative w-6 h-6 rounded-full bg-[var(--bg-main)] text-[var(--accent-gold)] flex items-center justify-center border border-[var(--border-main)] flex-shrink-0 overflow-hidden">
-              <svg
-                className="w-3.5 h-3.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="9" />
-                <circle cx="12" cy="12" r="3" />
-                <path d="M12 3v3m0 12v3M3 12h3m12 0h3" />
-              </svg>
-              <span
-                className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-1 ring-[var(--bg-main)]"
-                title="Online"
-              />
-            </div>
-            <span className="font-mono text-[11px] tracking-widest uppercase font-semibold pr-1">
+            <span className="font-mono text-[11px] tracking-widest uppercase font-semibold">
               ORACLE AI
             </span>
           </button>
@@ -211,11 +191,6 @@ export const OracleChat: React.FC<OracleChatProps> = ({
               placeholder={t.oraclePlaceholder}
               value={oracleQuestion}
               onChange={(e) => onQuestionChange(e.target.value)}
-              onFocus={() => {
-                setTimeout(() => {
-                  chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}
               className="flex-1 bg-[var(--input-bg)] border border-[var(--border-main)] rounded-none px-3 py-2 text-xs text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--text-main)] font-mono"
             />
             <button

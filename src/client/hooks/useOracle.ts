@@ -34,17 +34,13 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
       });
 
       setOracleChat((prev) => [...prev, { sender: 'oracle', text: res.answer }]);
-    } catch {
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
       setOracleChat((prev) => [
         ...prev,
         {
           sender: 'oracle',
-          text:
-            lang === 'en'
-              ? 'Cosmic silence intervened. Re-center your intent and ask again.'
-              : lang === 'es'
-              ? 'El silencio cósmico intervino. Concéntrate y pregunta de nuevo.'
-              : 'O silêncio cósmico interveio. Re-centralize sua intenção e pergunte novamente.',
+          text: `[Erro Oráculo]: ${msg}`,
         },
       ]);
     } finally {
@@ -61,6 +57,7 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
   useEffect(() => {
     if (typeof window === 'undefined') return;
 
+    let resizeTimer: ReturnType<typeof setTimeout> | null = null;
     const handleVisualResize = () => {
       const vv = window.visualViewport;
       if (vv) {
@@ -77,9 +74,10 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
       }
 
       if (isOracleOpen) {
-        setTimeout(() => {
-          chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 50);
+        if (resizeTimer) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          chatBottomRef.current?.scrollIntoView({ behavior: 'auto' });
+        }, 30);
       }
     };
 
@@ -87,14 +85,13 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
 
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleVisualResize);
-      window.visualViewport.addEventListener('scroll', handleVisualResize);
     }
     window.addEventListener('resize', handleVisualResize);
 
     return () => {
+      if (resizeTimer) clearTimeout(resizeTimer);
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleVisualResize);
-        window.visualViewport.removeEventListener('scroll', handleVisualResize);
       }
       window.removeEventListener('resize', handleVisualResize);
     };

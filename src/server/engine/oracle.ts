@@ -48,9 +48,10 @@ DIRETRIZES DE FORMATAÇÃO E TEXTO LIMPO (CRÍTICO):
         ? 'The stars confirm that the path lies before you.'
         : 'As estrelas confirmam que o caminho está diante de você.')
     );
-  } catch {
-    return language.startsWith('en')
-      ? 'The silence of the cosmos whispers that the answer already lives in your intuition.'
-      : 'O silêncio do cosmos sussurra que a resposta já habita em sua intuição.';
+  } catch (err: unknown) {
+    const errMessage = err instanceof Error ? err.message : String(err);
+    console.error('[Oracle Engine Error]:', errMessage);
+    // Return structured error indicator so client and user know exactly what happened
+    return `[ERRO ORÁCULO]: ${errMessage}`;
   }
 }
