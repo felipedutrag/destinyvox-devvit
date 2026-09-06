@@ -120,12 +120,14 @@ export const Splash = () => {
       return;
     }
 
-    const token = userToken;
     const portalUrl = new URL('https://destinyvox.online/');
-    if (token) {
-      portalUrl.searchParams.set('ref', token);
-    } else if (effectiveUser) {
+    if (effectiveUser) {
       portalUrl.searchParams.set('u', effectiveUser);
+    } else if (userToken) {
+      portalUrl.searchParams.set('ref', userToken);
+    }
+    if (lang) {
+      portalUrl.searchParams.set('lang', lang);
     }
 
     const targetUrl = portalUrl.toString();

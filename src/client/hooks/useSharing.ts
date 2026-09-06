@@ -1,4 +1,4 @@
-﻿import { useState, type MouseEvent } from 'react';
+import { useState, type MouseEvent } from 'react';
 import { navigateTo } from '@devvit/web/client';
 import { trpc } from '../trpc';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
@@ -86,10 +86,13 @@ export function useSharing(
     const effectiveUser = redditUsername.trim();
 
     const portalUrl = new URL('https://destinyvox.online/');
-    if (userToken) {
-      portalUrl.searchParams.set('ref', userToken);
-    } else if (effectiveUser) {
+    if (effectiveUser) {
       portalUrl.searchParams.set('u', effectiveUser);
+    } else if (userToken) {
+      portalUrl.searchParams.set('ref', userToken);
+    }
+    if (lang) {
+      portalUrl.searchParams.set('lang', lang);
     }
 
     const targetUrl = portalUrl.toString();
