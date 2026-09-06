@@ -82,14 +82,26 @@
   box-sizing: border-box;
 }
 
+/* Neutralizar bordas de wrappers do Reddit Devvit (devvit2-modal-card) */
+:host,
+devvit2-modal-card,
+iframe {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background-color: var(--bg-main) !important;
+}
+
 html, body, #root {
   margin: 0;
   padding: 0;
   width: 100%;
   height: 100%;
-  border: none;
-  outline: none;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
   background-color: var(--bg-main);
+  overflow: hidden;
 }
 
 body {

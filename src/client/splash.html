@@ -14,6 +14,25 @@
         } else {
           document.documentElement.classList.remove('dark');
         }
+        function neutralizeParentBorders() {
+          try {
+            if (window.frameElement) {
+              window.frameElement.style.border = 'none';
+              window.frameElement.style.outline = 'none';
+              window.frameElement.style.boxShadow = 'none';
+            }
+            var card = window.parent?.document?.querySelector('devvit2-modal-card');
+            if (card) {
+              card.style.border = 'none';
+              card.style.outline = 'none';
+              card.style.boxShadow = 'none';
+            }
+          } catch (e) {
+            // cross-origin sandbox
+          }
+        }
+        neutralizeParentBorders();
+        window.addEventListener('DOMContentLoaded', neutralizeParentBorders);
       })();
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
