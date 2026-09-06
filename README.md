@@ -1,4 +1,4 @@
-# DestinyVox (dgapp) — Pythagorean Numerology & Cosmic Oracle
+﻿# DestinyVox (dgapp) — Pythagorean Numerology & Cosmic Oracle
 
 > **Interactive Reddit Community Application built on the Devvit Web Platform**
 
@@ -63,21 +63,21 @@ Once the chart is generated, the app opens in the full expanded view:
 * **Year & Cycles Tab:** Discover strategic forecasts for your current Personal Year, current Personal Month, and the energy governing your day.
 
 ### 3. Consulting the AI Oracle
-1. Navigate to the **Oracle** tab.
+1. Tap the floating **Oracle** chat bubble in the bottom-right corner.
 2. Type a specific question about your career, personal decisions, relationships, or creative paths.
-3. Tap **Ask Oracle**. The Oracle will synthesize your specific numerological numbers and deliver thoughtful, reflective counsel.
+3. Tap **⟶**. The Oracle will synthesize your specific numerological numbers and deliver thoughtful, reflective counsel.
 
 ### 4. Testing Cosmic Synastry with Another Redditor
-1. Navigate to the **Synastry** tab.
+1. Navigate to the **Synastry** procedure.
 2. Enter the Reddit username of a friend or community member (e.g., `u/spez` or `username`).
-3. Click **Calculate Synastry**:
+3. Calculate Synastry:
    * If the user has already calculated their chart on DestinyVox, you will receive an immediate compatibility score, relational analysis, and advice for the duo.
-   * If the user hasn't calculated their chart yet, you can click **Invite User** to leave a polite mention inviting them to calculate their profile on the post.
+   * If the user hasn't calculated their chart yet, you can invite them via comment to calculate their profile on the post.
 
 ### 5. Managing Saved Charts
 * Click the **Saved Charts** dropdown in the header to switch between different profiles.
 * To add another profile (e.g., for a partner or sibling), click **+ New Chart**, input their details, and save.
-* To remove a chart, tap the trash icon next to the profile and confirm deletion.
+* To remove a chart, tap the delete icon next to the profile and confirm deletion.
 
 ### 6. Sharing Your Results
 * Navigate to the **Share** tab.

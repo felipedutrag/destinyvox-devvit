@@ -52,6 +52,7 @@ export const i18n = {
     yearVibrationWord: 'Annual Vibration',
     lifePathExplanation: (num: number) =>
       `Life Path Number #${num} is calculated from your complete birth date. It represents the central purpose of your lifetime, the essential road your soul chose to walk, and the foundational lessons you are here to integrate.`,
+    lifePathPurposeLabel: '✦ CORE PURPOSE & EXISTENTIAL MISSION:',
     expressionExplanation: (num: number) =>
       `Expression Number #${num} (known as the Destiny Number in classical Pythagorean numerology) is derived from every letter in your birth certificate name. While your Life Path is the road you travel, Expression/Destiny represents your innate tools, natural talents, and operational vocation in the material world.`,
     expressionGiftsLabel: '✦ GIFTS & OPERATIONAL FORCE:',
@@ -103,6 +104,10 @@ export const i18n = {
     oracleInteractive: 'INTERACTIVE CONSULTATION',
     oraclePlaceholder: 'Ask Oracle of Delphi anything...',
     oracleConsulting: '[ CONSULTING ARCHETYPES... ]',
+    oracleExpand: 'Expand Chat',
+    oracleMinimize: 'Minimize Chat',
+    oracleButton: 'Oracle',
+    oracleClose: 'Close',
     youWord: 'YOU',
   },
   pt: {
@@ -153,6 +158,7 @@ export const i18n = {
     yearVibrationWord: 'Vibração Anual',
     lifePathExplanation: (num: number) =>
       `O Número do Caminho de Vida #${num} é calculado a partir da sua data completa de nascimento. Ele representa o propósito central da sua encarnação, a estrada mestra que sua alma escolheu trilhar e as lições fundamentais que você veio integrar nesta existência.`,
+    lifePathPurposeLabel: '✦ PROPÓSITO CENTRAL & MISSÃO EXISTENCIAL:',
     expressionExplanation: (num: number) =>
       `O Número de Expressão #${num} (conhecido na numerologia pitagórica clássica como o Número do Destino) é calculado a partir de todas as letras do seu nome completo de certidão. Enquanto o Caminho de Vida é a estrada que você percorre, a Expressão/Destino representa as suas ferramentas inatas, vocação e dons operacionais para navegar o mundo material.`,
     expressionGiftsLabel: '✦ DONS & FORÇA OPERACIONAL:',
@@ -204,6 +210,10 @@ export const i18n = {
     oracleInteractive: 'CONSULTA INTERATIVA',
     oraclePlaceholder: 'Faça uma pergunta ao Oráculo Delfos...',
     oracleConsulting: '[ CONSULTANDO ARQUÉTIPOS... ]',
+    oracleExpand: 'Expandir Chat',
+    oracleMinimize: 'Minimizar Chat',
+    oracleButton: 'Oráculo',
+    oracleClose: 'Fechar',
     youWord: 'VOCÊ',
   },
   es: {
@@ -254,6 +264,7 @@ export const i18n = {
     yearVibrationWord: 'Vibración Anual',
     lifePathExplanation: (num: number) =>
       `El Número del Camino de Vida #${num} se calcula a partir de tu fecha completa de nacimiento. Representa el propósito central de tu encarnación, la senda principal que tu alma eligió recorrer y las lecciones fundamentales que vienes a integrar.`,
+    lifePathPurposeLabel: '✦ PROPÓSITO CENTRAL Y MISIÓN EXISTENCIAL:',
     expressionExplanation: (num: number) =>
       `El Número de Expresión #${num} (tradicionalmente conocido en la numerología pitagórica como el Número del Destino) proviene de todas las letras de tu nombre completo de nacimiento. Mientras que el Camino de Vida es la senda que transitas, la Expresión/Destino representa tus herramientas innatas, vocación y dones operativos para interactuar con la realidad.`,
     expressionGiftsLabel: '✦ DONES Y FUERZA OPERATIVA:',
@@ -305,6 +316,10 @@ export const i18n = {
     oracleInteractive: 'CONSULTA INTERACTIVA',
     oraclePlaceholder: 'Haz una pregunta al Oráculo Delfos...',
     oracleConsulting: '[ CONSULTANDO ARQUETIPOS... ]',
+    oracleExpand: 'Expandir Chat',
+    oracleMinimize: 'Minimizar Chat',
+    oracleButton: 'Oráculo',
+    oracleClose: 'Cerrar',
     youWord: 'TÚ',
   },
 };
