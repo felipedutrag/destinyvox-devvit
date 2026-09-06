@@ -1,4 +1,4 @@
-﻿import './index.css';
+import './index.css';
 
 import { Component, useState, useRef, type ReactNode, type ErrorInfo } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -174,11 +174,7 @@ export const DestinyVoxApp = () => {
 
       {/* 3. NAVEGAÇÃO DE ABAS */}
       <nav className="relative border-b border-[var(--border-subtle)] bg-[var(--bg-main)] z-20">
-        <div className="sm:hidden absolute right-0 top-0 bottom-0 z-20 flex items-center pr-2 pl-6 bg-gradient-to-l from-[var(--bg-main)] via-[var(--bg-main)]/90 to-transparent pointer-events-none">
-          <span className="text-xs font-mono text-[var(--accent-gold)] animate-pulse">›</span>
-        </div>
-
-        <div className="max-w-3xl mx-auto flex items-center overflow-x-auto no-scrollbar scroll-smooth px-3 sm:px-6 sm:justify-center gap-2 sm:gap-6 font-mono text-[10px] sm:text-[11px] tracking-[0.16em] uppercase whitespace-nowrap pr-8 sm:pr-6">
+        <div className="max-w-3xl mx-auto flex items-center overflow-x-auto no-scrollbar scroll-smooth px-3 sm:px-6 sm:justify-center gap-2 sm:gap-6 font-mono text-[10px] sm:text-[11px] tracking-[0.16em] uppercase whitespace-nowrap">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (

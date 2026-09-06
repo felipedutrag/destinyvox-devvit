@@ -1,4 +1,4 @@
-﻿import './index.css';
+import './index.css';
 
 import { requestExpandedMode, navigateTo } from '@devvit/web/client';
 import { StrictMode, useState, useEffect, type MouseEvent } from 'react';
@@ -215,11 +215,13 @@ export const Splash = () => {
           <button
             type="button"
             onClick={toggleTheme}
-            className="px-2 py-0.5 border border-[var(--border-main)] text-[var(--text-main)] hover:bg-[var(--bg-card)] cursor-pointer text-xs font-mono flex items-center justify-center transition-colors"
+            className="w-6 h-6 border border-[var(--border-main)] text-[var(--text-main)] hover:bg-[var(--bg-card)] cursor-pointer text-xs font-mono inline-flex items-center justify-center transition-colors leading-none"
             title={t.toggleTheme}
             aria-label={t.toggleTheme}
           >
-            {isDarkMode ? '☼' : '☾'}
+            <span className="inline-flex items-center justify-center leading-none -translate-y-[1px]">
+              {isDarkMode ? '☼' : '☾'}
+            </span>
           </button>
 
           <div className="flex items-center gap-1 font-mono text-[10px]">

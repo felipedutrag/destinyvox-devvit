@@ -1,8 +1,33 @@
-﻿import { useState, useEffect, type Dispatch, type SetStateAction, type FormEvent } from 'react';
+import { useState, useEffect, type Dispatch, type SetStateAction, type FormEvent } from 'react';
 import { trpc } from '../trpc';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import type { SavedChart } from '../components/Header';
 import type { SupportedLang } from '../i18n';
+import { calculatePersonalYear, getArchetype } from '../../shared/numerology';
+
+// Garante que o perfil salvo tenha o Ano Pessoal e Arquétipo anual atualizados conforme a data corrente (ano, mês e dia)
+function syncProfileCycles(data: CosmicReadingResult, lang: SupportedLang): CosmicReadingResult {
+  const currentYear = new Date().getFullYear();
+  if (!data?.profile?.birthDate) return data;
+
+  const currentPersonalYear = calculatePersonalYear(data.profile.birthDate, currentYear);
+  if (data.profile.personalYear === currentPersonalYear) {
+    return data;
+  }
+
+  const yearArch = getArchetype(currentPersonalYear, lang);
+  return {
+    ...data,
+    profile: {
+      ...data.profile,
+      personalYear: currentPersonalYear,
+    },
+    archetypes: {
+      ...data.archetypes,
+      personalYear: yearArch,
+    },
+  };
+}
 
 export function useProfileInit(
   setChartsList: Dispatch<SetStateAction<SavedChart[]>>,
@@ -50,8 +75,23 @@ export function useProfileInit(
           localStorage.setItem('destinyvox_cached_charts', JSON.stringify(saved.charts));
         }
 
-        if (!savedName && saved.exists && saved.data) {
-          setReadingData(saved.data);
+        // 1. Prioriza reutilizar perfil salvo existente se o usuário já tem mapa cadastrado
+        // Verifica se corresponde ao savedName da sessão ou se é o perfil padrão salvo
+        if (saved.charts && saved.charts.length > 0) {
+          const matched = savedName 
+            ? saved.charts.find(c => c.name.toLowerCase() === savedName.toLowerCase() || (savedBirth && c.birthDate === savedBirth))
+            : saved.charts[0];
+          if (matched && matched.data) {
+            const synced = syncProfileCycles(matched.data, savedLang);
+            setReadingData(synced);
+            setIsLoading(false);
+            return;
+          }
+        }
+
+        if (saved.exists && saved.data) {
+          const synced = syncProfileCycles(saved.data, savedLang);
+          setReadingData(synced);
           setIsLoading(false);
           return;
         }
@@ -59,6 +99,7 @@ export function useProfileInit(
         // ignore
       }
 
+      // 2. Se não encontrou salvo no banco, mas tem dados no sessionStorage (ex: primeira vez submetendo via splash)
       if (savedName && savedBirth) {
         setLoadingStep(
           savedLang === 'en'
@@ -76,12 +117,13 @@ export function useProfileInit(
           });
 
           if (res.success && res.result) {
-            setReadingData(res.result);
+            const synced = syncProfileCycles(res.result, savedLang);
+            setReadingData(synced);
             const newChartObj: SavedChart = {
               id: `chart_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
               name: savedName,
               birthDate: savedBirth,
-              data: res.result,
+              data: synced,
             };
             try {
               const saveRes = await trpc.destinyvox.saveChart.mutate({ chart: newChartObj });
@@ -100,13 +142,15 @@ export function useProfileInit(
         }
       }
 
+      // 3. Fallback default inicial caso nenhum perfil exista
       try {
         const res = await trpc.destinyvox.generateReading.mutate({
           fullName: savedLang === 'en' ? 'Cosmic Seeker' : savedLang === 'es' ? 'Buscador de Estrellas' : 'Buscador das Estrelas',
           birthDate: '07/07/1995',
           language: savedLang,
         });
-        setReadingData(res.result);
+        const synced = syncProfileCycles(res.result, savedLang);
+        setReadingData(synced);
       } catch {
         setError(savedLang === 'en' ? 'Failed to connect with the cosmos. Try reloading.' : 'Falha ao conectar com o cosmos. Tente recarregar a página.');
       } finally {

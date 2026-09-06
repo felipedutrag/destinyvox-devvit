@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import { formatAmericanDate } from '../i18n';
 
@@ -69,11 +69,13 @@ export const Header: React.FC<HeaderProps> = ({
         <button
           type="button"
           onClick={onToggleTheme}
-          className="px-2 py-0.5 border border-[var(--border-main)] text-[var(--text-main)] hover:bg-[var(--bg-card)] cursor-pointer text-xs font-mono flex items-center justify-center transition-colors"
+          className="w-6 h-6 border border-[var(--border-main)] text-[var(--text-main)] hover:bg-[var(--bg-card)] cursor-pointer text-xs font-mono inline-flex items-center justify-center transition-colors leading-none"
           title={t.toggleTheme}
           aria-label={t.toggleTheme}
         >
-          {isDarkMode ? '☼' : '☾'}
+          <span className="inline-flex items-center justify-center leading-none -translate-y-[1px]">
+            {isDarkMode ? '☼' : '☾'}
+          </span>
         </button>
 
         <button

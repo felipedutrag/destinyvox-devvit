@@ -1,7 +1,7 @@
-﻿import { type ReactNode } from 'react';
+import { type ReactNode } from 'react';
 
 // Utilitario para formatar textos longos gerados por IA em paragrafos elegantes e arejados
-export const renderParagraphs = (rawText: string, className: string = ''): ReactNode => {
+export const renderParagraphs = (rawText: string | undefined | null, className: string = ''): ReactNode => {
   if (!rawText) return null;
 
   // Primeiro divide por quebras de linha duplas ou simples

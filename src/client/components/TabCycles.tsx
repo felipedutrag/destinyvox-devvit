@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import type { SupportedLang } from '../i18n';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import { calculatePersonalMonth, calculatePersonalDay, getArchetype } from '../../shared/numerology';
@@ -54,9 +54,9 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
           </h3>
         </div>
 
-        <p className="font-editorial text-sm sm:text-base text-[var(--text-muted)] leading-relaxed font-normal">
-          {interpretation.dailyForecast || dayInterpretationsByLang[lang][personalDay] || dayInterpretationsByLang.en[1]}
-        </p>
+        <div className="font-editorial text-sm sm:text-base text-[var(--text-muted)] font-normal">
+          {renderParagraphs(interpretation.dailyForecast || dayInterpretationsByLang[lang][personalDay] || dayInterpretationsByLang.en[1])}
+        </div>
 
         <div className="pt-2 border-t border-[var(--border-subtle)] flex flex-wrap gap-2">
           {dayArch.keywords.map((kw, i) => (
@@ -81,9 +81,9 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
           </h3>
         </div>
 
-        <p className="font-editorial text-sm sm:text-base text-[var(--text-muted)] leading-relaxed font-normal">
-          {interpretation.monthlyForecast || (monthInterpretationsByLang[lang]?.[personalMonth]?.(currentMonthName) ?? monthInterpretationsByLang.en[1]!(currentMonthName))}
-        </p>
+        <div className="font-editorial text-sm sm:text-base text-[var(--text-muted)] font-normal">
+          {renderParagraphs(interpretation.monthlyForecast || (monthInterpretationsByLang[lang]?.[personalMonth]?.(currentMonthName) ?? monthInterpretationsByLang.en[1]!(currentMonthName)))}
+        </div>
 
         <div className="pt-2 border-t border-[var(--border-subtle)] flex flex-wrap gap-2">
           {monthArch.keywords.map((kw, i) => (
