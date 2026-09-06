@@ -167,5 +167,3 @@ npm run launch
 ## 📬 Support & Contact
 
 For inquiries, feature requests, or support, please open an issue in the repository or reach out via Reddit to the app maintainers.
-#   d e s t i n y v o x _ d e v v i t  
- 
