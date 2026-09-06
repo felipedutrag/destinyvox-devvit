@@ -234,10 +234,13 @@ export const DestinyVoxApp = () => {
             commentSuccess={sharing.commentSuccess}
             commentError={sharing.commentError}
             isPostingComment={sharing.isPostingComment}
-            copySuccess={sharing.copySuccess}
+            isJoining={sharing.isJoining}
+            isMember={sharing.isMember}
+            joinSuccess={sharing.joinSuccess}
+            joinError={sharing.joinError}
             onPostToRedditComments={sharing.handlePostToRedditComments}
             onShareToOtherSubs={sharing.handleShareToOtherSubs}
-            onCopyShare={sharing.handleCopyShare}
+            onJoinCommunity={sharing.handleJoinCommunity}
             onOpenPortal={sharing.handleOpenPortal}
             onResetChart={charts.handleResetChart}
           />

@@ -24,17 +24,23 @@ interface TabDossierProps {
     postedCommentBtn: string;
     postCommentBtn: string;
     shareBtn: string;
-    copyTextBtn: string;
-    copiedTextBtn: string;
+    joinCommunityBtn: string;
+    joiningCommunityBtn: string;
+    joinedCommunityBtn: string;
+    joinCommunitySuccess: string;
+    joinCommunityError: string;
     calculateForOtherBtn: string;
   };
   commentSuccess: boolean;
   commentError: string;
   isPostingComment: boolean;
-  copySuccess: boolean;
+  isJoining: boolean;
+  isMember: boolean;
+  joinSuccess: boolean;
+  joinError: string;
   onPostToRedditComments: () => void;
   onShareToOtherSubs: () => void;
-  onCopyShare: () => void;
+  onJoinCommunity: () => void;
   onOpenPortal: () => void;
   onResetChart: () => void;
 }
@@ -46,10 +52,13 @@ export const TabDossier: React.FC<TabDossierProps> = ({
   commentSuccess,
   commentError,
   isPostingComment,
-  copySuccess,
+  isJoining,
+  isMember,
+  joinSuccess,
+  joinError,
   onPostToRedditComments,
   onShareToOtherSubs,
-  onCopyShare,
+  onJoinCommunity,
   onOpenPortal,
   onResetChart,
 }) => {
@@ -124,6 +133,18 @@ export const TabDossier: React.FC<TabDossierProps> = ({
             </div>
           )}
 
+          {/* Feedback de inscricao na comunidade */}
+          {joinSuccess && (
+            <div className="font-mono text-[10px] text-[var(--accent-gold)] text-center tracking-wider py-1.5 border border-[var(--border-main)] bg-[var(--bg-card-alt)] animate-fadeIn font-medium">
+              {t.joinCommunitySuccess}
+            </div>
+          )}
+          {joinError && (
+            <div className="font-mono text-[10px] text-[var(--text-subtle)] text-center tracking-wider py-1.5 border border-[var(--border-main)] bg-[var(--bg-card-alt)] animate-fadeIn">
+              [ {joinError} ]
+            </div>
+          )}
+
           {/* Botoes de Acao de Compartilhamento */}
           <div className="space-y-2 pt-0.5">
             {/* 1. Portal Externo DestinyVox 360 (Destaque Principal / Preto) */}
@@ -160,12 +181,23 @@ export const TabDossier: React.FC<TabDossierProps> = ({
                 <span className="text-[var(--text-subtle)]">↗</span>
               </button>
 
-              {/* 4. Copiar Markdown para Area de Transferencia */}
+              {/* 4. Fazer parte da comunidade / Tornar-se Membro */}
               <button
-                onClick={onCopyShare}
-                className="h-10 border border-[var(--border-main)] bg-[var(--bg-card)] text-[var(--text-main)] hover:bg-[var(--bg-card-alt)] font-mono text-[10px] font-medium tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
+                onClick={onJoinCommunity}
+                disabled={isJoining || isMember}
+                className={`h-10 border border-[var(--border-main)] font-mono text-[10px] font-medium tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-default ${
+                  isMember
+                    ? 'bg-[var(--bg-card-alt)] text-[var(--accent-gold)] border-[var(--accent-gold)]'
+                    : 'bg-[var(--bg-card)] text-[var(--text-main)] hover:bg-[var(--bg-card-alt)]'
+                }`}
               >
-                <span>{copySuccess ? t.copiedTextBtn : t.copyTextBtn}</span>
+                <span>
+                  {isJoining
+                    ? t.joiningCommunityBtn
+                    : isMember
+                    ? t.joinedCommunityBtn
+                    : t.joinCommunityBtn}
+                </span>
               </button>
             </div>
 

@@ -15,6 +15,11 @@ export function useSharing(
   const [commentSuccess, setCommentSuccess] = useState<boolean>(false);
   const [commentError, setCommentError] = useState<string>('');
 
+  const [isJoining, setIsJoining] = useState<boolean>(false);
+  const [isMember, setIsMember] = useState<boolean>(false);
+  const [joinSuccess, setJoinSuccess] = useState<boolean>(false);
+  const [joinError, setJoinError] = useState<string>('');
+
   const getShareMarkdown = () => {
     if (!readingData) return '';
     const { profile, archetypes, interpretation } = readingData;
@@ -111,14 +116,43 @@ export function useSharing(
     }
   };
 
+  const handleJoinCommunity = async () => {
+    if (isJoining || isMember) return;
+    setIsJoining(true);
+    setJoinError('');
+    setJoinSuccess(false);
+
+    try {
+      const res = await trpc.destinyvox.subscribeMember.mutate();
+      if (res.success) {
+        setIsMember(true);
+        setJoinSuccess(true);
+        setTimeout(() => setJoinSuccess(false), 5000);
+      } else {
+        setJoinError(res.error || 'Falha ao entrar na comunidade.');
+        setTimeout(() => setJoinError(''), 4000);
+      }
+    } catch {
+      setJoinError('Erro ao comunicar com o Reddit.');
+      setTimeout(() => setJoinError(''), 4000);
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
   return {
     copySuccess,
     isPostingComment,
     commentSuccess,
     commentError,
+    isJoining,
+    isMember,
+    joinSuccess,
+    joinError,
     handlePostToRedditComments,
     handleCopyShare,
     handleShareToOtherSubs,
+    handleJoinCommunity,
     handleOpenPortal,
   };
 }

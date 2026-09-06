@@ -1,4 +1,4 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 import { context, reddit, redis } from '@devvit/web/server';
 import { publicProcedure } from '../init';
 import { encryptUsername } from '../../core/crypto';
@@ -50,9 +50,24 @@ export const socialProcedures = {
   subscribeMember: publicProcedure.mutation(async () => {
     try {
       await reddit.subscribeToCurrentSubreddit();
+      const username = await reddit.getCurrentUsername();
+      if (username) {
+        await redis.set(`destinyvox_member_${username}`, 'true');
+      }
       return { success: true };
     } catch (err: unknown) {
       return { success: false, error: err instanceof Error ? err.message : String(err) };
+    }
+  }),
+
+  getSubscriptionStatus: publicProcedure.query(async () => {
+    try {
+      const username = await reddit.getCurrentUsername();
+      if (!username) return { isMember: false };
+      const cached = await redis.get(`destinyvox_member_${username}`);
+      return { isMember: cached === 'true' };
+    } catch {
+      return { isMember: false };
     }
   }),
 };
