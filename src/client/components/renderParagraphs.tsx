@@ -1,6 +1,43 @@
-import { type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 
-// Utilitario para formatar textos longos gerados por IA em paragrafos elegantes e arejados
+// Helper para formatar spans com bold (**texto**), italic (*texto*), ou texto limpo sem asteriscos aparentes
+const renderFormattedSpan = (text: string, keyPrefix: string): ReactNode => {
+  // Substitui tags markdown como **palavra** em <strong> e *palavra* em <em>
+  const regex = /(\*\*([^*]+)\*\*|\*([^*]+)\*)/g;
+  const elements: ReactNode[] = [];
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      elements.push(text.slice(lastIndex, match.index));
+    }
+    if (match[2]) {
+      // Bold **texto**
+      elements.push(
+        <strong key={`${keyPrefix}-b-${match.index}`} className="font-semibold text-[var(--text-main)]">
+          {match[2]}
+        </strong>
+      );
+    } else if (match[3]) {
+      // Italic *texto*
+      elements.push(
+        <em key={`${keyPrefix}-i-${match.index}`} className="italic text-[var(--text-main)]">
+          {match[3]}
+        </em>
+      );
+    }
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    elements.push(text.slice(lastIndex));
+  }
+
+  return elements.length > 0 ? elements : text;
+};
+
+// Utilitario para formatar textos longos gerados por IA em paragrafos elegantes, arejados e sem asteriscos crus
 export const renderParagraphs = (rawText: string | undefined | null, className: string = ''): ReactNode => {
   if (!rawText) return null;
 
@@ -37,10 +74,10 @@ export const renderParagraphs = (rawText: string | undefined | null, className: 
   }
 
   return (
-    <div className={`space-y-3 ${className}`}>
+    <div className={`space-y-3.5 ${className}`}>
       {parts.map((p, idx) => (
         <p key={idx} className="leading-relaxed">
-          {p}
+          {renderFormattedSpan(p, `p-${idx}`)}
         </p>
       ))}
     </div>

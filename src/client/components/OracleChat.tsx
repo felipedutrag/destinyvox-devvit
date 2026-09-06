@@ -1,4 +1,4 @@
-﻿import React, { type RefObject } from 'react';
+import React, { type RefObject } from 'react';
 import type { SupportedLang } from '../i18n';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import { renderParagraphs } from './renderParagraphs';
@@ -10,9 +10,7 @@ export interface OracleChatMessage {
 
 interface OracleChatProps {
   isOracleOpen: boolean;
-  isOracleExpanded: boolean;
   viewportHeight: number;
-  keyboardHeight: number;
   oracleQuestion: string;
   oracleChat: OracleChatMessage[];
   isAskingOracle: boolean;
@@ -23,7 +21,6 @@ interface OracleChatProps {
   isVip: boolean;
   onOpen: () => void;
   onClose: () => void;
-  onToggleExpand: () => void;
   onAskOracle: (e: React.FormEvent) => void;
   onQuestionChange: (value: string) => void;
   t: {
@@ -42,9 +39,7 @@ interface OracleChatProps {
 
 export const OracleChat: React.FC<OracleChatProps> = ({
   isOracleOpen,
-  isOracleExpanded,
   viewportHeight,
-  keyboardHeight,
   oracleQuestion,
   oracleChat,
   isAskingOracle,
@@ -55,7 +50,6 @@ export const OracleChat: React.FC<OracleChatProps> = ({
   isVip,
   onOpen,
   onClose,
-  onToggleExpand,
   onAskOracle,
   onQuestionChange,
   t,
@@ -71,8 +65,8 @@ export const OracleChat: React.FC<OracleChatProps> = ({
             aria-label={t.oracleTitle}
             className="flex items-center gap-2 px-3.5 py-2.5 bg-[var(--btn-bg)] text-[var(--btn-text)] border border-[var(--border-main)] rounded-full shadow-2xl hover:opacity-95 active:scale-95 transition-all cursor-pointer group"
           >
-            {/* Icone Cosmico / Oraculo */}
-            <div className="relative w-6 h-6 rounded-full bg-[var(--bg-main)] text-[var(--accent-gold)] flex items-center justify-center border border-[var(--border-main)] flex-shrink-0">
+            {/* Icone / Imagem do Oraculo */}
+            <div className="relative w-6 h-6 rounded-full bg-[var(--bg-main)] text-[var(--accent-gold)] flex items-center justify-center border border-[var(--border-main)] flex-shrink-0 overflow-hidden">
               <svg
                 className="w-3.5 h-3.5"
                 viewBox="0 0 24 24"
@@ -92,25 +86,19 @@ export const OracleChat: React.FC<OracleChatProps> = ({
               />
             </div>
             <span className="font-mono text-[11px] tracking-widest uppercase font-semibold pr-1">
-              {t.oracleButton}
+              ORACLE AI
             </span>
-            <span className="font-mono text-xs text-[var(--accent-gold)]">✦</span>
           </button>
         )}
       </div>
 
-      {/* JANELA / MODAL EXPANDIVEL DO ORACULO */}
+      {/* JANELA / MODAL DO ORACULO (SEMPRE FULL SCREEN) */}
       {isOracleOpen && (
         <div
           style={{
-            height: isOracleExpanded && viewportHeight > 0 ? `${viewportHeight}px` : undefined,
-            bottom: !isOracleExpanded && keyboardHeight > 0 ? `${keyboardHeight + 10}px` : undefined,
+            height: viewportHeight > 0 ? `${viewportHeight}px` : undefined,
           }}
-          className={
-            isOracleExpanded
-              ? 'fixed inset-0 z-50 bg-[var(--bg-main)] flex flex-col p-2 sm:p-4 shadow-2xl animate-fadeIn'
-              : 'fixed bottom-8 sm:bottom-10 right-3 sm:right-6 z-50 w-[calc(100vw-24px)] sm:w-[420px] max-w-[440px] h-[520px] max-h-[calc(100vh-60px)] bg-[var(--bg-card)] border border-[var(--border-main)] flex flex-col shadow-2xl rounded-xs overflow-hidden animate-fadeIn'
-          }
+          className="fixed inset-0 z-50 bg-[var(--bg-main)] flex flex-col p-2 sm:p-4 shadow-2xl animate-fadeIn"
         >
           {/* Cabecalho do Oraculo */}
           <div className="p-3 sm:p-3.5 border-b border-[var(--border-main)] bg-[var(--bg-card-alt)] flex items-center justify-between gap-2 flex-shrink-0 z-10">
@@ -155,18 +143,8 @@ export const OracleChat: React.FC<OracleChatProps> = ({
               </div>
             </div>
 
-            {/* Controles: Expandir/Minimizar e Fechar */}
+            {/* Controle de Fechar (sem botao de maximizar) */}
             <div className="flex items-center gap-1.5 flex-shrink-0 font-mono text-[10px]">
-              <button
-                type="button"
-                onClick={onToggleExpand}
-                title={isOracleExpanded ? t.oracleMinimize : t.oracleExpand}
-                aria-label={isOracleExpanded ? t.oracleMinimize : t.oracleExpand}
-                className="p-1.5 border border-[var(--border-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-card-alt)] text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center"
-              >
-                <span className="text-xs leading-none">{isOracleExpanded ? '⤡' : '⤢'}</span>
-              </button>
-
               <button
                 type="button"
                 onClick={onClose}

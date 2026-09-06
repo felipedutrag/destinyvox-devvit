@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { trpc } from '../trpc';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import type { SupportedLang } from '../i18n';
@@ -9,7 +9,7 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
   const [oracleQuestion, setOracleQuestion] = useState<string>('');
   const [oracleChat, setOracleChat] = useState<OracleChatMessage[]>([]);
   const [isAskingOracle, setIsAskingOracle] = useState<boolean>(false);
-  const [isOracleExpanded, setIsOracleExpanded] = useState<boolean>(false);
+  const [isOracleExpanded, setIsOracleExpanded] = useState<boolean>(true);
   const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
   const [viewportHeight, setViewportHeight] = useState<number>(() =>
     typeof window !== 'undefined' && window.visualViewport ? window.visualViewport.height : 0
@@ -102,6 +102,7 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
 
   const openOracle = () => {
     setIsOracleOpen(true);
+    setIsOracleExpanded(true);
     setTimeout(() => {
       chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, 60);
@@ -109,7 +110,6 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
 
   const closeOracle = () => {
     setIsOracleOpen(false);
-    setIsOracleExpanded(false);
   };
 
   const toggleExpand = () => setIsOracleExpanded((prev) => !prev);

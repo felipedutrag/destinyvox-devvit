@@ -250,9 +250,7 @@ export const DestinyVoxApp = () => {
       {/* 5. ORÁCULO */}
       <OracleChat
         isOracleOpen={oracle.isOracleOpen}
-        isOracleExpanded={oracle.isOracleExpanded}
         viewportHeight={oracle.viewportHeight}
-        keyboardHeight={oracle.keyboardHeight}
         oracleQuestion={oracle.oracleQuestion}
         oracleChat={oracle.oracleChat}
         isAskingOracle={oracle.isAskingOracle}
@@ -263,7 +261,6 @@ export const DestinyVoxApp = () => {
         isVip={profileInit.isVip}
         onOpen={oracle.openOracle}
         onClose={oracle.closeOracle}
-        onToggleExpand={oracle.toggleExpand}
         onAskOracle={oracle.handleAskOracle}
         onQuestionChange={oracle.setOracleQuestion}
         t={t}

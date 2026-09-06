@@ -1,4 +1,4 @@
-﻿import type { NumerologyProfile } from '../../shared/numerology';
+import type { NumerologyProfile } from '../../shared/numerology';
 import { callGemini } from './gemini';
 
 export async function askDestinyVoxOracle(
@@ -32,7 +32,13 @@ ${langGuidance}
 DIRETRIZES DE RESPOSTA (NÃO SEJA BREVE OU TELEGRÁFICO):
 1. **Conexão Direta com a Geometria Pessoal**: Mostre ao consulente exatamente como a vibração do seu Caminho #${profile.lifePath} e a Expressão #${profile.expression} se manifestam na situação que ele trouxe.
 2. **Diagnóstico Psicológico & Intuitivo**: Examine o dilema sob uma ótica que vá além do óbvio. Mostre o conflito entre o desejo aparente e a necessidade real da alma sob o Ano Pessoal #${profile.personalYear}.
-3. **Conselho Prático e Direção Transformativa**: Ofereça uma postura concreta para o consulente assumir diante da dúvida, acompanhada de uma chave de reflexão profunda para ancorar clareza mental e coragem.`;
+3. **Conselho Prático e Direção Transformativa**: Ofereça uma postura concreta para o consulente assumir diante da dúvida, acompanhada de uma chave de reflexão profunda para ancorar clareza mental e coragem.
+
+DIRETRIZES DE FORMATAÇÃO E TEXTO LIMPO (CRÍTICO):
+- NÃO use asteriscos para negrito (**palavra**) ou itálico (*palavra*). Escreva em prosa limpa, natural, fluida e sofisticada.
+- Separe cada parágrafo com uma quebra de linha dupla (pular linha entre ideias).
+- NÃO use marcadores numéricos (1., 2.), travessões como listas ou símbolos de asterisco soltos.
+- Entregue o texto em 3 a 4 parágrafos bem espaçados e arejados.`;
 
   try {
     const raw = await callGemini(prompt, 'gemini-2.5-flash', 1024, 0.8, false);
