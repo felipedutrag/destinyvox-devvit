@@ -7,7 +7,7 @@
   "scripts": {
     "build": "vite build",
     "commit": "node scripts/autocommit.mjs",
-    "deploy": "npm run test:types && npm run lint && npm run test:unit && npm run commit && devvit upload",
+    "deploy": "npm run test:types && npm run lint && npm run test:unit && npm run commit && git push && devvit upload",
     "dev": "devvit playtest",
     "launch": "npm run deploy && devvit publish",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
