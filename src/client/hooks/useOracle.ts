@@ -30,17 +30,23 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
       const res = await trpc.destinyvox.askOracle.mutate({
         question: q,
         profile: readingData.profile,
+        reading: readingData,
+        history: oracleChat.slice(-6),
         language: lang,
       });
 
       setOracleChat((prev) => [...prev, { sender: 'oracle', text: res.answer }]);
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : String(err);
+    } catch {
       setOracleChat((prev) => [
         ...prev,
         {
           sender: 'oracle',
-          text: `[Erro Oráculo]: ${msg}`,
+          text:
+            lang === 'en'
+              ? 'Cosmic silence intervened. Re-center your intent and ask again.'
+              : lang === 'es'
+              ? 'El silencio cósmico intervino. Concéntrate y pregunta de nuevo.'
+              : 'O silêncio cósmico interveio. Re-centralize sua intenção e pergunte novamente.',
         },
       ]);
     } finally {
@@ -61,11 +67,21 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
       const vv = window.visualViewport;
       if (vv) {
         setViewportHeight(vv.height);
-        const diff = window.innerHeight - vv.height;
-        setKeyboardHeight(diff > 60 ? diff : 0);
+        const heightDiff = window.innerHeight - vv.height;
+        if (heightDiff > 60) {
+          setKeyboardHeight(heightDiff);
+        } else {
+          setKeyboardHeight(0);
+        }
       } else {
         setViewportHeight(window.innerHeight);
         setKeyboardHeight(0);
+      }
+
+      if (isOracleOpen) {
+        setTimeout(() => {
+          chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }, 50);
       }
     };
 
@@ -73,12 +89,16 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
 
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleVisualResize);
+      window.visualViewport.addEventListener('scroll', handleVisualResize);
     }
+    window.addEventListener('resize', handleVisualResize);
 
     return () => {
       if (window.visualViewport) {
         window.visualViewport.removeEventListener('resize', handleVisualResize);
+        window.visualViewport.removeEventListener('scroll', handleVisualResize);
       }
+      window.removeEventListener('resize', handleVisualResize);
     };
   }, [isOracleOpen]);
 

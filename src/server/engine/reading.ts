@@ -1,4 +1,4 @@
-﻿import { redis } from '@devvit/web/server';
+import { redis } from '@devvit/web/server';
 import {
   calculateFullNumerology,
   calculatePersonalMonth,
@@ -70,16 +70,37 @@ Retorne EXATAMENTE um objeto JSON válido (sem tags markdown de código além de
 }`;
 
   try {
-    const rawText = await callGemini(prompt, 'gemini-2.5-flash', 8192, 0.8, true);
+    const rawText = await callGemini(prompt, 'gemini-3.1-flash-lite', 2048, 0.75, true);
     if (!rawText) throw new Error('Gemini retornou texto vazio');
 
-    let cleanJson = rawText.replace(/^```json\s*/i, '').replace(/\s*```$/i, '').trim();
+    // Extração robusta do bloco JSON puro
+    let cleanJson = rawText.trim();
+    
+    // Remove markdown fences se presentes
+    const jsonBlockMatch = cleanJson.match(/```(?:json)?\s*([\s\S]*?)\s*```/i);
+    if (jsonBlockMatch && jsonBlockMatch[1]) {
+      cleanJson = jsonBlockMatch[1].trim();
+    } else {
+      // Se houver texto extra antes ou depois do primeiro { e do último }
+      const firstBrace = cleanJson.indexOf('{');
+      const lastBrace = cleanJson.lastIndexOf('}');
+      if (firstBrace !== -1 && lastBrace !== -1 && lastBrace >= firstBrace) {
+        cleanJson = cleanJson.slice(firstBrace, lastBrace + 1).trim();
+      }
+    }
+
     let parsed: InterpretationPayload = {};
     try {
       parsed = JSON.parse(cleanJson);
     } catch {
+      // Fallback para JSON truncado ou delimitador final quebrado
       if (!cleanJson.endsWith('}')) {
-        cleanJson = cleanJson + '"}';
+        const lastQuote = cleanJson.lastIndexOf('"');
+        if (lastQuote !== -1) {
+          cleanJson = cleanJson.slice(0, lastQuote + 1) + '}';
+        } else {
+          cleanJson = cleanJson + '"}';
+        }
       }
       parsed = JSON.parse(cleanJson);
     }

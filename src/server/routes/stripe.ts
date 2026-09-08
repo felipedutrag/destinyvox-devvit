@@ -1,4 +1,4 @@
-﻿import { Hono } from 'hono';
+import { Hono } from 'hono';
 import { redis } from '@devvit/web/server';
 import crypto from 'node:crypto';
 import { decryptUsername } from '../core/crypto';
@@ -20,9 +20,9 @@ stripeRoutes.post('/webhook', async (c) => {
     try {
       const parts = signature.split(',');
       const timestampPart = parts.find((p) => p.startsWith('t='))?.slice(2);
-      const signaturePart = parts.find((p) => p.startsWith('v1='))?.slice(3);
+      const v1Signatures = parts.filter((p) => p.startsWith('v1=')).map((p) => p.slice(3));
 
-      if (!timestampPart || !signaturePart) {
+      if (!timestampPart || v1Signatures.length === 0) {
         return c.text('Invalid stripe signature format', 400);
       }
 
@@ -32,7 +32,18 @@ stripeRoutes.post('/webhook', async (c) => {
         .update(signedPayload)
         .digest('hex');
 
-      if (expectedSignature !== signaturePart) {
+      const isValid = v1Signatures.some((sig) => {
+        try {
+          return (
+            sig.length === expectedSignature.length &&
+            crypto.timingSafeEqual(Buffer.from(sig, 'hex'), Buffer.from(expectedSignature, 'hex'))
+          );
+        } catch {
+          return false;
+        }
+      });
+
+      if (!isValid) {
         console.warn('Webhook Stripe: Assinatura inválida detectada.');
         return c.text('Invalid signature', 400);
       }
@@ -47,10 +58,19 @@ stripeRoutes.post('/webhook', async (c) => {
       type?: string;
       data?: {
         object?: {
+          id?: string;
           client_reference_id?: string;
           metadata?: {
             userToken?: string;
+            username?: string;
+            reddit_username?: string;
+            u?: string;
           };
+          custom_fields?: Array<{
+            key?: string;
+            label?: { custom?: string };
+            text?: { value?: string };
+          }>;
           payment_status?: string;
           status?: string;
         };
@@ -59,17 +79,48 @@ stripeRoutes.post('/webhook', async (c) => {
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data?.object;
-      const userToken = session?.client_reference_id || session?.metadata?.userToken || '';
+      let candidate =
+        session?.client_reference_id ||
+        session?.metadata?.userToken ||
+        session?.metadata?.username ||
+        session?.metadata?.reddit_username ||
+        session?.metadata?.u ||
+        '';
 
-      if (userToken) {
-        const username = decryptUsername(userToken);
-        if (username) {
-          // Ativa o VIP no Redis para o usuário do Reddit
-          await redis.set(`destinyvox_vip_${username}`, 'active');
-          console.log(`[Stripe] VIP 360° ativado com sucesso para u/${username}`);
-        } else {
-          console.warn('[Stripe] Token de usuário inválido ou adulterado no checkout');
+      // Fallback para campos customizados configurados no Stripe Checkout Link
+      if (!candidate && Array.isArray(session?.custom_fields)) {
+        const userField = session.custom_fields.find(
+          (f) =>
+            /reddit|user|usuario|username/i.test(f?.key || '') ||
+            /reddit|user|usuario|username/i.test(f?.label?.custom || '')
+        );
+        if (userField?.text?.value) {
+          candidate = userField.text.value;
         }
+      }
+
+      if (candidate) {
+        let username = decryptUsername(candidate);
+        if (!username) {
+          const rawClean = candidate.replace(/^u\//i, '').replace(/^u_/i, '').trim();
+          if (/^[a-zA-Z0-9_-]{3,30}$/.test(rawClean)) {
+            username = rawClean;
+          }
+        }
+
+        if (username) {
+          const cleanUser = username.replace(/^u\//i, '').trim();
+          const normUser = cleanUser.toLowerCase();
+
+          // Ativa o VIP no Redis para o usuário do Reddit (ambas as chaves para case-insensitivity)
+          await redis.set(`destinyvox_vip_${cleanUser}`, 'active');
+          await redis.set(`destinyvox_vip_${normUser}`, 'active');
+          console.log(`[Stripe] VIP 360° ativado com sucesso para u/${cleanUser}`);
+        } else {
+          console.warn('[Stripe] Token ou username não reconhecido no checkout:', candidate);
+        }
+      } else {
+        console.warn('[Stripe] Nenhum identificador de usuário encontrado na sessão:', session?.id);
       }
     }
 

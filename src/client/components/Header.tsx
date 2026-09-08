@@ -40,8 +40,8 @@ export const Header: React.FC<HeaderProps> = ({
   fullName,
   birthDate,
   lifePath,
-  isDarkMode,
-  onToggleTheme,
+  isDarkMode: _isDarkMode,
+  onToggleTheme: _onToggleTheme,
   onResetChart,
   chartsList,
   isDropdownOpen,
@@ -63,39 +63,9 @@ export const Header: React.FC<HeaderProps> = ({
         </span>
       </div>
 
-      {/* Botoes do Topo: Theme Toggle, Novo Mapa & Dropdown de Mapas */}
+      {/* Botoes do Topo: Novo Mapa & Dropdown de Mapas */}
       <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-[10px]">
-        {/* Theme Toggle - Desktop & Mobile */}
-        <button
-          type="button"
-          onClick={onToggleTheme}
-          className="w-6 h-6 border border-[var(--border-main)] text-[var(--text-main)] hover:bg-[var(--bg-card)] cursor-pointer inline-flex items-center justify-center transition-colors rounded-xs"
-          title={t.toggleTheme}
-          aria-label={t.toggleTheme}
-        >
-          {isDarkMode ? (
-            /* Sun Icon */
-            <svg
-              className="w-3.5 h-3.5 stroke-[var(--text-main)] fill-none stroke-[1.5]"
-              viewBox="0 0 24 24"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="12" cy="12" r="4" />
-              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-            </svg>
-          ) : (
-            /* Moon Icon */
-            <svg
-              className="w-3.5 h-3.5 stroke-[var(--text-main)] fill-none stroke-[1.5]"
-              viewBox="0 0 24 24"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-            </svg>
-          )}
-        </button>
+        {/* Theme Toggle desabilitado temporariamente a pedido do usuario */}
 
         <button
           onClick={onResetChart}

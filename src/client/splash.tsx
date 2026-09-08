@@ -72,7 +72,7 @@ export const Splash = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const { isDarkMode, toggleTheme } = useTheme();
+  useTheme();
   const t = splashI18n[lang];
 
   useEffect(() => {
@@ -216,7 +216,7 @@ export const Splash = () => {
   };
 
   return (
-    <div className="relative w-full h-full min-h-screen sm:min-h-full bg-[var(--bg-main)] text-[var(--text-main)] select-none flex flex-col justify-between p-4 sm:p-5 overflow-hidden">
+    <div className="relative w-full h-full bg-[var(--bg-main)] text-[var(--text-main)] select-none flex flex-col justify-between p-4 sm:p-5 overflow-hidden">
       {/* Top Header */}
       <header className="relative z-20 w-full flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
         <div className="flex items-center gap-2">
@@ -230,37 +230,6 @@ export const Splash = () => {
         </div>
 
         <div className="flex items-center gap-2 font-mono text-[10px]">
-          <button
-            type="button"
-            onClick={toggleTheme}
-            className="w-6 h-6 border border-[var(--border-main)] text-[var(--text-main)] hover:bg-[var(--bg-card)] cursor-pointer inline-flex items-center justify-center transition-colors rounded-xs"
-            title={t.toggleTheme}
-            aria-label={t.toggleTheme}
-          >
-            {isDarkMode ? (
-              /* Sun Icon */
-              <svg
-                className="w-3.5 h-3.5 stroke-[var(--text-main)] fill-none stroke-[1.5]"
-                viewBox="0 0 24 24"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <circle cx="12" cy="12" r="4" />
-                <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" />
-              </svg>
-            ) : (
-              /* Moon Icon */
-              <svg
-                className="w-3.5 h-3.5 stroke-[var(--text-main)] fill-none stroke-[1.5]"
-                viewBox="0 0 24 24"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" />
-              </svg>
-            )}
-          </button>
-
           <div className="flex items-center gap-1 font-mono text-[10px]">
             {(['en', 'pt', 'es'] as const).map((l) => (
               <button
@@ -283,12 +252,12 @@ export const Splash = () => {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 w-full max-w-lg mx-auto my-auto flex flex-col space-y-2">
-        <div className="text-center pt-1 pb-1 space-y-1 sm:space-y-1.5">
-          <h1 className="font-editorial text-2xl sm:text-3xl md:text-[2.2rem] tracking-tight text-[var(--text-main)] leading-tight font-normal whitespace-nowrap">
+      <main className="relative z-10 w-full max-w-xl mx-auto my-auto flex flex-col space-y-2">
+        <div className="text-center pt-1 pb-1 space-y-1 sm:space-y-1.5 flex flex-col items-center">
+          <h1 className="font-editorial text-2xl sm:text-3xl md:text-[2.2rem] tracking-tight text-[var(--text-main)] leading-tight font-normal">
             {t.headline}
           </h1>
-          <p className="font-editorial italic font-medium text-base sm:text-lg text-[var(--text-muted)] max-w-lg mx-auto px-2 sm:px-4 leading-relaxed">
+          <p className="font-editorial italic font-medium text-base sm:text-lg md:text-[1.125rem] text-[var(--text-muted)] max-w-sm sm:max-w-md md:max-w-lg mx-auto px-4 leading-relaxed text-balance">
             &ldquo;{t.quote}&rdquo;
           </p>
         </div>

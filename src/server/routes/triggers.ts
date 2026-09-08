@@ -6,7 +6,7 @@ import { createPost } from '../core/post';
 
 export const triggers = new Hono();
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+import { GEMINI_API_KEY } from '../engine/gemini';
 
 type GeminiReplyResponse = {
   candidates?: Array<{

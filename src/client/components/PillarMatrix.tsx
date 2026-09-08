@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import type { SupportedLang } from '../i18n';
 import { getArchetype } from '../../shared/numerology';
 

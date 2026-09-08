@@ -4,8 +4,8 @@ export const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 
 export async function callGemini(
   prompt: string,
-  model: string = 'gemini-2.5-flash',
-  maxTokens: number = 8192,
+  model: string = 'gemini-3.1-flash-lite',
+  maxTokens: number = 2048,
   temperature: number = 0.8,
   jsonMode: boolean = true
 ): Promise<string> {
@@ -20,6 +20,9 @@ export async function callGemini(
     generationConfig: {
       maxOutputTokens: maxTokens,
       temperature,
+      thinkingConfig: {
+        thinkingBudget: 0,
+      },
     },
   };
 

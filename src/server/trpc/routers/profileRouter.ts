@@ -1,4 +1,4 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 import { reddit, redis } from '@devvit/web/server';
 import { publicProcedure } from '../init';
 import {
@@ -6,6 +6,7 @@ import {
   type CosmicReadingResult,
 } from '../../destinyVoxEngine';
 import { encryptUsername } from '../../core/crypto';
+import { syncUserVipFromStripe } from '../../core/stripeSync';
 
 export type SavedChartItem = {
   id: string;
@@ -16,17 +17,32 @@ export type SavedChartItem = {
 
 export const profileProcedures = {
   getSavedProfile: publicProcedure.query(async () => {
-    const username = await reddit.getCurrentUsername();
-    if (!username) {
+    const rawUsername = await reddit.getCurrentUsername();
+    if (!rawUsername) {
       return { exists: false, charts: [], username: '', isVip: false };
     }
+    const username = rawUsername.replace(/^u\//i, '').trim();
 
     let isVip = false;
     try {
-      const vipFlag = await redis.get(`destinyvox_vip_${username}`);
+      const vipFlag =
+        (await redis.get(`destinyvox_vip_${username}`)) ||
+        (await redis.get(`destinyvox_vip_${username.toLowerCase()}`));
       isVip = vipFlag === 'active' || vipFlag === 'true';
     } catch {
       // Ignorar erro ao ler flag VIP
+    }
+
+    // Se ainda não for VIP no Redis, consulta a API da Stripe diretamente
+    if (!isVip) {
+      try {
+        const syncRes = await syncUserVipFromStripe(username);
+        if (syncRes.isVip) {
+          isVip = true;
+        }
+      } catch {
+        // Ignora falha de rede da Stripe para não travar o carregamento do perfil
+      }
     }
 
     let charts: SavedChartItem[] = [];

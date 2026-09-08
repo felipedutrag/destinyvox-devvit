@@ -48,15 +48,31 @@ export const socialProcedures = {
     }),
 
   subscribeMember: publicProcedure.mutation(async () => {
+    let subredditName = 'DestinyVox';
+    try {
+      const subreddit = await reddit.getCurrentSubreddit();
+      if (subreddit?.name) {
+        subredditName = subreddit.name;
+      }
+    } catch {
+      // Fallback padrão se não conseguir obter o nome do subreddit
+    }
+
     try {
       await reddit.subscribeToCurrentSubreddit();
       const username = await reddit.getCurrentUsername();
       if (username) {
         await redis.set(`destinyvox_member_${username}`, 'true');
       }
-      return { success: true };
+      return { success: true, subredditName };
     } catch (err: unknown) {
-      return { success: false, error: err instanceof Error ? err.message : String(err) };
+      const errorMsg = err instanceof Error ? err.message : String(err);
+      console.warn('[subscribeMember] Direct subscription blocked or requires manual join, providing fallback:', errorMsg);
+      return {
+        success: false,
+        fallbackUrl: `https://www.reddit.com/r/${subredditName}`,
+        error: errorMsg,
+      };
     }
   }),
 

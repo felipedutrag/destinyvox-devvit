@@ -38,7 +38,7 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
   override render() {
     if (this.state.hasError) {
       return (
-        <div className="w-full h-full min-h-screen bg-[#050505] text-[#f5f5f5] flex flex-col items-center justify-center p-6 text-center font-mono">
+        <div className="w-screen h-screen bg-[#050505] text-[#f5f5f5] flex flex-col items-center justify-center p-6 text-center font-mono">
           <div className="border border-neutral-800 p-6 max-w-md bg-[#080808] space-y-3">
             <span className="text-neutral-500 text-xs tracking-widest uppercase block">[ RENDERING ANOMALY ]</span>
             <p className="font-editorial text-sm text-neutral-300">
@@ -66,7 +66,7 @@ export const DestinyVoxApp = () => {
 
   // Hooks especializados
   const { isDarkMode, toggleTheme } = useTheme();
-  const charts = useCharts(setChartsList, () => {});
+  const charts = useCharts(setChartsList, () => { });
   const profileInit = useProfileInit(setChartsList, charts);
   const t = i18n[profileInit.lang];
 
@@ -75,7 +75,7 @@ export const DestinyVoxApp = () => {
 
   if (profileInit.isLoading) {
     return (
-      <div className="w-full h-full min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col items-center justify-center p-6 select-none font-mono">
+      <div className="w-full h-full bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col items-center justify-center p-6 select-none font-mono">
         <div className="text-center space-y-4 max-w-xs">
           <div className="text-xs text-[var(--text-subtle)] tracking-[0.3em] uppercase">✦ DESTINYVOX</div>
           <div className="w-12 h-[1px] bg-[var(--border-main)] mx-auto my-4" />
@@ -92,7 +92,7 @@ export const DestinyVoxApp = () => {
 
   if (profileInit.error || !profileInit.readingData) {
     return (
-      <div className="w-full h-full min-h-screen bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col items-center justify-center p-6 text-center font-mono">
+      <div className="w-full h-full bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col items-center justify-center p-6 text-center font-mono">
         <span className="text-[var(--text-subtle)] text-xs tracking-widest uppercase mb-2">[ ERRO DE SINCRONIZAÇÃO ]</span>
         <p className="font-editorial text-sm text-[var(--text-muted)] max-w-sm mb-4">{profileInit.error || 'Não foi possível ler as efemérides.'}</p>
         <button
@@ -181,11 +181,10 @@ export const DestinyVoxApp = () => {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-2.5 sm:py-3 px-3 sm:px-4 border-b-2 transition-all duration-150 cursor-pointer flex-shrink-0 text-center ${
-                  isActive
-                    ? 'border-[var(--accent-gold-line)] text-[var(--text-main)] font-semibold'
-                    : 'border-transparent text-[var(--text-subtle)] hover:text-[var(--text-main)] hover:border-neutral-400'
-                }`}
+                className={`py-2.5 sm:py-3 px-3 sm:px-4 border-b-2 transition-all duration-150 cursor-pointer flex-shrink-0 text-center ${isActive
+                  ? 'border-[var(--accent-gold-line)] text-[var(--text-main)] font-semibold'
+                  : 'border-transparent text-[var(--text-subtle)] hover:text-[var(--text-main)] hover:border-neutral-400'
+                  }`}
               >
                 <span>{tab.label}</span>
               </button>
@@ -197,7 +196,9 @@ export const DestinyVoxApp = () => {
       {/* 4. CONTEÚDO PRINCIPAL */}
       <main
         ref={mainScrollRef}
-        className="flex-1 z-10 max-w-3xl mx-auto w-full overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-20 sm:pb-24"
+        className={`flex-1 z-10 max-w-3xl mx-auto w-full overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 ${
+          profileInit.isVip ? 'pb-20 sm:pb-24' : 'pb-6 sm:pb-8'
+        }`}
       >
         {activeTab === 'overview' && (
           <TabArchetype
@@ -234,37 +235,33 @@ export const DestinyVoxApp = () => {
             commentSuccess={sharing.commentSuccess}
             commentError={sharing.commentError}
             isPostingComment={sharing.isPostingComment}
-            isJoining={sharing.isJoining}
-            isMember={sharing.isMember}
-            joinSuccess={sharing.joinSuccess}
-            joinError={sharing.joinError}
             onPostToRedditComments={sharing.handlePostToRedditComments}
-            onShareToOtherSubs={sharing.handleShareToOtherSubs}
-            onJoinCommunity={sharing.handleJoinCommunity}
             onOpenPortal={sharing.handleOpenPortal}
             onResetChart={charts.handleResetChart}
           />
         )}
       </main>
 
-      {/* 5. ORÁCULO */}
-      <OracleChat
-        isOracleOpen={oracle.isOracleOpen}
-        viewportHeight={oracle.viewportHeight}
-        oracleQuestion={oracle.oracleQuestion}
-        oracleChat={oracle.oracleChat}
-        isAskingOracle={oracle.isAskingOracle}
-        chatBottomRef={oracle.chatBottomRef}
-        oracleFormRef={oracle.oracleFormRef}
-        profile={profile}
-        lang={profileInit.lang}
-        isVip={profileInit.isVip}
-        onOpen={oracle.openOracle}
-        onClose={oracle.closeOracle}
-        onAskOracle={oracle.handleAskOracle}
-        onQuestionChange={oracle.setOracleQuestion}
-        t={t}
-      />
+      {/* 5. ORÁCULO (Visível apenas para quem realizou o pagamento / VIP) */}
+      {profileInit.isVip && (
+        <OracleChat
+          isOracleOpen={oracle.isOracleOpen}
+          viewportHeight={oracle.viewportHeight}
+          oracleQuestion={oracle.oracleQuestion}
+          oracleChat={oracle.oracleChat}
+          isAskingOracle={oracle.isAskingOracle}
+          chatBottomRef={oracle.chatBottomRef}
+          oracleFormRef={oracle.oracleFormRef}
+          profile={profile}
+          lang={profileInit.lang}
+          isVip={profileInit.isVip}
+          onOpen={oracle.openOracle}
+          onClose={oracle.closeOracle}
+          onAskOracle={oracle.handleAskOracle}
+          onQuestionChange={oracle.setOracleQuestion}
+          t={t}
+        />
+      )}
 
       <footer className="h-6 border-t border-[var(--border-subtle)] px-4 flex items-center justify-between z-20 bg-[var(--bg-main)] font-mono text-[8px] text-[var(--text-subtle)] tracking-widest">
         <span>DESTINYVOX EPHEMERIS</span>

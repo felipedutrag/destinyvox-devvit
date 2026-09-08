@@ -1,46 +1,46 @@
-﻿import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
+
+function neutralizeParentBorders() {
+  try {
+    if (typeof window !== 'undefined') {
+      if (window.frameElement) {
+        (window.frameElement as HTMLElement).style.border = 'none';
+        (window.frameElement as HTMLElement).style.outline = 'none';
+        (window.frameElement as HTMLElement).style.boxShadow = 'none';
+      }
+      const card = window.parent?.document?.querySelector('devvit2-modal-card');
+      if (card) {
+        (card as HTMLElement).style.border = 'none';
+        (card as HTMLElement).style.outline = 'none';
+        (card as HTMLElement).style.boxShadow = 'none';
+      }
+    }
+  } catch {
+    // cross-origin sandbox
+  }
+}
 
 export function useTheme() {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return true;
-    const saved = localStorage.getItem('destinyvox_theme');
-    if (saved === 'light') return false;
-    if (saved === 'dark') return true;
-    if (typeof window.matchMedia === 'function') {
-      return window.matchMedia('(prefers-color-scheme: dark)').matches;
-    }
-    return true;
-  });
+  // [TEMA DARK DESABILITADO TEMPORARIAMENTE - FORÇADO MODO LIGHT]
+  const isDarkMode = false;
 
   useEffect(() => {
-    if (isDarkMode) {
-      document.documentElement.classList.add('dark');
-      document.documentElement.classList.remove('light');
-    } else {
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    }
-  }, [isDarkMode]);
+    neutralizeParentBorders();
+  }, []);
 
   useEffect(() => {
-    if (typeof window === 'undefined' || !window.matchMedia) return;
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => {
-      const saved = localStorage.getItem('destinyvox_theme');
-      if (!saved) {
-        setIsDarkMode(e.matches);
-      }
-    };
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
+    const html = document.documentElement;
+    html.classList.remove('dark');
+    html.classList.add('light');
+    try {
+      localStorage.setItem('destinyvox_theme', 'light');
+    } catch {
+      // ignore
+    }
   }, []);
 
   const toggleTheme = () => {
-    setIsDarkMode((prev) => {
-      const next = !prev;
-      localStorage.setItem('destinyvox_theme', next ? 'dark' : 'light');
-      return next;
-    });
+    // Modo escuro desabilitado temporariamente a pedido do usuário
   };
 
   return { isDarkMode, toggleTheme };

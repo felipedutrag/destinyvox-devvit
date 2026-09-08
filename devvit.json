@@ -1,6 +1,6 @@
 {
   "$schema": "https://developers.reddit.com/schema/config-file.v1.json",
-  "name": "dgapp",
+  "name": "destinyvox",
   "dev": {
     "subreddit": "DestinyVox"
   },
@@ -27,24 +27,41 @@
     "items": [
       {
         "label": "Create a new post",
-        "description": "dgapp",
+        "description": "destinyvox",
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/post-create"
       },
       {
         "label": "Apagar todos comentários do bot",
-        "description": "Deleta todos comentários feitos pelo bot dgapp",
+        "description": "Deleta todos comentários feitos pelo bot destinyvox",
         "location": "subreddit",
         "forUserType": "moderator",
         "endpoint": "/internal/menu/delete-bot-comments"
+      },
+      {
+        "label": "✦ Alternar Status VIP (Dev)",
+        "description": "Ativa ou desativa o status VIP no Redis para testes do Oráculo",
+        "location": "subreddit",
+        "forUserType": "moderator",
+        "endpoint": "/internal/menu/toggle-vip"
       }
     ]
   },
   "permissions": {
     "reddit": {
       "enable": true,
-      "asUser": ["SUBMIT_POST", "SUBMIT_COMMENT", "SUBSCRIBE_TO_SUBREDDIT"]
+      "asUser": [
+        "SUBMIT_POST",
+        "SUBMIT_COMMENT",
+        "SUBSCRIBE_TO_SUBREDDIT"
+      ]
+    },
+    "http": {
+      "enable": true,
+      "domains": [
+        "generativelanguage.googleapis.com"
+      ]
     }
   },
   "triggers": {

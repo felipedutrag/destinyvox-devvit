@@ -54,6 +54,10 @@ export const OracleChat: React.FC<OracleChatProps> = ({
   onQuestionChange,
   t,
 }) => {
+  if (!isVip) {
+    return null;
+  }
+
   return (
     <>
       {/* BALAO FLUTUANTE DO ORACULO (CANTO INFERIOR DIREITO) */}
@@ -76,10 +80,9 @@ export const OracleChat: React.FC<OracleChatProps> = ({
       {isOracleOpen && (
         <div
           style={{
-            height: viewportHeight > 0 ? `${viewportHeight}px` : '100dvh',
-            maxHeight: '100dvh',
+            height: viewportHeight > 0 ? `${viewportHeight}px` : undefined,
           }}
-          className="fixed inset-0 z-50 bg-[var(--bg-main)] flex flex-col p-2 sm:p-4 shadow-2xl animate-fadeIn overscroll-none"
+          className="fixed inset-0 z-50 bg-[var(--bg-main)] flex flex-col p-2 sm:p-4 shadow-2xl animate-fadeIn"
         >
           {/* Cabecalho do Oraculo */}
           <div className="p-3 sm:p-3.5 border-b border-[var(--border-main)] bg-[var(--bg-card-alt)] flex items-center justify-between gap-2 flex-shrink-0 z-10">
@@ -192,6 +195,11 @@ export const OracleChat: React.FC<OracleChatProps> = ({
               placeholder={t.oraclePlaceholder}
               value={oracleQuestion}
               onChange={(e) => onQuestionChange(e.target.value)}
+              onFocus={() => {
+                setTimeout(() => {
+                  chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              }}
               className="flex-1 bg-[var(--input-bg)] border border-[var(--border-main)] rounded-none px-3 py-2 text-xs text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--text-main)] font-mono"
             />
             <button

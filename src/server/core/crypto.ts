@@ -35,34 +35,37 @@ export function encryptUsername(username: string): string {
  */
 export function decryptUsername(token: string): string | null {
   if (!token) return null;
+  const raw = token.trim();
 
-  // Fallback seguro caso venha como u_username do client_reference_id
-  if (token.startsWith('u_')) {
-    const rawUser = token.slice(2).trim();
+  // Caso 1: Começa com u_ ou u/
+  if (raw.startsWith('u_') || raw.startsWith('u/')) {
+    const rawUser = raw.slice(2).trim();
     return rawUser ? rawUser.replace(/^u\//i, '') : null;
   }
 
-  if (!token.startsWith('enc_')) return null;
+  // Caso 2: Token criptografado AES-256-GCM (enc_...)
+  if (raw.startsWith('enc_')) {
+    try {
+      const rawBase64 = raw.slice(4);
+      const combined = Buffer.from(rawBase64, 'base64url');
 
-  try {
-    const rawBase64 = token.slice(4);
-    const combined = Buffer.from(rawBase64, 'base64url');
+      if (combined.length >= 28) {
+        const iv = combined.subarray(0, 12);
+        const tag = combined.subarray(12, 28);
+        const ciphertext = combined.subarray(28);
 
-    if (combined.length < 28) return null; // 12 bytes IV + 16 bytes Tag
+        const decipher = crypto.createDecipheriv(ALGORITHM, CIPHER_KEY, iv);
+        decipher.setAuthTag(tag);
 
-    const iv = combined.subarray(0, 12);
-    const tag = combined.subarray(12, 28);
-    const ciphertext = combined.subarray(28);
+        const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
+        const parsed = JSON.parse(decrypted) as { u?: string };
 
-    const decipher = crypto.createDecipheriv(ALGORITHM, CIPHER_KEY, iv);
-    decipher.setAuthTag(tag);
-
-    const decrypted = Buffer.concat([decipher.update(ciphertext), decipher.final()]).toString('utf8');
-    const parsed = JSON.parse(decrypted) as { u?: string };
-
-    return parsed.u ? parsed.u.trim() : null;
-  } catch (err) {
-    console.error('Falha ao decriptografar token de usuário Stripe:', err);
-    return null;
+        if (parsed.u) return parsed.u.trim();
+      }
+    } catch (err) {
+      console.error('Falha ao decriptografar token de usuário Stripe:', err);
+    }
   }
+
+  return null;
 }

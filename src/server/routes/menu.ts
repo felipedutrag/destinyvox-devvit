@@ -63,3 +63,35 @@ menu.post('/delete-bot-comments', async (c) => {
     );
   }
 });
+
+menu.post('/toggle-vip', async (c) => {
+  try {
+    const { reddit, redis } = await import('@devvit/web/server');
+    const rawUsername = await reddit.getCurrentUsername();
+    if (!rawUsername) {
+      return c.json<UiResponse>({ showToast: 'Usuário não autenticado.' }, 400);
+    }
+    const cleanUser = rawUsername.replace(/^u\//i, '').trim();
+    const normUser = cleanUser.toLowerCase();
+
+    const current = await redis.get(`destinyvox_vip_${normUser}`);
+    if (current === 'active') {
+      await redis.del(`destinyvox_vip_${cleanUser}`);
+      await redis.del(`destinyvox_vip_${normUser}`);
+      return c.json<UiResponse>(
+        { showToast: `Status VIP desativado para u/${cleanUser}.` },
+        200
+      );
+    } else {
+      await redis.set(`destinyvox_vip_${cleanUser}`, 'active');
+      await redis.set(`destinyvox_vip_${normUser}`, 'active');
+      return c.json<UiResponse>(
+        { showToast: `✦ Status VIP ativado para u/${cleanUser}! Oráculo liberado.` },
+        200
+      );
+    }
+  } catch (err: unknown) {
+    const errorMsg = err instanceof Error ? err.message : String(err);
+    return c.json<UiResponse>({ showToast: `Erro ao alternar VIP: ${errorMsg}` }, 400);
+  }
+});

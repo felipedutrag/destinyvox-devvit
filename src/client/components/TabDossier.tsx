@@ -23,24 +23,24 @@ interface TabDossierProps {
     postingCommentBtn: string;
     postedCommentBtn: string;
     postCommentBtn: string;
-    shareBtn: string;
-    joinCommunityBtn: string;
-    joiningCommunityBtn: string;
-    joinedCommunityBtn: string;
-    joinCommunitySuccess: string;
-    joinCommunityError: string;
+    shareBtn?: string;
+    joinCommunityBtn?: string;
+    joiningCommunityBtn?: string;
+    joinedCommunityBtn?: string;
+    joinCommunitySuccess?: string;
+    joinCommunityError?: string;
     calculateForOtherBtn: string;
   };
   commentSuccess: boolean;
   commentError: string;
   isPostingComment: boolean;
-  isJoining: boolean;
-  isMember: boolean;
-  joinSuccess: boolean;
-  joinError: string;
+  isJoining?: boolean;
+  isMember?: boolean;
+  joinSuccess?: boolean;
+  joinError?: string;
   onPostToRedditComments: () => void;
-  onShareToOtherSubs: () => void;
-  onJoinCommunity: () => void;
+  onShareToOtherSubs?: () => void;
+  onJoinCommunity?: () => void;
   onOpenPortal: () => void;
   onResetChart: () => void;
 }
@@ -52,13 +52,7 @@ export const TabDossier: React.FC<TabDossierProps> = ({
   commentSuccess,
   commentError,
   isPostingComment,
-  isJoining,
-  isMember,
-  joinSuccess,
-  joinError,
   onPostToRedditComments,
-  onShareToOtherSubs,
-  onJoinCommunity,
   onOpenPortal,
   onResetChart,
 }) => {
@@ -133,27 +127,15 @@ export const TabDossier: React.FC<TabDossierProps> = ({
             </div>
           )}
 
-          {/* Feedback de inscricao na comunidade */}
-          {joinSuccess && (
-            <div className="font-mono text-[10px] text-[var(--accent-gold)] text-center tracking-wider py-1.5 border border-[var(--border-main)] bg-[var(--bg-card-alt)] animate-fadeIn font-medium">
-              {t.joinCommunitySuccess}
-            </div>
-          )}
-          {joinError && (
-            <div className="font-mono text-[10px] text-[var(--text-subtle)] text-center tracking-wider py-1.5 border border-[var(--border-main)] bg-[var(--bg-card-alt)] animate-fadeIn">
-              [ {joinError} ]
-            </div>
-          )}
-
-          {/* Botoes de Acao de Compartilhamento */}
+          {/* Botoes de Acao */}
           <div className="space-y-2 pt-0.5">
-            {/* 1. Portal Externo DestinyVox 360 (Destaque Principal / Preto) */}
+            {/* 1. Portal Externo (Destaque Principal / Preto) */}
             <button
               type="button"
               onClick={onOpenPortal}
               className="w-full h-11 bg-[var(--btn-bg)] text-[var(--btn-text)] hover:opacity-90 active:opacity-80 font-mono text-xs font-semibold tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
             >
-              <span>✦ DESTINYVOX 360° ↗</span>
+              <span>✦ ORACLE AI ↗</span>
             </button>
 
             {/* 2. Publicar nos comentarios do Reddit (Branco / Card) */}
@@ -170,36 +152,6 @@ export const TabDossier: React.FC<TabDossierProps> = ({
                   : t.postCommentBtn}
               </span>
             </button>
-
-            <div className="grid grid-cols-2 gap-2">
-              {/* 3. Compartilhar em outros subs */}
-              <button
-                onClick={onShareToOtherSubs}
-                className="h-10 border border-[var(--border-main)] bg-[var(--bg-card)] text-[var(--text-main)] hover:bg-[var(--bg-card-alt)] font-mono text-[10px] font-medium tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <span>{t.shareBtn}</span>
-                <span className="text-[var(--text-subtle)]">↗</span>
-              </button>
-
-              {/* 4. Fazer parte da comunidade / Tornar-se Membro */}
-              <button
-                onClick={onJoinCommunity}
-                disabled={isJoining || isMember}
-                className={`h-10 border border-[var(--border-main)] font-mono text-[10px] font-medium tracking-widest uppercase transition-colors flex items-center justify-center gap-1.5 cursor-pointer disabled:cursor-default ${
-                  isMember
-                    ? 'bg-[var(--bg-card-alt)] text-[var(--accent-gold)] border-[var(--accent-gold)]'
-                    : 'bg-[var(--bg-card)] text-[var(--text-main)] hover:bg-[var(--bg-card-alt)]'
-                }`}
-              >
-                <span>
-                  {isJoining
-                    ? t.joiningCommunityBtn
-                    : isMember
-                    ? t.joinedCommunityBtn
-                    : t.joinCommunityBtn}
-                </span>
-              </button>
-            </div>
 
             {/* 5. Calcular para outra pessoa / Novo Mapa */}
             <button

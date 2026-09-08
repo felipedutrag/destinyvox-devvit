@@ -1,48 +1,23 @@
 <!doctype html>
-<html lang="en" class="h-full" style="background-color: #000000; margin: 0; padding: 0; overflow-x: hidden;">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content"
-    />
-    <meta name="color-scheme" content="dark" />
-    <meta name="theme-color" content="#000000" />
-    <script>
-      (function() {
-        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-        function neutralizeParentBorders() {
-          try {
-            if (window.frameElement) {
-              window.frameElement.style.border = 'none';
-              window.frameElement.style.outline = 'none';
-              window.frameElement.style.boxShadow = 'none';
-            }
-            var card = window.parent?.document?.querySelector('devvit2-modal-card');
-            if (card) {
-              card.style.border = 'none';
-              card.style.outline = 'none';
-              card.style.boxShadow = 'none';
-            }
-          } catch (e) {
-            // cross-origin sandbox
-          }
-        }
-        neutralizeParentBorders();
-        window.addEventListener('DOMContentLoaded', neutralizeParentBorders);
-      })();
-    </script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <title>DestinyVox</title>
-  </head>
-  <body class="h-full" style="background-color: #000000; margin: 0; padding: 0; overflow-x: hidden;">
-    <div id="root" class="h-full"></div>
-    <script type="module" src="game.tsx"></script>
-  </body>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content" />
+  <meta name="color-scheme" content="light" />
+  <meta name="theme-color" content="#ffffff" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap"
+    rel="stylesheet">
+  <title>DestinyVox</title>
+</head>
+
+<body>
+  <div id="root"></div>
+  <script type="module" src="game.tsx"></script>
+</body>
+
 </html>

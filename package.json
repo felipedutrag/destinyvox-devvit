@@ -1,12 +1,13 @@
 {
   "private": true,
-  "name": "dgapp",
-  "version": "0.0.31",
+  "name": "destinyvox",
+  "version": "0.0.0",
   "license": "BSD-3-Clause",
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "deploy": "npm run test:types && npm run lint && npm run test:unit && devvit upload",
+    "commit": "node scripts/autocommit.mjs",
+    "deploy": "npm run test:types && npm run lint && npm run test:unit && npm run commit && devvit upload",
     "dev": "devvit playtest",
     "launch": "npm run deploy && devvit publish",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
@@ -14,7 +15,8 @@
     "prettier": "prettier-package-json --write ./package.json && prettier --write .",
     "test": "npm run test:types && npm run lint && npm run test:unit && npm run build",
     "test:types": "tsc --build",
-    "test:unit": "vitest run"
+    "test:unit": "vitest run",
+    "update": "git pull && npm install"
   },
   "engines": {
     "node": ">=24.0.0"

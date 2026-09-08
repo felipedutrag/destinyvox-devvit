@@ -1,4 +1,4 @@
-import { useState, useEffect, type Dispatch, type SetStateAction, type FormEvent } from 'react';
+import { useState, useEffect, useRef, type Dispatch, type SetStateAction, type FormEvent } from 'react';
 import { trpc } from '../trpc';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import type { SavedChart } from '../components/Header';
@@ -50,7 +50,12 @@ export function useProfileInit(
   const [userToken, setUserToken] = useState<string>('');
   const [lang, setLang] = useState<SupportedLang>('en');
 
+  const hasInitializedRef = useRef(false);
+
   useEffect(() => {
+    if (hasInitializedRef.current) return;
+    hasInitializedRef.current = true;
+
     const initApp = async () => {
       const savedName = sessionStorage.getItem('destinyvox_name') || localStorage.getItem('destinyvox_name');
       const savedBirth = sessionStorage.getItem('destinyvox_birth') || localStorage.getItem('destinyvox_birth');
@@ -148,7 +153,7 @@ export function useProfileInit(
     };
 
     void initApp();
-  }, [setChartsList, charts]);
+  }, [charts, setChartsList]);
 
   const handleCreateNewChart = async (e: FormEvent, errFullName: string, errBirthDate: string) => {
     e.preventDefault();
