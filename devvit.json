@@ -60,7 +60,8 @@
     "http": {
       "enable": true,
       "domains": [
-        "generativelanguage.googleapis.com"
+        "generativelanguage.googleapis.com",
+        "zesbznfykirwzoubatio.supabase.co"
       ]
     }
   },

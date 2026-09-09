@@ -7,6 +7,7 @@ import {
 } from '../../destinyVoxEngine';
 import { encryptUsername } from '../../core/crypto';
 import { syncUserVipFromStripe } from '../../core/stripeSync';
+import { checkSupabaseVip } from '../../core/supabase';
 
 export type SavedChartItem = {
   id: string;
@@ -33,7 +34,16 @@ export const profileProcedures = {
       // Ignorar erro ao ler flag VIP
     }
 
-    // Se ainda não for VIP no Redis, consulta a API da Stripe diretamente
+    // Consulta status de pagante no Supabase
+    if (!isVip) {
+      try {
+        isVip = await checkSupabaseVip(username);
+      } catch {
+        // Ignora erro de requisição ao Supabase
+      }
+    }
+
+    // Fallback de sincronização Stripe se necessário
     if (!isVip) {
       try {
         const syncRes = await syncUserVipFromStripe(username);

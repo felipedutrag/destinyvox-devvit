@@ -4,6 +4,7 @@ import { publicProcedure } from '../init';
 import { askDestinyVoxOracle, type CosmicReadingResult } from '../../destinyVoxEngine';
 import { calculateFullNumerology } from '../../../shared/numerology';
 import { syncUserVipFromStripe } from '../../core/stripeSync';
+import { checkSupabaseVip } from '../../core/supabase';
 
 export const oracleProcedures = {
   askOracle: publicProcedure
@@ -35,6 +36,14 @@ export const oracleProcedures = {
           isVip = cached === 'active' || cached === 'true';
         } catch {
           // ignore
+        }
+
+        if (!isVip) {
+          try {
+            isVip = await checkSupabaseVip(username);
+          } catch {
+            // ignore
+          }
         }
 
         if (!isVip) {

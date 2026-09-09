@@ -3,6 +3,8 @@ import { reddit, redis } from '@devvit/web/server';
 import { publicProcedure } from '../init';
 import { encryptUsername } from '../../core/crypto';
 
+import { checkSupabaseVip } from '../../core/supabase';
+
 export const stripeProcedures = {
   createCheckoutSession: publicProcedure
     .input(
@@ -51,10 +53,23 @@ export const stripeProcedures = {
     const username = rawUsername.replace(/^u\//i, '').trim();
     const normUser = username.toLowerCase();
 
-    const cachedVip =
-      (await redis.get(`destinyvox_vip_${username}`)) ||
-      (await redis.get(`destinyvox_vip_${normUser}`));
-    const isVip = cachedVip === 'active' || cachedVip === 'true';
+    let isVip = false;
+    try {
+      const cachedVip =
+        (await redis.get(`destinyvox_vip_${username}`)) ||
+        (await redis.get(`destinyvox_vip_${normUser}`));
+      isVip = cachedVip === 'active' || cachedVip === 'true';
+    } catch {
+      // ignore
+    }
+
+    if (!isVip) {
+      try {
+        isVip = await checkSupabaseVip(username);
+      } catch {
+        // ignore
+      }
+    }
 
     return { success: true, isVip, username };
   }),

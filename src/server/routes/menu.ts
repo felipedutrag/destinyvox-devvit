@@ -75,9 +75,12 @@ menu.post('/toggle-vip', async (c) => {
     const normUser = cleanUser.toLowerCase();
 
     const current = await redis.get(`destinyvox_vip_${normUser}`);
+    const { upsertSupabaseVipUser } = await import('../core/supabase');
+
     if (current === 'active') {
       await redis.del(`destinyvox_vip_${cleanUser}`);
       await redis.del(`destinyvox_vip_${normUser}`);
+      await upsertSupabaseVipUser(cleanUser, 'inactive');
       return c.json<UiResponse>(
         { showToast: `Status VIP desativado para u/${cleanUser}.` },
         200
@@ -85,6 +88,7 @@ menu.post('/toggle-vip', async (c) => {
     } else {
       await redis.set(`destinyvox_vip_${cleanUser}`, 'active');
       await redis.set(`destinyvox_vip_${normUser}`, 'active');
+      await upsertSupabaseVipUser(cleanUser, 'active');
       return c.json<UiResponse>(
         { showToast: `✦ Status VIP ativado para u/${cleanUser}! Oráculo liberado.` },
         200

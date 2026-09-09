@@ -72,7 +72,7 @@ export const Splash = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
   const t = splashI18n[lang];
 
   useEffect(() => {
@@ -164,24 +164,20 @@ export const Splash = () => {
     setBirthDate(formatted);
   };
 
-  const handleStart = (ev: MouseEvent<HTMLButtonElement>) => {
+  const handleStart = async (ev: MouseEvent<HTMLButtonElement>) => {
     ev.preventDefault();
-    if (!fullName.trim() || fullName.trim().length < 2) {
+    if (!fullName.trim()) {
       setErrorMessage(t.errName);
       return;
     }
-
-    const dateParts = birthDate.split('/');
-    if (dateParts.length !== 3 || (dateParts[2] && dateParts[2].length !== 4)) {
+    if (!birthDate.trim() || birthDate.length < 10) {
       setErrorMessage(t.errBirth);
       return;
     }
-    const m = parseInt(dateParts[0] ?? '', 10);
-    const d = parseInt(dateParts[1] ?? '', 10);
-    const y = parseInt(dateParts[2] ?? '', 10);
-    const currentYear = new Date().getFullYear();
 
-    if (isNaN(m) || m < 1 || m > 12 || isNaN(d) || d < 1 || d > 31 || isNaN(y) || y < 1900 || y > currentYear) {
+    const [mm, dd, yyyy] = birthDate.split('/').map(Number);
+    const currYear = new Date().getFullYear();
+    if (!mm || mm < 1 || mm > 12 || !dd || dd < 1 || dd > 31 || !yyyy || yyyy < 1900 || yyyy > currYear) {
       setErrorMessage(t.errBirth);
       return;
     }
@@ -199,7 +195,6 @@ export const Splash = () => {
       localStorage.setItem('destinyvox_birth', birthDate);
       localStorage.setItem('destinyvox_lang', lang);
 
-      // Gera e salva a leitura diretamente no Redis antes de expandir
       void trpc.destinyvox.generateReading.mutate({
         fullName: cleanName,
         birthDate: birthDate,
@@ -230,6 +225,16 @@ export const Splash = () => {
         </div>
 
         <div className="flex items-center gap-2 font-mono text-[10px]">
+          {/* Botao de Alternar Tema (Dark / Light) */}
+          <button
+            onClick={toggleTheme}
+            aria-label={t.toggleTheme}
+            title={t.toggleTheme}
+            className="border border-[var(--border-subtle)] hover:border-[var(--border-main)] p-1 text-[var(--text-subtle)] hover:text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center leading-none"
+          >
+            <span className="text-[11px]">{isDarkMode ? '☼' : '☽'}</span>
+          </button>
+
           <div className="flex items-center gap-1 font-mono text-[10px]">
             {(['en', 'pt', 'es'] as const).map((l) => (
               <button
