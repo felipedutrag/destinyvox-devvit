@@ -1,7 +1,34 @@
-﻿import { z } from 'zod';
+import { z } from 'zod';
 import { reddit, redis } from '@devvit/web/server';
 import { publicProcedure } from '../init';
 import { calculateSynastryReading, type CosmicReadingResult } from '../../destinyVoxEngine';
+import { getSupabaseUserProfile } from '../../core/supabase';
+
+async function getUserReading(username: string): Promise<CosmicReadingResult | null> {
+  const clean = username.replace(/^u\//i, '').trim();
+
+  // 1. Supabase (persistente)
+  try {
+    const profile = await getSupabaseUserProfile(clean);
+    if (profile && profile.numerology_data) {
+      return profile.numerology_data;
+    }
+  } catch {
+    // ignora erro do Supabase
+  }
+
+  // 2. Redis (cache)
+  try {
+    const raw = await redis.get(`destinyvox_user_${clean}`);
+    if (raw) {
+      return JSON.parse(raw) as CosmicReadingResult;
+    }
+  } catch {
+    // ignora erro do Redis
+  }
+
+  return null;
+}
 
 export const synastryProcedures = {
   calculateSynastry: publicProcedure
@@ -12,28 +39,27 @@ export const synastryProcedures = {
       })
     )
     .mutation(async ({ input }) => {
-      const currentUsername = await reddit.getCurrentUsername();
-      if (!currentUsername) {
+      const rawCurrent = await reddit.getCurrentUsername();
+      if (!rawCurrent) {
         return { success: false, error: 'Você precisa estar logado no Reddit para calcular sinastria.' };
       }
+      const currentUsername = rawCurrent.replace(/^u\//i, '').trim();
       const targetClean = input.targetUsername.replace(/^u\//i, '').trim();
 
-      const rawCurrent = await redis.get(`destinyvox_user_${currentUsername}`);
-      if (!rawCurrent) {
+      const currentUserData = await getUserReading(currentUsername);
+      if (!currentUserData) {
         return { success: false, error: 'Você precisa primeiro calcular seu próprio mapa.' };
       }
-      const currentUserData = JSON.parse(rawCurrent) as CosmicReadingResult;
 
-      const rawTarget = await redis.get(`destinyvox_user_${targetClean}`);
-      if (!rawTarget) {
+      const targetUserData = await getUserReading(targetClean);
+      if (!targetUserData) {
         return {
           success: false,
           userNotFound: true,
           targetUsername: targetClean,
-          error: `u/${targetClean} ainda não calculou suas efemérides cósmicas no DestinyVox.`,
+          error: `u/${targetClean} ainda não calculou suas coordenadas cósmicas no DestinyVox.`,
         };
       }
-      const targetUserData = JSON.parse(rawTarget) as CosmicReadingResult;
 
       const synastry = await calculateSynastryReading(
         currentUsername,

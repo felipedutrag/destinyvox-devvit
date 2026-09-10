@@ -7,39 +7,45 @@ import {
 } from '../../destinyVoxEngine';
 import { encryptUsername } from '../../core/crypto';
 import { syncUserVipFromStripe } from '../../core/stripeSync';
-import { checkSupabaseVip } from '../../core/supabase';
+import {
+  getSupabaseUserProfile,
+  saveSupabaseUserCharts,
+  deleteSupabaseUserProfile,
+  getSupabaseUserVip,
+  type SavedChartItem,
+} from '../../core/supabase';
 
-export type SavedChartItem = {
-  id: string;
-  name: string;
-  birthDate: string;
-  data: CosmicReadingResult;
-};
+export { type SavedChartItem };
 
 export const profileProcedures = {
   getSavedProfile: publicProcedure.query(async () => {
     const rawUsername = await reddit.getCurrentUsername();
     if (!rawUsername) {
-      return { exists: false, charts: [], username: '', isVip: false };
+      return { exists: false, charts: [], username: '', isVip: false, credits: 0 };
     }
     const username = rawUsername.replace(/^u\//i, '').trim();
 
+    // 1. Consulta VIP e créditos no Supabase
     let isVip = false;
+    let credits = 0;
     try {
-      const vipFlag =
-        (await redis.get(`destinyvox_vip_${username}`)) ||
-        (await redis.get(`destinyvox_vip_${username.toLowerCase()}`));
-      isVip = vipFlag === 'active' || vipFlag === 'true';
+      const vipInfo = await getSupabaseUserVip(username);
+      isVip = vipInfo.isVip;
+      credits = vipInfo.credits;
     } catch {
-      // Ignorar erro ao ler flag VIP
+      // ignore
     }
 
-    // Consulta status de pagante no Supabase
     if (!isVip) {
       try {
-        isVip = await checkSupabaseVip(username);
+        const vipFlag =
+          (await redis.get(`destinyvox_vip_${username}`)) ||
+          (await redis.get(`destinyvox_vip_${username.toLowerCase()}`));
+        if (vipFlag === 'active' || vipFlag === 'true') {
+          isVip = true;
+        }
       } catch {
-        // Ignora erro de requisição ao Supabase
+        // Ignorar erro ao ler flag VIP do Redis
       }
     }
 
@@ -55,6 +61,36 @@ export const profileProcedures = {
       }
     }
 
+    const userToken = username ? encryptUsername(username) : '';
+
+    // 2. Busca perfil e mapas salvos no Supabase (Fonte da Verdade)
+    try {
+      const supabaseProfile = await getSupabaseUserProfile(username);
+      if (supabaseProfile && supabaseProfile.numerology_data) {
+        const profileData = supabaseProfile.numerology_data;
+        const charts: SavedChartItem[] =
+          supabaseProfile.saved_charts && supabaseProfile.saved_charts.length > 0
+            ? supabaseProfile.saved_charts
+            : [
+                {
+                  id: 'primary',
+                  name: supabaseProfile.full_name || profileData.profile.fullName,
+                  birthDate: supabaseProfile.birth_date || profileData.profile.birthDate,
+                  data: profileData,
+                },
+              ];
+
+        // Atualiza cache rápido no Redis
+        await redis.set(`destinyvox_user_${username}`, JSON.stringify(profileData)).catch(() => {});
+        await redis.set(`destinyvox_charts_${username}`, JSON.stringify(charts)).catch(() => {});
+
+        return { exists: true, data: profileData, charts, username, isVip, credits, userToken };
+      }
+    } catch (err) {
+      console.error('[Supabase] Erro ao carregar perfil:', err);
+    }
+
+    // 3. Fallback: Busca no Redis caso o Supabase não tenha ou esteja temporariamente inacessível
     let charts: SavedChartItem[] = [];
     try {
       const rawCharts = await redis.get(`destinyvox_charts_${username}`);
@@ -80,14 +116,13 @@ export const profileProcedures = {
           ];
           await redis.set(`destinyvox_charts_${username}`, JSON.stringify(charts));
         }
-        const userToken = username ? encryptUsername(username) : '';
-        return { exists: true, data: profileData, charts, username, isVip, userToken };
+        return { exists: true, data: profileData, charts, username, isVip, credits, userToken };
       }
     } catch {
       // Ignorar erro ao ler perfil salvo
     }
-    const userToken = username ? encryptUsername(username) : '';
-    return { exists: false, charts, username, isVip, userToken };
+
+    return { exists: false, charts, username, isVip, credits, userToken };
   }),
 
   generateReading: publicProcedure
@@ -105,9 +140,12 @@ export const profileProcedures = {
     }),
 
   clearProfile: publicProcedure.mutation(async () => {
-    const username = await reddit.getCurrentUsername();
-    if (!username) return { success: true };
+    const rawUsername = await reddit.getCurrentUsername();
+    if (!rawUsername) return { success: true };
+    const username = rawUsername.replace(/^u\//i, '').trim();
+
     try {
+      await deleteSupabaseUserProfile(username).catch(() => {});
       await redis.del(`destinyvox_user_${username}`);
       await redis.del(`destinyvox_charts_${username}`);
       return { success: true };
@@ -128,22 +166,35 @@ export const profileProcedures = {
       })
     )
     .mutation(async ({ input }) => {
-      const username = await reddit.getCurrentUsername();
-      if (!username) {
+      const rawUsername = await reddit.getCurrentUsername();
+      if (!rawUsername) {
         return { success: true, charts: [input.chart] };
       }
+      const username = rawUsername.replace(/^u\//i, '').trim();
+
       try {
-        const rawCharts = await redis.get(`destinyvox_charts_${username}`);
+        // Tenta buscar mapas existentes do Supabase ou Redis
         let charts: SavedChartItem[] = [];
-        if (rawCharts) {
-          charts = JSON.parse(rawCharts);
+        const supabaseProfile = await getSupabaseUserProfile(username);
+        if (supabaseProfile && supabaseProfile.saved_charts && supabaseProfile.saved_charts.length > 0) {
+          charts = supabaseProfile.saved_charts;
+        } else {
+          const rawCharts = await redis.get(`destinyvox_charts_${username}`);
+          if (rawCharts) {
+            charts = JSON.parse(rawCharts);
+          }
         }
+
         charts = charts.filter(
           (c) => c.id !== input.chart.id && c.name.toLowerCase() !== input.chart.name.toLowerCase()
         );
         charts.unshift(input.chart);
         if (charts.length > 20) charts = charts.slice(0, 20);
+
+        // Salva no Supabase e no cache Redis
+        await saveSupabaseUserCharts(username, charts);
         await redis.set(`destinyvox_charts_${username}`, JSON.stringify(charts));
+
         return { success: true, charts };
       } catch (err: unknown) {
         return { success: false, error: err instanceof Error ? err.message : String(err) };
@@ -153,25 +204,36 @@ export const profileProcedures = {
   deleteChart: publicProcedure
     .input(z.object({ chartId: z.string() }))
     .mutation(async ({ input }) => {
-      const username = await reddit.getCurrentUsername();
-      if (!username) {
+      const rawUsername = await reddit.getCurrentUsername();
+      if (!rawUsername) {
         return { success: true, charts: [] };
       }
+      const username = rawUsername.replace(/^u\//i, '').trim();
+
       try {
-        const rawCharts = await redis.get(`destinyvox_charts_${username}`);
-        if (rawCharts) {
-          let charts: SavedChartItem[] = JSON.parse(rawCharts);
-          charts = charts.filter((c) => c.id !== input.chartId);
-          if (charts.length === 0) {
-            await redis.del(`destinyvox_charts_${username}`);
-            await redis.del(`destinyvox_user_${username}`);
-          } else {
-            await redis.set(`destinyvox_charts_${username}`, JSON.stringify(charts));
+        let charts: SavedChartItem[] = [];
+        const supabaseProfile = await getSupabaseUserProfile(username);
+        if (supabaseProfile && supabaseProfile.saved_charts) {
+          charts = supabaseProfile.saved_charts;
+        } else {
+          const rawCharts = await redis.get(`destinyvox_charts_${username}`);
+          if (rawCharts) {
+            charts = JSON.parse(rawCharts);
           }
-          return { success: true, charts };
         }
-        await redis.del(`destinyvox_user_${username}`);
-        return { success: true, charts: [] };
+
+        charts = charts.filter((c) => c.id !== input.chartId);
+
+        if (charts.length === 0) {
+          await deleteSupabaseUserProfile(username).catch(() => {});
+          await redis.del(`destinyvox_charts_${username}`);
+          await redis.del(`destinyvox_user_${username}`);
+        } else {
+          await saveSupabaseUserCharts(username, charts);
+          await redis.set(`destinyvox_charts_${username}`, JSON.stringify(charts));
+        }
+
+        return { success: true, charts };
       } catch (err: unknown) {
         return { success: false, error: err instanceof Error ? err.message : String(err) };
       }
@@ -181,6 +243,19 @@ export const profileProcedures = {
     .input(z.object({ username: z.string().min(2) }))
     .query(async ({ input }) => {
       const cleanUser = input.username.replace(/^u\//i, '').trim();
+
+      // 1. Checa no Supabase
+      try {
+        const supabaseProfile = await getSupabaseUserProfile(cleanUser);
+        if (supabaseProfile && supabaseProfile.numerology_data) {
+          const data = supabaseProfile.numerology_data;
+          return { exists: true, username: cleanUser, profile: data.profile, archetypes: data.archetypes };
+        }
+      } catch {
+        // ignora erro do Supabase
+      }
+
+      // 2. Checa no Redis
       try {
         const raw = await redis.get(`destinyvox_user_${cleanUser}`);
         if (raw) {
@@ -190,6 +265,7 @@ export const profileProcedures = {
       } catch {
         // Ignorar erro de leitura
       }
+
       return { exists: false, username: cleanUser };
     }),
 };

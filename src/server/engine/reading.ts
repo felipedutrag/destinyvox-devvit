@@ -10,6 +10,7 @@ import {
 import type { CosmicReadingResult, InterpretationPayload } from './types';
 import { callGemini } from './gemini';
 import { notifyTelegramNewChart } from './notifications';
+import { saveSupabaseUserProfile } from '../core/supabase';
 
 export async function generateGeminiNumerologyReading(
   profile: NumerologyProfile,
@@ -194,6 +195,23 @@ export async function getOrGenerateProfile(
   };
 
   if (username) {
+    // 1. Persistência permanente no Supabase
+    saveSupabaseUserProfile(username, {
+      fullName,
+      birthDate,
+      language,
+      numerologyData: result,
+      savedCharts: [
+        {
+          id: 'primary',
+          name: profile.fullName,
+          birthDate: profile.birthDate,
+          data: result,
+        },
+      ],
+    }).catch((err) => console.error('[Supabase] Erro ao salvar mapa numerológico:', err));
+
+    // 2. Cache no Redis e contadores estatísticos
     try {
       await redis.set(`destinyvox_user_${username}`, JSON.stringify(result));
       await redis.incrBy(`destinyvox_stat_lp_${profile.lifePath}`, 1);

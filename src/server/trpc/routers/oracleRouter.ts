@@ -4,7 +4,7 @@ import { publicProcedure } from '../init';
 import { askDestinyVoxOracle, type CosmicReadingResult } from '../../destinyVoxEngine';
 import { calculateFullNumerology } from '../../../shared/numerology';
 import { syncUserVipFromStripe } from '../../core/stripeSync';
-import { checkSupabaseVip } from '../../core/supabase';
+import { getSupabaseUserVip, useSupabaseUserCredit } from '../../core/supabase';
 
 export const oracleProcedures = {
   askOracle: publicProcedure
@@ -27,37 +27,51 @@ export const oracleProcedures = {
     .mutation(async ({ input }) => {
       const rawUsername = await reddit.getCurrentUsername();
       const username = rawUsername ? rawUsername.replace(/^u\//i, '').trim() : '';
+      let hasAccess = false;
+      let remainingCredits = 0;
+
       if (username) {
-        let isVip = false;
+        // 1. Consulta VIP e créditos diretamente no Supabase
         try {
-          const cached =
-            (await redis.get(`destinyvox_vip_${username}`)) ||
-            (await redis.get(`destinyvox_vip_${username.toLowerCase()}`));
-          isVip = cached === 'active' || cached === 'true';
+          const vipInfo = await getSupabaseUserVip(username);
+          hasAccess = vipInfo.isVip || vipInfo.credits > 0;
+          remainingCredits = vipInfo.credits;
         } catch {
           // ignore
         }
 
-        if (!isVip) {
+        // 2. Cache no Redis caso o Supabase não tenha respondido
+        if (!hasAccess) {
           try {
-            isVip = await checkSupabaseVip(username);
+            const cached =
+              (await redis.get(`destinyvox_vip_${username}`)) ||
+              (await redis.get(`destinyvox_vip_${username.toLowerCase()}`));
+            if (cached === 'active' || cached === 'true') {
+              hasAccess = true;
+            }
           } catch {
             // ignore
           }
         }
 
-        if (!isVip) {
-          const syncRes = await syncUserVipFromStripe(username);
-          isVip = syncRes.isVip;
+        // 3. Fallback Stripe
+        if (!hasAccess) {
+          try {
+            const syncRes = await syncUserVipFromStripe(username);
+            hasAccess = syncRes.isVip;
+          } catch {
+            // ignore
+          }
         }
 
-        if (!isVip) {
+        if (!hasAccess) {
           return {
             answer: input.language?.startsWith('pt')
-              ? 'O Oráculo é um recurso exclusivo para assinantes VIP.'
+              ? 'Você precisa de créditos para consultar o Oráculo. Adquira um pacote de perguntas na nossa página oficial.'
               : input.language?.startsWith('es')
-              ? 'El Oráculo es una función exclusiva para suscriptores VIP.'
-              : 'The Oracle is an exclusive feature for VIP subscribers.',
+              ? 'Necesitas créditos para consultar al Oráculo. Adquiere un paquete de preguntas en nuestra página oficial.'
+              : 'You need credits to consult the Oracle. Acquire a question pack on our official page.',
+            remainingCredits: 0,
           };
         }
       }
@@ -75,6 +89,19 @@ export const oracleProcedures = {
         history: input.history,
         language: input.language,
       });
-      return { answer };
+
+      // Se o usuário estiver autenticado, consome 1 crédito no Supabase
+      if (username) {
+        try {
+          const creditRes = await useSupabaseUserCredit(username);
+          if (creditRes.success) {
+            remainingCredits = creditRes.credits;
+          }
+        } catch (err) {
+          console.error('[Oracle] Erro ao debitar crédito:', err);
+        }
+      }
+
+      return { answer, remainingCredits };
     }),
 };
