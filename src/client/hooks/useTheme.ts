@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 
 function neutralizeParentBorders() {
   try {
@@ -21,19 +21,8 @@ function neutralizeParentBorders() {
 }
 
 export function useTheme() {
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const stored = localStorage.getItem('destinyvox_theme');
-        if (stored === 'dark') return true;
-        if (stored === 'light') return false;
-        return window.matchMedia('(prefers-color-scheme: dark)').matches;
-      } catch {
-        return false;
-      }
-    }
-    return false;
-  });
+  // [TEMA DARK DESABILITADO TEMPORARIAMENTE - FORÇADO MODO LIGHT]
+  const isDarkMode = false;
 
   useEffect(() => {
     neutralizeParentBorders();
@@ -41,29 +30,18 @@ export function useTheme() {
 
   useEffect(() => {
     const html = document.documentElement;
-    if (isDarkMode) {
-      html.classList.remove('light');
-      html.classList.add('dark');
-      try {
-        localStorage.setItem('destinyvox_theme', 'dark');
-      } catch {
-        // ignore
-      }
-    } else {
-      html.classList.remove('dark');
-      html.classList.add('light');
-      try {
-        localStorage.setItem('destinyvox_theme', 'light');
-      } catch {
-        // ignore
-      }
+    html.classList.remove('dark');
+    html.classList.add('light');
+    try {
+      localStorage.setItem('destinyvox_theme', 'light');
+    } catch {
+      // ignore
     }
-  }, [isDarkMode]);
+  }, []);
 
   const toggleTheme = () => {
-    setIsDarkMode((prev) => !prev);
+    // Modo escuro desabilitado temporariamente a pedido do usuário
   };
 
   return { isDarkMode, toggleTheme };
 }
-

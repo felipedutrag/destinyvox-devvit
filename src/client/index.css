@@ -23,6 +23,7 @@
   --accent-gold-line: #9a3412;
 }
 
+/* [TEMA DARK DESABILITADO TEMPORARIAMENTE - PRESERVADO PARA USO FUTURO]
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
     color-scheme: dark;
@@ -61,6 +62,7 @@
   --accent-gold: #d97706;
   --accent-gold-line: #d97706;
 }
+*/
 
 .light,
 :root.light {

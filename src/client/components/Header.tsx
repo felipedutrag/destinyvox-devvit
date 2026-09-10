@@ -40,8 +40,8 @@ export const Header: React.FC<HeaderProps> = ({
   fullName,
   birthDate,
   lifePath,
-  isDarkMode,
-  onToggleTheme,
+  isDarkMode: _isDarkMode,
+  onToggleTheme: _onToggleTheme,
   onResetChart,
   chartsList,
   isDropdownOpen,
@@ -65,15 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Botoes do Topo: Novo Mapa & Dropdown de Mapas */}
       <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-[10px]">
-        {/* Botao de Alternar Tema (Dark / Light) */}
-        <button
-          onClick={onToggleTheme}
-          aria-label={t.toggleTheme}
-          title={t.toggleTheme}
-          className="border border-[var(--border-subtle)] hover:border-[var(--border-main)] p-1.5 text-[var(--text-subtle)] hover:text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center leading-none"
-        >
-          <span className="text-[11px]">{isDarkMode ? '☼' : '☽'}</span>
-        </button>
+        {/* Theme Toggle desabilitado temporariamente a pedido do usuario */}
 
         <button
           onClick={onResetChart}
