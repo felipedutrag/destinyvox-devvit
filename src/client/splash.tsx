@@ -324,7 +324,7 @@ export const Splash = () => {
 
       {/* Main Content */}
       <main className="relative z-10 w-full max-w-xl mx-auto my-auto flex flex-col space-y-3 sm:space-y-4">
-        <div className="text-center pt-1 pb-1 space-y-2.5 sm:space-y-3.5 flex flex-col items-center">
+        <div className="text-center pt-1 pb-1 space-y-2.5 sm:space-y-1.5 flex flex-col items-center">
           <h1 className="font-editorial text-2xl sm:text-3xl md:text-[2.2rem] tracking-tight text-[var(--text-main)] leading-tight font-normal">
             {t.headline}
           </h1>
