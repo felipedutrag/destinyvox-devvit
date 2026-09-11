@@ -111,7 +111,7 @@ export const PillarMatrix: React.FC<PillarMatrixProps> = ({
   };
 
   return (
-    <section className="relative border-b border-[var(--border-subtle)] bg-[var(--bg-card)] z-20 shadow-xs w-full max-w-full overflow-hidden">
+    <section className="relative border-b border-[var(--border-subtle)] bg-[var(--bg-card)] z-10 shadow-xs w-full max-w-full overflow-hidden">
       <div className="max-w-3xl mx-auto relative flex items-center w-full min-w-0 overflow-hidden">
         {/* Botão de Scroll Esquerda (Desktop/Tablet) */}
         <button

@@ -25,7 +25,7 @@ export const DeleteChartModal: React.FC<DeleteChartModalProps> = ({
   if (!chartToDelete) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-150">
       <div className="w-full max-w-xs bg-[var(--bg-card)] border border-[var(--border-main)] p-5 shadow-2xl relative font-mono text-center space-y-4">
         <div className="space-y-1">
           <span className="text-[10px] text-[var(--accent-gold)] tracking-[0.2em] uppercase font-semibold">
@@ -99,7 +99,7 @@ export const NewChartModal: React.FC<NewChartModalProps> = ({
   if (!showNewChartModal) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-150">
       <div className="w-full max-w-sm bg-[var(--bg-main)] border border-[var(--border-main)] p-6 shadow-2xl relative font-mono">
         <button
           onClick={onClose}

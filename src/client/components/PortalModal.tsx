@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 
 interface PortalModalProps {
   show: boolean;
@@ -28,7 +28,7 @@ export const PortalModal: React.FC<PortalModalProps> = ({
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-fadeIn">
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-fadeIn">
       <div className="w-full max-w-sm border border-[var(--border-main)] bg-[var(--bg-main)] p-5 text-left space-y-4 shadow-2xl">
         <div className="space-y-1 border-b border-[var(--border-subtle)] pb-3">
           <span className="font-mono text-[9px] tracking-[0.25em] text-[var(--accent-gold)] uppercase block">

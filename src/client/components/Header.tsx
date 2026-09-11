@@ -53,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
   t,
 }) => {
   return (
-    <header className="h-12 border-b border-[var(--border-subtle)] px-2.5 sm:px-4 md:px-5 flex items-center justify-between relative z-20 bg-[var(--bg-main)] w-full max-w-full">
+    <header className="h-12 border-b border-[var(--border-subtle)] px-2.5 sm:px-4 md:px-5 flex items-center justify-between relative z-30 bg-[var(--bg-main)] w-full max-w-full">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <span className="text-[var(--text-subtle)] text-xs">✦</span>
         <span className="font-mono text-[11px] tracking-[0.25em] text-[var(--text-main)] font-medium uppercase truncate">

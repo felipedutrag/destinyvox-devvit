@@ -181,9 +181,9 @@ export const OracleChat: React.FC<OracleChatProps> = ({
             transform: 'translateZ(0)',
             WebkitBackfaceVisibility: 'hidden',
           }}
-          className={`fixed z-40 bg-[var(--bg-main)] flex flex-col shadow-2xl overflow-hidden p-0 m-0 will-change-[height,top] ${
+          className={`fixed z-[60] bg-[var(--bg-main)] flex flex-col shadow-2xl overflow-hidden p-0 m-0 will-change-[height,top] ${
             isDesktop
-              ? 'sm:z-50 sm:inset-auto sm:bottom-16 sm:right-6 sm:w-[420px] sm:h-[580px] sm:max-h-[calc(100vh-5rem)] sm:rounded-xl sm:border sm:border-[var(--border-main)]'
+              ? 'sm:z-[60] sm:inset-auto sm:bottom-16 sm:right-6 sm:w-[420px] sm:h-[580px] sm:max-h-[calc(100vh-5rem)] sm:rounded-xl sm:border sm:border-[var(--border-main)]'
               : 'inset-x-0 top-0 bottom-12 w-full h-[calc(100dvh-3rem)] rounded-none border-0'
           }`}
         >
