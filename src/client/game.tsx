@@ -174,14 +174,14 @@ export const DestinyVoxApp = () => {
 
       {/* 3. NAVEGAÇÃO DE ABAS */}
       <nav className="relative border-b border-[var(--border-subtle)] bg-[var(--bg-main)] z-20">
-        <div className="max-w-3xl mx-auto flex items-center overflow-x-auto no-scrollbar scroll-smooth px-3 sm:px-6 sm:justify-center gap-3 sm:gap-8 font-mono text-xs sm:text-sm tracking-[0.16em] uppercase whitespace-nowrap">
+        <div className="max-w-3xl mx-auto flex items-center overflow-x-auto no-scrollbar scroll-smooth px-3 sm:px-6 sm:justify-center gap-2 sm:gap-6 font-mono text-[10.5px] sm:text-xs tracking-[0.14em] uppercase whitespace-nowrap">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`py-3 sm:py-3.5 px-3 sm:px-5 border-b-2 transition-all duration-150 cursor-pointer flex-shrink-0 text-center ${isActive
+                className={`py-2.5 sm:py-3 px-2.5 sm:px-4 border-b-2 transition-all duration-150 cursor-pointer flex-shrink-0 text-center ${isActive
                   ? 'border-[var(--accent-gold-line)] text-[var(--text-main)] font-semibold'
                   : 'border-transparent text-[var(--text-subtle)] hover:text-[var(--text-main)] hover:border-neutral-400'
                   }`}
