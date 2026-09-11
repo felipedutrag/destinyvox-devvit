@@ -1,6 +1,5 @@
 import React from 'react';
 import type { SupportedLang } from '../i18n';
-import { getArchetype } from '../../shared/numerology';
 
 export type PillarId = 'lifePath' | 'expression' | 'soulUrge' | 'personality' | 'personalYear';
 
@@ -29,157 +28,67 @@ export const PillarMatrix: React.FC<PillarMatrixProps> = ({
   profile,
   selectedPillar,
   activeTab,
-  lang,
+  lang: _lang,
   onSelectPillar,
   t,
 }) => {
+  const pillars: Array<{
+    id: PillarId;
+    label: string;
+    number: number;
+  }> = [
+    { id: 'lifePath', label: t.pillarLifePath, number: profile.lifePath },
+    { id: 'expression', label: t.pillarExpression, number: profile.expression },
+    { id: 'soulUrge', label: t.pillarSoulUrge, number: profile.soulUrge },
+    { id: 'personality', label: t.pillarPersonality, number: profile.personality },
+    { id: 'personalYear', label: t.pillarPersonalYear, number: profile.personalYear },
+  ];
+
   return (
-    <section className="border-b border-[var(--border-subtle)] bg-[var(--bg-card)] z-20">
-      <div className="max-w-5xl mx-auto grid grid-cols-5 divide-x divide-[var(--border-subtle)] text-center">
-        {/* 1. Caminho de Vida (Destino) */}
-        <button
-          type="button"
-          onClick={() => onSelectPillar('lifePath')}
-          title="Life Path"
-          className={`p-2.5 sm:p-4 transition-all duration-150 cursor-pointer text-center relative rounded-xs ${
-            activeTab === 'overview' && selectedPillar === 'lifePath'
-              ? 'bg-[var(--bg-card-alt)] ring-1.5 ring-inset ring-[var(--accent-gold)] shadow-xs'
-              : 'hover:bg-[var(--bg-card-alt)] opacity-85 hover:opacity-100'
-          }`}
-        >
-          <span className={`font-mono text-[9px] sm:text-[11px] uppercase tracking-widest block truncate ${
-            activeTab === 'overview' && selectedPillar === 'lifePath' ? 'text-[var(--accent-gold)] font-bold' : 'text-[var(--text-subtle)]'
-          }`}>
-            {t.pillarLifePath}
-          </span>
-          <div className={`font-editorial text-2xl sm:text-4xl font-normal mt-0.5 transition-transform ${
-            activeTab === 'overview' && selectedPillar === 'lifePath' ? 'text-[var(--text-main)] scale-105 font-medium' : 'text-[var(--text-main)]'
-          }`}>
-            {profile.lifePath}
-          </div>
-          <span className="font-mono text-[9px] sm:text-[11px] text-[var(--text-muted)] truncate block mt-0.5 tracking-tight font-medium">
-            {getArchetype(profile.lifePath, lang).title.split('/')[0]}
-          </span>
-          {activeTab === 'overview' && selectedPillar === 'lifePath' && (
-            <div className="w-6 h-[2px] bg-[var(--accent-gold)] mx-auto mt-1 rounded-full" />
-          )}
-        </button>
+    <section className="border-b border-[var(--border-subtle)] bg-[var(--bg-card)] z-20 shadow-xs">
+      <div className="max-w-3xl mx-auto grid grid-cols-5 divide-x divide-[var(--border-subtle)] text-center">
+        {pillars.map((pillar) => {
+          const isSelected = activeTab === 'overview' && selectedPillar === pillar.id;
+          return (
+            <button
+              key={pillar.id}
+              type="button"
+              onClick={() => onSelectPillar(pillar.id)}
+              className={`py-2 px-1 sm:py-2.5 sm:px-2 transition-all duration-150 cursor-pointer text-center relative flex flex-col items-center justify-center ${
+                isSelected
+                  ? 'bg-[var(--bg-card-alt)]'
+                  : 'hover:bg-[var(--bg-card-alt)]/70 opacity-80 hover:opacity-100'
+              }`}
+            >
+              {/* Número de destaque proporcional e sofisticado */}
+              <span
+                className={`font-editorial text-lg sm:text-2xl font-normal leading-none tracking-tight transition-transform duration-150 ${
+                  isSelected
+                    ? 'text-[var(--text-main)] font-medium scale-105'
+                    : 'text-[var(--text-main)]'
+                }`}
+              >
+                {pillar.number}
+              </span>
 
-        {/* 2. Expressao */}
-        <button
-          type="button"
-          onClick={() => onSelectPillar('expression')}
-          title="Expression"
-          className={`p-2.5 sm:p-4 transition-all duration-150 cursor-pointer text-center relative rounded-xs ${
-            activeTab === 'overview' && selectedPillar === 'expression'
-              ? 'bg-[var(--bg-card-alt)] ring-1.5 ring-inset ring-[var(--accent-gold)] shadow-xs'
-              : 'hover:bg-[var(--bg-card-alt)] opacity-85 hover:opacity-100'
-          }`}
-        >
-          <span className={`font-mono text-[9px] sm:text-[11px] uppercase tracking-widest block truncate ${
-            activeTab === 'overview' && selectedPillar === 'expression' ? 'text-[var(--accent-gold)] font-bold' : 'text-[var(--text-subtle)]'
-          }`}>
-            {t.pillarExpression}
-          </span>
-          <div className={`font-editorial text-2xl sm:text-4xl font-normal mt-0.5 transition-transform ${
-            activeTab === 'overview' && selectedPillar === 'expression' ? 'text-[var(--text-main)] scale-105 font-medium' : 'text-[var(--text-main)]'
-          }`}>
-            {profile.expression}
-          </div>
-          <span className="font-mono text-[9px] sm:text-[11px] text-[var(--text-muted)] truncate block mt-0.5 tracking-tight font-medium">
-            {getArchetype(profile.expression, lang).title.split('/')[0]}
-          </span>
-          {activeTab === 'overview' && selectedPillar === 'expression' && (
-            <div className="w-6 h-[2px] bg-[var(--accent-gold)] mx-auto mt-1 rounded-full" />
-          )}
-        </button>
+              {/* Rótulo tipográfico mono, enxuto e sem truncamento */}
+              <span
+                className={`font-mono text-[8.5px] sm:text-[10px] tracking-wider uppercase mt-1 block truncate max-w-full leading-tight ${
+                  isSelected
+                    ? 'text-[var(--accent-gold)] font-bold'
+                    : 'text-[var(--text-subtle)]'
+                }`}
+              >
+                {pillar.label}
+              </span>
 
-        {/* 3. Desejo da Alma */}
-        <button
-          type="button"
-          onClick={() => onSelectPillar('soulUrge')}
-          title="Soul Urge"
-          className={`p-2.5 sm:p-4 transition-all duration-150 cursor-pointer text-center relative rounded-xs ${
-            activeTab === 'overview' && selectedPillar === 'soulUrge'
-              ? 'bg-[var(--bg-card-alt)] ring-1.5 ring-inset ring-[var(--accent-gold)] shadow-xs'
-              : 'hover:bg-[var(--bg-card-alt)] opacity-85 hover:opacity-100'
-          }`}
-        >
-          <span className={`font-mono text-[9px] sm:text-[11px] uppercase tracking-widest block truncate ${
-            activeTab === 'overview' && selectedPillar === 'soulUrge' ? 'text-[var(--accent-gold)] font-bold' : 'text-[var(--text-subtle)]'
-          }`}>
-            {t.pillarSoulUrge}
-          </span>
-          <div className={`font-editorial text-2xl sm:text-4xl font-normal mt-0.5 transition-transform ${
-            activeTab === 'overview' && selectedPillar === 'soulUrge' ? 'text-[var(--text-main)] scale-105 font-medium' : 'text-[var(--text-main)]'
-          }`}>
-            {profile.soulUrge}
-          </div>
-          <span className="font-mono text-[9px] sm:text-[11px] text-[var(--text-muted)] truncate block mt-0.5 tracking-tight font-medium">
-            {getArchetype(profile.soulUrge, lang).title.split('/')[0]}
-          </span>
-          {activeTab === 'overview' && selectedPillar === 'soulUrge' && (
-            <div className="w-6 h-[2px] bg-[var(--accent-gold)] mx-auto mt-1 rounded-full" />
-          )}
-        </button>
-
-        {/* 4. Personalidade */}
-        <button
-          type="button"
-          onClick={() => onSelectPillar('personality')}
-          title="Personality"
-          className={`p-2.5 sm:p-4 transition-all duration-150 cursor-pointer text-center relative rounded-xs ${
-            activeTab === 'overview' && selectedPillar === 'personality'
-              ? 'bg-[var(--bg-card-alt)] ring-1.5 ring-inset ring-[var(--accent-gold)] shadow-xs'
-              : 'hover:bg-[var(--bg-card-alt)] opacity-85 hover:opacity-100'
-          }`}
-        >
-          <span className={`font-mono text-[9px] sm:text-[11px] uppercase tracking-widest block truncate ${
-            activeTab === 'overview' && selectedPillar === 'personality' ? 'text-[var(--accent-gold)] font-bold' : 'text-[var(--text-subtle)]'
-          }`}>
-            {t.pillarPersonality}
-          </span>
-          <div className={`font-editorial text-2xl sm:text-4xl font-normal mt-0.5 transition-transform ${
-            activeTab === 'overview' && selectedPillar === 'personality' ? 'text-[var(--text-main)] scale-105 font-medium' : 'text-[var(--text-main)]'
-          }`}>
-            {profile.personality}
-          </div>
-          <span className="font-mono text-[9px] sm:text-[11px] text-[var(--text-muted)] truncate block mt-0.5 tracking-tight font-medium">
-            {getArchetype(profile.personality, lang).title.split('/')[0]}
-          </span>
-          {activeTab === 'overview' && selectedPillar === 'personality' && (
-            <div className="w-6 h-[2px] bg-[var(--accent-gold)] mx-auto mt-1 rounded-full" />
-          )}
-        </button>
-
-        {/* 5. Ano Pessoal */}
-        <button
-          type="button"
-          onClick={() => onSelectPillar('personalYear')}
-          title="Personal Year"
-          className={`p-2.5 sm:p-4 transition-all duration-150 cursor-pointer text-center relative rounded-xs ${
-            activeTab === 'overview' && selectedPillar === 'personalYear'
-              ? 'bg-[var(--bg-card-alt)] ring-1.5 ring-inset ring-[var(--accent-gold)] shadow-xs'
-              : 'hover:bg-[var(--bg-card-alt)] opacity-85 hover:opacity-100'
-          }`}
-        >
-          <span className={`font-mono text-[9px] sm:text-[11px] uppercase tracking-widest block truncate ${
-            activeTab === 'overview' && selectedPillar === 'personalYear' ? 'text-[var(--accent-gold)] font-bold' : 'text-[var(--text-subtle)]'
-          }`}>
-            {t.pillarPersonalYear}
-          </span>
-          <div className={`font-editorial text-2xl sm:text-4xl font-normal mt-0.5 transition-transform ${
-            activeTab === 'overview' && selectedPillar === 'personalYear' ? 'text-[var(--text-main)] scale-105 font-medium' : 'text-[var(--text-main)]'
-          }`}>
-            {profile.personalYear}
-          </div>
-          <span className="font-mono text-[9px] sm:text-[11px] text-[var(--text-muted)] truncate block mt-0.5 tracking-tight font-medium">
-            {getArchetype(profile.personalYear, lang).title.split('/')[0]}
-          </span>
-          {activeTab === 'overview' && selectedPillar === 'personalYear' && (
-            <div className="w-6 h-[2px] bg-[var(--accent-gold)] mx-auto mt-1 rounded-full" />
-          )}
-        </button>
+              {/* Indicador de foco dourado sutil e limpo */}
+              {isSelected && (
+                <span className="absolute bottom-0 left-2 right-2 sm:left-4 sm:right-4 h-[2px] bg-[var(--accent-gold)] rounded-full animate-in fade-in duration-150" />
+              )}
+            </button>
+          );
+        })}
       </div>
     </section>
   );
