@@ -17,6 +17,8 @@ export * from './lifePath';
 export * from './expression';
 export * from './shadow';
 export * from './cycles';
+export * from './soulUrge';
+export * from './personality';
 
 export type InterpretationLanguage = 'en' | 'pt' | 'es';
 
