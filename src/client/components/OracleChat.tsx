@@ -257,11 +257,11 @@ export const OracleChat: React.FC<OracleChatProps> = ({
             className="flex-1 overflow-y-auto px-2.5 sm:px-3.5 py-3 sm:py-3.5 space-y-3.5 overscroll-contain"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
-            <div className="border-l-2 border-[var(--accent-gold-line)] pl-3 py-1">
-              <div className="font-mono text-[9px] tracking-widest uppercase text-[var(--accent-gold)] mb-1 font-semibold">
+            <div className="border-l-2 border-[var(--accent-gold-line)] pl-3.5 py-1">
+              <div className="font-mono text-[9.5px] sm:text-[10.5px] tracking-widest uppercase text-[var(--accent-gold)] mb-1 font-semibold">
                 {t.oracleTitle.toUpperCase()} ⟶ {profile.fullName.toUpperCase()}
               </div>
-              <div className="font-editorial text-sm sm:text-base text-[var(--text-main)] leading-relaxed">
+              <div className="font-editorial text-[15.5px] sm:text-[1.1rem] text-[var(--text-main)] leading-relaxed">
                 {lang === 'en'
                   ? `Greetings, ${profile.fullName.split(' ')[0]}. The veil of the unseen is drawn, yet every inquiry posed to the Oracle carries gravity: the answers you summon will inevitably alter how you behold your destiny. Weigh your intent with care, and question only that which your soul is truly ready to understand.`
                   : lang === 'es'
@@ -272,14 +272,14 @@ export const OracleChat: React.FC<OracleChatProps> = ({
 
             {oracleChat.map((msg, idx) => (
               <div key={idx} className="space-y-1.5">
-                <div className="font-mono text-[9px] sm:text-[10px] tracking-widest uppercase text-[var(--text-subtle)] font-medium">
+                <div className="font-mono text-[9.5px] sm:text-[10.5px] tracking-widest uppercase text-[var(--text-subtle)] font-medium">
                   {msg.sender === 'user' ? t.youWord : t.oracleTitle.toUpperCase()}
                 </div>
                 <div
                   className={
                     msg.sender === 'user'
-                      ? 'bg-[var(--bg-card-alt)] border border-[var(--border-main)] p-3 text-[var(--text-main)] text-sm sm:text-base font-normal'
-                      : 'border-l-2 border-[var(--accent-gold-line)] pl-3.5 py-1 font-editorial text-base sm:text-lg md:text-xl text-[var(--text-main)] leading-relaxed'
+                      ? 'bg-[var(--bg-card-alt)] border border-[var(--border-main)] p-3 text-[var(--text-main)] text-[15px] sm:text-base font-normal leading-normal'
+                      : 'border-l-2 border-[var(--accent-gold-line)] pl-3.5 py-1 font-editorial text-[17.5px] sm:text-[1.2rem] md:text-[1.25rem] text-[var(--text-main)] leading-relaxed'
                   }
                 >
                   {msg.sender === 'user' ? msg.text : renderParagraphs(msg.text)}
@@ -340,7 +340,7 @@ export const OracleChat: React.FC<OracleChatProps> = ({
                   if (onQuestionChange) onQuestionChange(e.target.value);
                 }}
                 onFocus={handleInputFocus}
-                className="flex-1 bg-[var(--input-bg)] border border-[var(--border-main)] rounded-none px-3 py-2 text-xs text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--text-main)] font-mono"
+                className="flex-1 bg-[var(--input-bg)] border border-[var(--border-main)] rounded-none px-3 py-2 text-sm sm:text-sm text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--text-main)] font-mono"
               />
               <button
                 type="submit"
