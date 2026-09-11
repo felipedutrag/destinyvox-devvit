@@ -1,7 +1,8 @@
-import React, { useState, useEffect, type RefObject } from 'react';
+import React, { useState, useEffect, useRef, type RefObject } from 'react';
 import type { SupportedLang } from '../i18n';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import { renderParagraphs } from './renderParagraphs';
+import { HermeticStarIcon } from './HermeticStarIcon';
 
 export interface OracleChatMessage {
   sender: 'user' | 'oracle';
@@ -10,8 +11,8 @@ export interface OracleChatMessage {
 
 interface OracleChatProps {
   isOracleOpen: boolean;
-  viewportHeight: number;
-  oracleQuestion: string;
+  viewportHeight?: number;
+  oracleQuestion?: string;
   oracleChat: OracleChatMessage[];
   isAskingOracle: boolean;
   chatBottomRef: RefObject<HTMLDivElement | null>;
@@ -21,10 +22,9 @@ interface OracleChatProps {
   isVip: boolean;
   credits: number;
   username: string;
-  onOpen: () => void;
   onClose: () => void;
-  onAskOracle: (e: React.FormEvent) => void;
-  onQuestionChange: (value: string) => void;
+  onAskOracle: (questionOrEvent?: React.FormEvent | string) => void;
+  onQuestionChange?: (value: string) => void;
   t: {
     oracleTitle: string;
     oracleButton: string;
@@ -41,8 +41,7 @@ interface OracleChatProps {
 
 export const OracleChat: React.FC<OracleChatProps> = ({
   isOracleOpen,
-  viewportHeight,
-  oracleQuestion,
+  oracleQuestion = '',
   oracleChat,
   isAskingOracle,
   chatBottomRef,
@@ -52,16 +51,16 @@ export const OracleChat: React.FC<OracleChatProps> = ({
   isVip,
   credits,
   username,
-  onOpen,
   onClose,
   onAskOracle,
   onQuestionChange,
   t,
 }) => {
+  const [localQuestion, setLocalQuestion] = useState<string>(oracleQuestion);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isDesktop, setIsDesktop] = useState<boolean>(() =>
     typeof window !== 'undefined' ? window.innerWidth >= 640 : false
   );
-  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -72,95 +71,124 @@ export const OracleChat: React.FC<OracleChatProps> = ({
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Sincronização ultra-fluida do viewport móvel sem provocar re-renders do React
+  useEffect(() => {
+    if (typeof window === 'undefined' || !isOracleOpen) return;
+    const vv = window.visualViewport;
+
+    const updateBounds = () => {
+      const el = containerRef.current;
+      if (!el) return;
+
+      if (window.innerWidth < 640) {
+        if (vv) {
+          el.style.height = `${vv.height}px`;
+          el.style.top = `${vv.offsetTop}px`;
+        } else {
+          el.style.height = '100dvh';
+          el.style.top = '0px';
+        }
+      } else {
+        el.style.height = '';
+        el.style.top = '';
+      }
+    };
+
+    updateBounds();
+
+    if (vv) {
+      vv.addEventListener('resize', updateBounds, { passive: true });
+      vv.addEventListener('scroll', updateBounds, { passive: true });
+    }
+    window.addEventListener('resize', updateBounds, { passive: true });
+
+    return () => {
+      if (vv) {
+        vv.removeEventListener('resize', updateBounds);
+        vv.removeEventListener('scroll', updateBounds);
+      }
+      window.removeEventListener('resize', updateBounds);
+    };
+  }, [isOracleOpen]);
+
+  // Rolagem suave automática ao receber mensagens ou iniciar consulta
+  useEffect(() => {
+    if (isOracleOpen) {
+      chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [oracleChat.length, isAskingOracle, isOracleOpen, chatBottomRef]);
+
+  const handleInputFocus = () => {
+    // Ao abrir teclado virtual no mobile, aguarda acomodação nativa da animação antes do scroll
+    setTimeout(() => {
+      chatBottomRef.current?.scrollIntoView({ behavior: 'auto' });
+    }, 280);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = localQuestion.trim();
+    if (!q || isAskingOracle || credits <= 0) return;
+    setLocalQuestion('');
+    onAskOracle(q);
+  };
+
   if (!isVip && credits <= 0) {
     return null;
   }
 
   return (
     <>
-      {/* BALAO FLUTUANTE DO ORACULO (CANTO INFERIOR DIREITO) */}
-      <div className="fixed bottom-8 sm:bottom-10 right-4 sm:right-6 z-40">
-        {!isOracleOpen && (
-          <button
-            type="button"
-            onClick={onOpen}
-            aria-label={t.oracleTitle}
-            className="flex items-center gap-2 px-4 py-2 bg-[var(--btn-bg)] text-[var(--btn-text)] border border-[var(--border-main)] rounded-full shadow-2xl hover:opacity-95 active:scale-95 transition-all cursor-pointer group"
-          >
-            <span className="font-mono text-[11px] tracking-widest uppercase font-semibold">
-              ORACLE AI
-            </span>
-            {credits > 0 && (
-              <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--accent-gold)] text-black font-bold">
-                {credits}
-              </span>
-            )}
-          </button>
-        )}
-      </div>
-
-      {/* JANELA DO ORACULO (FULLSCREEN NO MOBILE, CHAT FLUTUANTE NO DESKTOP, SEM PADDING EXTERNO) */}
+      {/* JANELA DO ORACULO (FULLSCREEN NO MOBILE, CHAT FLUTUANTE NO DESKTOP) */}
       {isOracleOpen && (
         <div
-          style={
-            !isDesktop && viewportHeight > 0
-              ? { height: `${viewportHeight}px` }
-              : undefined
-          }
-          className={`fixed z-50 bg-[var(--bg-main)] flex flex-col shadow-2xl overflow-hidden animate-fadeIn p-0 m-0 ${
-            isDesktop && !isExpanded
-              ? 'sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[420px] sm:h-[580px] sm:max-h-[calc(100vh-3rem)] sm:rounded-xl sm:border sm:border-[var(--border-main)]'
-              : 'inset-0 w-full h-full rounded-none border-0'
+          ref={containerRef}
+          style={{
+            transform: 'translateZ(0)',
+            WebkitBackfaceVisibility: 'hidden',
+          }}
+          className={`fixed z-50 bg-[var(--bg-main)] flex flex-col shadow-2xl overflow-hidden p-0 m-0 will-change-[height,top] ${
+            isDesktop
+              ? 'sm:inset-auto sm:bottom-16 sm:right-6 sm:w-[420px] sm:h-[580px] sm:max-h-[calc(100vh-5rem)] sm:rounded-xl sm:border sm:border-[var(--border-main)]'
+              : 'inset-0 w-full h-[100dvh] rounded-none border-0'
           }`}
         >
           {/* Cabecalho do Oraculo */}
-          <div className="p-3 sm:p-3.5 border-b border-[var(--border-main)] bg-[var(--bg-card-alt)] flex items-center justify-between gap-2 flex-shrink-0 z-10">
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="relative w-8 h-8 rounded-full border border-[var(--border-main)] bg-[var(--bg-main)] flex items-center justify-center flex-shrink-0">
-                <svg
-                  className="w-4 h-4 text-[var(--accent-gold)]"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <circle cx="12" cy="12" r="9" />
-                  <circle cx="12" cy="12" r="3" />
-                  <path d="M12 3v3m0 12v3M3 12h3m12 0h3" />
-                </svg>
+          <div className="p-2.5 sm:p-3.5 border-b border-[var(--border-main)] bg-[var(--bg-card-alt)] flex items-center justify-between gap-2 flex-shrink-0 z-10">
+            <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1">
+              <div className="relative w-8 h-8 rounded-lg overflow-hidden flex items-center justify-center flex-shrink-0 shadow-sm border border-[var(--border-main)]">
+                <HermeticStarIcon className="w-full h-full" />
                 <span
-                  className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-emerald-500 ring-1.5 ring-[var(--bg-card-alt)]"
+                  className="absolute bottom-0.5 right-0.5 w-2 h-2 rounded-full bg-emerald-500 ring-1.5 ring-[var(--bg-card-alt)]"
                   title="Online"
                 />
               </div>
 
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="font-editorial text-base sm:text-lg text-[var(--text-main)] font-normal truncate">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="font-editorial text-sm sm:text-base text-[var(--text-main)] font-medium truncate">
                     {t.oracleTitle}
                   </span>
-                  <span className="font-mono text-[8px] text-[var(--accent-gold)] uppercase tracking-wider">
+                  <span className="font-mono text-[8px] text-[var(--accent-gold)] uppercase tracking-wider shrink-0">
                     • {t.oracleOnline}
                   </span>
                   {isVip && (
-                    <span className="font-mono text-[7px] border border-[var(--accent-gold)] px-1 py-0.2 text-[var(--accent-gold)] tracking-widest">
+                    <span className="font-mono text-[7px] border border-[var(--accent-gold)] px-1 py-0.2 text-[var(--accent-gold)] tracking-widest shrink-0">
                       VIP
                     </span>
                   )}
                 </div>
-                <span className="font-mono text-[8px] tracking-widest text-[var(--text-subtle)] uppercase block truncate">
+                <span className="font-mono text-[7px] sm:text-[8px] tracking-widest text-[var(--text-subtle)] uppercase block truncate">
                   {t.oracleInteractive}
                 </span>
               </div>
             </div>
 
             {/* Controle de Fechar e Créditos em Tempo Real */}
-            <div className="flex items-center gap-2 flex-shrink-0 font-mono text-[10px]">
-              {/* Badge de Créditos em Tempo Real */}
+            <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+              {/* Badge Elegante de Creditos do Oraculo */}
               <div
-                className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-full text-[10px] shadow-sm"
+                className="flex items-center gap-1 px-2 py-1 rounded bg-[var(--bg-card)] border border-[var(--border-main)]"
                 title={
                   lang === 'en'
                     ? `${credits} Oracle credit${credits === 1 ? '' : 's'} available`
@@ -169,48 +197,14 @@ export const OracleChat: React.FC<OracleChatProps> = ({
                     : `${credits} crédito${credits === 1 ? '' : 's'} disponível${credits === 1 ? '' : 'is'}`
                 }
               >
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] animate-pulse" />
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] animate-pulse shrink-0" />
                 <span className="text-[var(--text-subtle)] uppercase tracking-wider text-[8px] sm:text-[9px]">
-                  {lang === 'en' ? 'Credits' : lang === 'es' ? 'Créditos' : 'Créditos'}
+                  {lang === 'en' ? 'Credits' : 'Créditos'}
                 </span>
                 <span className="font-bold text-[var(--accent-gold)] font-mono text-xs">
                   {credits}
                 </span>
               </div>
-
-              {/* Botão de Adquirir Mais Créditos */}
-              <a
-                href={`https://destinyvox.online/?u=${encodeURIComponent(username || '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                title={
-                  lang === 'en'
-                    ? 'Get more Oracle credits'
-                    : lang === 'es'
-                    ? 'Obtener más créditos'
-                    : 'Adquirir mais créditos'
-                }
-                className="px-2.5 py-1 bg-[var(--btn-bg)] text-[var(--btn-text)] border border-[var(--border-main)] rounded text-[9px] font-mono font-semibold uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all flex items-center gap-1"
-              >
-                <span>+</span>
-                <span className="hidden sm:inline">
-                  {lang === 'en' ? 'Refill' : lang === 'es' ? 'Recargar' : 'Recarga'}
-                </span>
-              </a>
-
-              {isDesktop && (
-                <button
-                  type="button"
-                  onClick={() => setIsExpanded((prev) => !prev)}
-                  title={isExpanded ? t.oracleMinimize : t.oracleExpand}
-                  aria-label={isExpanded ? t.oracleMinimize : t.oracleExpand}
-                  className="p-1.5 border border-[var(--border-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-card-alt)] text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center rounded text-xs"
-                >
-                  <span className="leading-none font-bold">
-                    {isExpanded ? '⤡' : '⤢'}
-                  </span>
-                </button>
-              )}
 
               <button
                 type="button"
@@ -225,7 +219,10 @@ export const OracleChat: React.FC<OracleChatProps> = ({
           </div>
 
           {/* Historico do Dialogo - Scroll Exclusivo Aqui */}
-          <div className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3.5 overscroll-contain">
+          <div
+            className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3.5 overscroll-contain"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             <div className="border-l-2 border-[var(--accent-gold-line)] pl-3 py-1">
               <div className="font-mono text-[9px] tracking-widest uppercase text-[var(--accent-gold)] mb-1 font-semibold">
                 {t.oracleTitle.toUpperCase()} ⟶ {profile.fullName.toUpperCase()}
@@ -298,24 +295,23 @@ export const OracleChat: React.FC<OracleChatProps> = ({
           ) : (
             <form
               ref={oracleFormRef}
-              onSubmit={onAskOracle}
+              onSubmit={handleSubmit}
               className="p-2 sm:p-2.5 border-t border-[var(--border-main)] flex gap-2 bg-[var(--bg-main)] flex-shrink-0 z-10"
             >
               <input
                 type="text"
                 placeholder={t.oraclePlaceholder}
-                value={oracleQuestion}
-                onChange={(e) => onQuestionChange(e.target.value)}
-                onFocus={() => {
-                  setTimeout(() => {
-                    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-                  }, 100);
+                value={localQuestion}
+                onChange={(e) => {
+                  setLocalQuestion(e.target.value);
+                  if (onQuestionChange) onQuestionChange(e.target.value);
                 }}
+                onFocus={handleInputFocus}
                 className="flex-1 bg-[var(--input-bg)] border border-[var(--border-main)] rounded-none px-3 py-2 text-xs text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--text-main)] font-mono"
               />
               <button
                 type="submit"
-                disabled={isAskingOracle || credits <= 0}
+                disabled={isAskingOracle || credits <= 0 || !localQuestion.trim()}
                 className="bg-[var(--btn-bg)] text-[var(--btn-text)] hover:opacity-90 px-3.5 py-2 font-mono text-xs font-semibold tracking-widest uppercase cursor-pointer disabled:opacity-50 transition-opacity"
               >
                 ⟶

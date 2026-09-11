@@ -1,6 +1,6 @@
 import './index.css';
 
-import { requestExpandedMode, navigateTo } from '@devvit/web/client';
+import { requestExpandedMode, navigateTo, getWebViewMode } from '@devvit/web/client';
 import { StrictMode, useState, useEffect, type MouseEvent } from 'react';
 import { createRoot } from 'react-dom/client';
 import { trpc } from './trpc';
@@ -72,7 +72,7 @@ export const Splash = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  useTheme();
+  const { isDarkMode, toggleTheme } = useTheme();
   const t = splashI18n[lang];
 
   useEffect(() => {
@@ -102,13 +102,37 @@ export const Splash = () => {
     void checkRedis();
   }, []);
 
+  const isAlreadyExpanded = (): boolean => {
+    try {
+      return typeof getWebViewMode === 'function' && getWebViewMode() === 'expanded';
+    } catch {
+      return false;
+    }
+  };
+
+  const navigateToGame = (ev: MouseEvent<HTMLButtonElement>) => {
+    if (isAlreadyExpanded()) {
+      window.location.href = 'game.html';
+      return;
+    }
+    try {
+      requestExpandedMode(ev.nativeEvent, 'game');
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message.toLowerCase().includes('already expanded')) {
+        window.location.href = 'game.html';
+        return;
+      }
+      throw err;
+    }
+  };
+
   const handleResume = (ev: MouseEvent<HTMLButtonElement>) => {
     ev.preventDefault();
     if (!savedProfile) return;
     sessionStorage.setItem('destinyvox_name', savedProfile.profile.fullName);
     sessionStorage.setItem('destinyvox_birth', savedProfile.profile.birthDate);
     sessionStorage.setItem('destinyvox_lang', lang);
-    requestExpandedMode(ev.nativeEvent, 'game');
+    navigateToGame(ev);
   };
 
   const handleOpenPortal = (ev?: MouseEvent<HTMLElement>) => {
@@ -208,7 +232,7 @@ export const Splash = () => {
         console.warn('Pré-geração em background:', err);
       });
 
-      requestExpandedMode(ev.nativeEvent, 'game');
+      navigateToGame(ev);
     } catch (err: unknown) {
       setErrorMessage(err instanceof Error ? err.message : (lang === 'en' ? 'Connection error' : 'Erro ao conectar ao oráculo'));
       setIsSubmitting(false);
@@ -230,6 +254,16 @@ export const Splash = () => {
         </div>
 
         <div className="flex items-center gap-2 font-mono text-[10px]">
+          {/* Botao de Alternar Tema (Dark / Light) */}
+          <button
+            onClick={toggleTheme}
+            aria-label={t.toggleTheme}
+            title={t.toggleTheme}
+            className="border border-[var(--border-subtle)] hover:border-[var(--border-main)] p-1 text-[var(--text-subtle)] hover:text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center leading-none rounded"
+          >
+            <span className="text-[11px]">{isDarkMode ? '☼' : '☽'}</span>
+          </button>
+
           <div className="flex items-center gap-1 font-mono text-[10px]">
             {(['en', 'pt', 'es'] as const).map((l) => (
               <button

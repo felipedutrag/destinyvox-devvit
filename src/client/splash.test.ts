@@ -16,6 +16,7 @@ vi.mock('@devvit/web/client', () => {
     },
     // used by the "Tap to Start" button
     requestExpandedMode: requestExpandedModeMock,
+    getWebViewMode: vi.fn().mockReturnValue('inline'),
   };
 });
 

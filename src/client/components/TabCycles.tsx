@@ -77,10 +77,10 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
       {/* 1. DIA PESSOAL (PRIMEIRO) */}
       <div className="border border-[var(--border-main)] p-5 sm:p-7 md:p-8 bg-[var(--bg-card)] space-y-5">
         <div className="border-b border-[var(--border-main)] pb-3.5 space-y-2">
-          <span className="inline-block font-mono text-[9px] sm:text-[11px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium">
+          <span className="inline-block font-mono text-[9px] sm:text-[10px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium whitespace-nowrap">
             {t.dailyCycleBadge(currentDayNum, currentMonthName)}
           </span>
-          <h3 className="font-editorial text-xl sm:text-2xl md:text-3xl text-[var(--text-main)] font-normal tracking-tight">
+          <h3 className="font-editorial text-lg sm:text-xl md:text-2xl text-[var(--text-main)] font-normal tracking-tight">
             {t.personalDayTitle(personalDay, dayArch.title)}
           </h3>
         </div>
@@ -104,10 +104,10 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
       {/* 2. MES PESSOAL (SEGUNDO) */}
       <div className="border border-[var(--border-main)] p-5 sm:p-7 md:p-8 bg-[var(--bg-card)] space-y-5">
         <div className="border-b border-[var(--border-main)] pb-3.5 space-y-2">
-          <span className="inline-block font-mono text-[9px] sm:text-[11px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium">
+          <span className="inline-block font-mono text-[9px] sm:text-[10px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium whitespace-nowrap">
             {t.monthlyCycleBadge(currentMonthName)}
           </span>
-          <h3 className="font-editorial text-xl sm:text-2xl md:text-3xl text-[var(--text-main)] font-normal tracking-tight">
+          <h3 className="font-editorial text-lg sm:text-xl md:text-2xl text-[var(--text-main)] font-normal tracking-tight">
             {t.personalMonthTitle(personalMonth, monthArch.title)}
           </h3>
         </div>
@@ -131,10 +131,10 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
       {/* 3. ANO PESSOAL (TERCEIRO) */}
       <div className="border border-[var(--border-main)] p-5 sm:p-7 md:p-8 bg-[var(--bg-card)] space-y-5">
         <div className="border-b border-[var(--border-main)] pb-3.5 space-y-2">
-          <span className="inline-block font-mono text-[9px] sm:text-[11px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium">
+          <span className="inline-block font-mono text-[9px] sm:text-[10px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium whitespace-nowrap">
             {t.annualCycleBadge(currentYear)}
           </span>
-          <h3 className="font-editorial text-xl sm:text-2xl md:text-3xl text-[var(--text-main)] font-normal tracking-tight">
+          <h3 className="font-editorial text-lg sm:text-xl md:text-2xl text-[var(--text-main)] font-normal tracking-tight">
             {t.personalYearTitle(currentPersonalYear, yearArch.title)}
           </h3>
         </div>

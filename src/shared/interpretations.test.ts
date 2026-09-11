@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { calculateFullNumerology, getSoulUrgeDeep, getPersonalityDeep } from './numerology';
+import {
+  calculateFullNumerology,
+  calculateBirthday,
+  calculateMaturity,
+  getSoulUrgeDeep,
+  getPersonalityDeep,
+  getBirthdayDeep,
+  getMaturityDeep,
+} from './numerology';
 import {
   buildCosmicInterpretation,
   resolveInterpretationLang,
@@ -8,6 +16,8 @@ import {
   SHADOW_INTERPRETATIONS,
   SOUL_URGE_INTERPRETATIONS,
   PERSONALITY_INTERPRETATIONS,
+  BIRTHDAY_INTERPRETATIONS,
+  MATURITY_INTERPRETATIONS,
   YEARLY_FORECAST_INTERPRETATIONS,
   MONTHLY_FORECAST_INTERPRETATIONS,
   DAILY_FORECAST_INTERPRETATIONS,
@@ -24,7 +34,7 @@ describe('Interpretations Library & Engine', () => {
     expect(resolveInterpretationLang('fr')).toBe('en');
   });
 
-  it('contains entries for all 5 pillars + shadows (1-9, 11, 22, 33) in all 3 languages', () => {
+  it('contains entries for all 7 pillars + shadows (1-9, 11, 22, 33) in all 3 languages', () => {
     const requiredNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33];
     const languages = ['en', 'pt', 'es'] as const;
 
@@ -56,9 +66,21 @@ describe('Interpretations Library & Engine', () => {
         expect(personaText, `Missing Personality #${num} in ${lang}`).toBeDefined();
         expect(personaText?.split('\n\n').length).toBeGreaterThanOrEqual(3);
         expect(getPersonalityDeep(num, lang)).toBe(personaText);
+
+        // 6. Birthday Number
+        const bdayText = BIRTHDAY_INTERPRETATIONS[lang][num];
+        expect(bdayText, `Missing Birthday #${num} in ${lang}`).toBeDefined();
+        expect(bdayText?.split('\n\n').length).toBeGreaterThanOrEqual(3);
+        expect(getBirthdayDeep(num, lang)).toBe(bdayText);
+
+        // 7. Maturity Number
+        const matText = MATURITY_INTERPRETATIONS[lang][num];
+        expect(matText, `Missing Maturity #${num} in ${lang}`).toBeDefined();
+        expect(matText?.split('\n\n').length).toBeGreaterThanOrEqual(3);
+        expect(getMaturityDeep(num, lang)).toBe(matText);
       }
 
-      // 6. Temporal Cycles (1-9)
+      // Temporal Cycles (1-9)
       for (let cycle = 1; cycle <= 9; cycle++) {
         expect(YEARLY_FORECAST_INTERPRETATIONS[lang][cycle], `Missing Year #${cycle} in ${lang}`).toBeDefined();
         expect(MONTHLY_FORECAST_INTERPRETATIONS[lang][cycle], `Missing Month #${cycle} in ${lang}`).toBeDefined();
@@ -67,8 +89,29 @@ describe('Interpretations Library & Engine', () => {
     }
   });
 
+  it('calculates Birthday and Maturity numbers accurately', () => {
+    // 1920-12-10 -> Day 10 -> 1+0 = 1
+    expect(calculateBirthday('1920-12-10')).toBe(1);
+    // Born on 22nd -> Master 22
+    expect(calculateBirthday('1985-05-22')).toBe(22);
+    // Born on 11th -> Master 11
+    expect(calculateBirthday('1990-11-11')).toBe(11);
+    // Born on 29th -> 2+9 = 11 (Master)
+    expect(calculateBirthday('1992-03-29')).toBe(11);
+    // Born on 14th -> 1+4 = 5
+    expect(calculateBirthday('1988-07-14')).toBe(5);
+
+    // Maturity = Life Path + Expression
+    expect(calculateMaturity(7, 4)).toBe(11);
+    expect(calculateMaturity(1, 8)).toBe(9);
+    expect(calculateMaturity(11, 22)).toBe(33);
+  });
+
   it('builds complete cosmic interpretation for standard profile in Portuguese', () => {
     const profile = calculateFullNumerology('Clarice Lispector', '1920-12-10');
+    expect(profile.birthday).toBe(1);
+    expect(profile.maturity).toBeDefined();
+
     const interpretation = buildCosmicInterpretation(profile, 'pt-BR');
 
     expect(interpretation.destinyOverview).toBeTruthy();
@@ -84,6 +127,8 @@ describe('Interpretations Library & Engine', () => {
     expect(interpretation.monthlyForecast).toBeTruthy();
     expect(interpretation.dailyForecast).toBeTruthy();
     expect(interpretation.cosmicMotto).toBeTruthy();
+    expect(interpretation.birthdayTalent).toBeTruthy();
+    expect(interpretation.maturityMission).toBeTruthy();
   });
 
   it('builds complete cosmic interpretation for master numbers in English', () => {
@@ -95,6 +140,8 @@ describe('Interpretations Library & Engine', () => {
     expect(interpretation.shadowAndChallenges).toBeTruthy();
     expect(interpretation.yearlyForecast).toBeTruthy();
     expect(interpretation.cosmicMotto).toBeTruthy();
+    expect(interpretation.birthdayTalent).toBeTruthy();
+    expect(interpretation.maturityMission).toBeTruthy();
   });
 
   it('builds complete cosmic interpretation in Spanish', () => {
@@ -106,6 +153,8 @@ describe('Interpretations Library & Engine', () => {
     expect(interpretation.shadowAndChallenges).toBeTruthy();
     expect(interpretation.yearlyForecast).toBeTruthy();
     expect(interpretation.cosmicMotto).toBeTruthy();
+    expect(interpretation.birthdayTalent).toBeTruthy();
+    expect(interpretation.maturityMission).toBeTruthy();
   });
 
   it('personalizes all English interpretations with the first name and leaves no leftover {name} tags', () => {
@@ -138,6 +187,12 @@ describe('Interpretations Library & Engine', () => {
     const personality = getPersonalityDeep(profile.personality, 'en', profile.fullName);
     expect(personality).toContain('Marie');
     expect(personality).not.toContain('{name}');
+
+    const birthday = getBirthdayDeep(profile.birthday, 'en', profile.fullName);
+    expect(birthday).not.toContain('{name}');
+
+    const maturity = getMaturityDeep(profile.maturity, 'en', profile.fullName);
+    expect(maturity).not.toContain('{name}');
   });
 
   it('verifies that every single English interpretation contains {name}', () => {

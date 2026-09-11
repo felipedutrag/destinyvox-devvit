@@ -23,7 +23,7 @@
   --accent-gold-line: #9a3412;
 }
 
-/* [TEMA DARK DESABILITADO TEMPORARIAMENTE - PRESERVADO PARA USO FUTURO]
+/* Dark Theme (via prefers-color-scheme ou classe .dark) */
 @media (prefers-color-scheme: dark) {
   :root:not(.light) {
     color-scheme: dark;
@@ -31,38 +31,38 @@
     --bg-card: #050505;
     --bg-card-alt: #0d0d0d;
     --text-main: #f5f5f5;
-    --text-muted: #a3a3a3;
-    --text-subtle: #737373;
-    --border-main: #262626;
-    --border-subtle: #171717;
+    --text-muted: #d4d4d8;
+    --text-subtle: #a1a1aa;
+    --border-main: #27272a;
+    --border-subtle: #18181b;
     --btn-bg: #ffffff;
     --btn-text: #000000;
     --btn-hover: #e5e5e5;
-    --input-bg: #050505;
-    --accent-gold: #d97706;
-    --accent-gold-line: #d97706;
+    --input-bg: #09090b;
+    --accent-gold: #cca43b;
+    --accent-gold-line: #a1781b;
   }
 }
 
 .dark,
-:root.dark {
+:root.dark,
+html.dark {
   color-scheme: dark;
   --bg-main: #000000;
   --bg-card: #050505;
   --bg-card-alt: #0d0d0d;
   --text-main: #f5f5f5;
-  --text-muted: #a3a3a3;
-  --text-subtle: #737373;
-  --border-main: #262626;
-  --border-subtle: #171717;
+  --text-muted: #d4d4d8;
+  --text-subtle: #a1a1aa;
+  --border-main: #27272a;
+  --border-subtle: #18181b;
   --btn-bg: #ffffff;
   --btn-text: #000000;
   --btn-hover: #e5e5e5;
-  --input-bg: #050505;
-  --accent-gold: #d97706;
-  --accent-gold-line: #d97706;
+  --input-bg: #09090b;
+  --accent-gold: #cca43b;
+  --accent-gold-line: #a1781b;
 }
-*/
 
 .light,
 :root.light {

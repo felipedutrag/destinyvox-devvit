@@ -12,6 +12,7 @@ import { TabPolarity } from './components/TabPolarity';
 import { TabCycles } from './components/TabCycles';
 import { TabDossier } from './components/TabDossier';
 import { OracleChat } from './components/OracleChat';
+import { HermeticStarIcon } from './components/HermeticStarIcon';
 import { DeleteChartModal, NewChartModal } from './components/Modals';
 
 // Custom Hooks
@@ -107,13 +108,6 @@ export const DestinyVoxApp = () => {
 
   const { profile, interpretation } = profileInit.readingData;
 
-  const tabs = [
-    { id: 'overview', label: profileInit.lang === 'en' ? 'ARCHETYPE' : profileInit.lang === 'es' ? 'ARQUETIPO' : 'ARQUÉTIPO' },
-    { id: 'talents', label: profileInit.lang === 'en' ? 'POLARITY' : profileInit.lang === 'es' ? 'POLARIDAD' : 'POLARIDADE' },
-    { id: 'year', label: profileInit.lang === 'en' ? 'CYCLES' : profileInit.lang === 'es' ? 'CICLOS' : 'CICLOS' },
-    { id: 'share', label: profileInit.lang === 'en' ? 'DOSSIER' : profileInit.lang === 'es' ? 'DOSSIER' : 'DOSSIÊ' },
-  ] as const;
-
   return (
     <div className="relative w-full h-full bg-[var(--bg-main)] text-[var(--text-main)] select-none flex flex-col overflow-hidden">
       {/* 1. HEADER EDITORIAL */}
@@ -172,33 +166,10 @@ export const DestinyVoxApp = () => {
         t={t}
       />
 
-      {/* 3. NAVEGAÇÃO DE ABAS */}
-      <nav className="relative border-b border-[var(--border-subtle)] bg-[var(--bg-main)] z-20">
-        <div className="max-w-3xl mx-auto flex items-center overflow-x-auto no-scrollbar scroll-smooth px-2 sm:px-6 sm:justify-center gap-1.5 sm:gap-5 font-mono text-[10px] sm:text-[11px] tracking-[0.12em] uppercase whitespace-nowrap">
-          {tabs.map((tab) => {
-            const isActive = activeTab === tab.id;
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-2 sm:py-2.5 px-2.5 sm:px-3.5 border-b-2 transition-all duration-150 cursor-pointer flex-shrink-0 text-center ${isActive
-                  ? 'border-[var(--accent-gold-line)] text-[var(--text-main)] font-semibold'
-                  : 'border-transparent text-[var(--text-subtle)] hover:text-[var(--text-main)] hover:border-neutral-400'
-                  }`}
-              >
-                <span>{tab.label}</span>
-              </button>
-            );
-          })}
-        </div>
-      </nav>
-
-      {/* 4. CONTEÚDO PRINCIPAL */}
+      {/* 3. CONTEÚDO PRINCIPAL */}
       <main
         ref={mainScrollRef}
-        className={`flex-1 z-10 max-w-3xl mx-auto w-full overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 ${
-          (profileInit.isVip || oracle.credits > 0) ? 'pb-20 sm:pb-24' : 'pb-6 sm:pb-8'
-        }`}
+        className="flex-1 z-10 max-w-3xl mx-auto w-full overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-20 sm:pb-24"
       >
         {activeTab === 'overview' && (
           <TabArchetype
@@ -240,13 +211,128 @@ export const DestinyVoxApp = () => {
             onResetChart={charts.handleResetChart}
           />
         )}
+
+        <footer className="pt-6 pb-2 border-t border-[var(--border-subtle)] flex items-center justify-between font-mono text-[8px] text-[var(--text-subtle)] tracking-widest">
+          <span>DESTINYVOX EPHEMERIS</span>
+          <span className="border border-[var(--border-main)] px-1 py-0.2 text-[7px] text-[var(--text-muted)]">v0.0.31</span>
+        </footer>
       </main>
 
-      {/* 5. ORÁCULO (Visível apenas para quem realizou o pagamento / VIP ou possui créditos) */}
+      {/* 4. NAVBAR FIXADO NO BOTTOM (ARCHETYPE, POLARITY, ORACLE AI, CYCLES, DOSSIER) */}
+      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-[var(--bg-main)]/95 backdrop-blur-md border-t border-[var(--border-main)] shadow-lg">
+        <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-1 sm:px-3 h-12 sm:h-14 font-mono text-[9px] sm:text-[10px] md:text-[11px] tracking-wider uppercase">
+          {/* 1. ARCHETYPE */}
+          <button
+            type="button"
+            onClick={() => {
+              if (oracle.isOracleOpen) oracle.closeOracle();
+              setActiveTab('overview');
+            }}
+            className={`flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 ${
+              activeTab === 'overview' && !oracle.isOracleOpen
+                ? 'text-[var(--accent-gold)] font-bold'
+                : 'text-[var(--text-subtle)] hover:text-[var(--text-main)]'
+            }`}
+          >
+            <span className="truncate px-0.5">{profileInit.lang === 'en' ? 'ARCHETYPE' : profileInit.lang === 'es' ? 'ARQUETIPO' : 'ARQUÉTIPO'}</span>
+            {activeTab === 'overview' && !oracle.isOracleOpen && (
+              <span className="w-4 sm:w-5 h-[2px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
+            )}
+          </button>
+
+          {/* 2. POLARITY */}
+          <button
+            type="button"
+            onClick={() => {
+              if (oracle.isOracleOpen) oracle.closeOracle();
+              setActiveTab('talents');
+            }}
+            className={`flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 ${
+              activeTab === 'talents' && !oracle.isOracleOpen
+                ? 'text-[var(--accent-gold)] font-bold'
+                : 'text-[var(--text-subtle)] hover:text-[var(--text-main)]'
+            }`}
+          >
+            <span className="truncate px-0.5">{profileInit.lang === 'en' ? 'POLARITY' : profileInit.lang === 'es' ? 'POLARIDAD' : 'POLARIDADE'}</span>
+            {activeTab === 'talents' && !oracle.isOracleOpen && (
+              <span className="w-4 sm:w-5 h-[2px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
+            )}
+          </button>
+
+          {/* 3. ORACLE AI (EM LEVE DESTAQUE CENTRAL) */}
+          {(profileInit.isVip || oracle.credits > 0) ? (
+            <button
+              type="button"
+              onClick={() => {
+                if (oracle.isOracleOpen) {
+                  oracle.closeOracle();
+                } else {
+                  oracle.openOracle();
+                }
+              }}
+              className="flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 px-0.5"
+            >
+              <div
+                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 rounded-full border transition-all ${
+                  oracle.isOracleOpen
+                    ? 'border-[var(--accent-gold)] bg-[var(--accent-gold)]/15 text-[var(--accent-gold)] shadow-[0_0_12px_rgba(204,164,59,0.3)] font-bold'
+                    : 'border-[var(--border-main)] bg-[var(--bg-card-alt)] hover:border-[var(--accent-gold)] text-[var(--text-main)] hover:text-[var(--accent-gold)] shadow-xs'
+                }`}
+              >
+                <HermeticStarIcon className="w-3 sm:w-3.5 h-3 sm:h-3.5 shrink-0 rounded-[2px]" />
+                <span className="font-semibold text-[8px] sm:text-[9.5px] md:text-[10px] whitespace-nowrap">
+                  {profileInit.lang === 'en' ? 'ORACLE AI' : 'ORÁCULO AI'}
+                </span>
+              </div>
+            </button>
+          ) : (
+            <div className="flex-1" />
+          )}
+
+          {/* 4. CYCLES */}
+          <button
+            type="button"
+            onClick={() => {
+              if (oracle.isOracleOpen) oracle.closeOracle();
+              setActiveTab('year');
+            }}
+            className={`flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 ${
+              activeTab === 'year' && !oracle.isOracleOpen
+                ? 'text-[var(--accent-gold)] font-bold'
+                : 'text-[var(--text-subtle)] hover:text-[var(--text-main)]'
+            }`}
+          >
+            <span className="truncate px-0.5">{profileInit.lang === 'en' ? 'CYCLES' : profileInit.lang === 'es' ? 'CICLOS' : 'CICLOS'}</span>
+            {activeTab === 'year' && !oracle.isOracleOpen && (
+              <span className="w-4 sm:w-5 h-[2px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
+            )}
+          </button>
+
+          {/* 5. DOSSIER */}
+          <button
+            type="button"
+            onClick={() => {
+              if (oracle.isOracleOpen) oracle.closeOracle();
+              setActiveTab('share');
+            }}
+            className={`flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 ${
+              activeTab === 'share' && !oracle.isOracleOpen
+                ? 'text-[var(--accent-gold)] font-bold'
+                : 'text-[var(--text-subtle)] hover:text-[var(--text-main)]'
+            }`}
+          >
+            <span className="truncate px-0.5">{profileInit.lang === 'en' ? 'DOSSIER' : profileInit.lang === 'es' ? 'DOSSIER' : 'DOSSIÊ'}</span>
+            {activeTab === 'share' && !oracle.isOracleOpen && (
+              <span className="w-4 sm:w-5 h-[2px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
+            )}
+          </button>
+        </div>
+      </nav>
+
+      {/* 5. ORÁCULO AI (BOTÃO FLUTUANTE + CHAT) */}
       {(profileInit.isVip || oracle.credits > 0) && (
         <OracleChat
           isOracleOpen={oracle.isOracleOpen}
-          viewportHeight={oracle.viewportHeight}
           oracleQuestion={oracle.oracleQuestion}
           oracleChat={oracle.oracleChat}
           isAskingOracle={oracle.isAskingOracle}
@@ -257,18 +343,11 @@ export const DestinyVoxApp = () => {
           isVip={profileInit.isVip || oracle.credits > 0}
           credits={oracle.credits}
           username={profileInit.redditUsername}
-          onOpen={oracle.openOracle}
           onClose={oracle.closeOracle}
           onAskOracle={oracle.handleAskOracle}
-          onQuestionChange={oracle.setOracleQuestion}
           t={t}
         />
       )}
-
-      <footer className="h-6 border-t border-[var(--border-subtle)] px-4 flex items-center justify-between z-20 bg-[var(--bg-main)] font-mono text-[8px] text-[var(--text-subtle)] tracking-widest">
-        <span>DESTINYVOX EPHEMERIS</span>
-        <span className="border border-[var(--border-main)] px-1 py-0.2 text-[7px] text-[var(--text-muted)]">v0.0.31</span>
-      </footer>
     </div>
   );
 };

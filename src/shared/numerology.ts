@@ -8,9 +8,13 @@ export interface NumerologyProfile {
   expression: number; // Expressão / Missão
   soulUrge: number; // Desejo da Alma / Motivação (Vogais)
   personality: number; // Personalidade Exterior (Consoantes)
+  birthday: number; // Número do Aniversário / Dom Inato (Dia de Nascimento)
+  maturity: number; // Número da Maturidade / Realização Final (Caminho + Expressão)
   personalYear: number; // Ano Pessoal Atual
   isMasterLifePath: boolean;
   isMasterExpression: boolean;
+  isMasterBirthday?: boolean;
+  isMasterMaturity?: boolean;
 }
 
 // Tabela Pitagórica Tradicional
@@ -60,12 +64,11 @@ export function reduceStrictSingleDigit(n: number): number {
   return n;
 }
 
-// 1. Caminho da Vida (Life Path): Soma do Dia + Mês + Ano de nascimento
-export function calculateLifePath(birthDateStr: string): number {
+// Parser seguro de datas de nascimento (suporta YYYY-MM-DD, MM/DD/YYYY, DD/MM/YYYY com fail-safe inteligente)
+export function parseBirthDate(birthDateStr: string): { day: number; month: number; year: number } {
   const digits = birthDateStr.replace(/[^0-9]/g, '');
-  if (!digits || digits.length < 8) return 1;
-
   let year = 1990, month = 1, day = 1;
+
   if (birthDateStr.includes('-')) {
     const parts = birthDateStr.split('-');
     if (parts[0] && parts[0].length === 4) {
@@ -96,7 +99,7 @@ export function calculateLifePath(birthDateStr: string): number {
       day = parseInt(parts[1] ?? '1', 10);
       year = parseInt(parts[2] ?? '1990', 10);
     }
-  } else  if (digits.length === 8) {
+  } else if (digits.length === 8) {
     // Default digits to MMDDYYYY (American standard)
     month = parseInt(digits.slice(0, 2), 10);
     day = parseInt(digits.slice(2, 4), 10);
@@ -110,11 +113,31 @@ export function calculateLifePath(birthDateStr: string): number {
     day = temp;
   }
 
+  return { day, month, year };
+}
+
+// 1. Caminho da Vida (Life Path): Soma do Dia + Mês + Ano de nascimento
+export function calculateLifePath(birthDateStr: string): number {
+  const digits = birthDateStr.replace(/[^0-9]/g, '');
+  if (!digits || digits.length < 8) return 1;
+
+  const { day, month, year } = parseBirthDate(birthDateStr);
   const redDay = reduceToSingleDigitOrMaster(day);
   const redMonth = reduceToSingleDigitOrMaster(month);
   const redYear = reduceToSingleDigitOrMaster(year);
 
   return reduceToSingleDigitOrMaster(redDay + redMonth + redYear);
+}
+
+// Número do Aniversário (Birthday Number / Dia Natalício): Dom nato e talento inato
+export function calculateBirthday(birthDateStr: string): number {
+  const { day } = parseBirthDate(birthDateStr);
+  return reduceToSingleDigitOrMaster(day);
+}
+
+// Número da Maturidade (Maturity Number / Realização Final): Síntese de Caminho + Expressão
+export function calculateMaturity(lifePath: number, expression: number): number {
+  return reduceToSingleDigitOrMaster(lifePath + expression);
 }
 
 // 2. Número de Expressão (também conhecido como Número do Destino): Soma de todas as letras do nome de certidão
@@ -207,12 +230,14 @@ export function calculatePersonalDay(personalMonth: number, currentDay = new Dat
   return reduceStrictSingleDigit(sum);
 }
 
-// Gerar Perfil Numerológico Completo
+// Gerar Perfil Numerológico Completo (7 Pilares Pitagóricos)
 export function calculateFullNumerology(fullName: string, birthDate: string): NumerologyProfile {
   const lifePath = calculateLifePath(birthDate);
   const expression = calculateExpression(fullName);
   const soulUrge = calculateSoulUrge(fullName);
   const personality = calculatePersonality(fullName);
+  const birthday = calculateBirthday(birthDate);
+  const maturity = calculateMaturity(lifePath, expression);
   const personalYear = calculatePersonalYear(birthDate);
 
   return {
@@ -222,9 +247,13 @@ export function calculateFullNumerology(fullName: string, birthDate: string): Nu
     expression,
     soulUrge,
     personality,
+    birthday,
+    maturity,
     personalYear,
     isMasterLifePath: [11, 22, 33].includes(lifePath),
     isMasterExpression: [11, 22, 33].includes(expression),
+    isMasterBirthday: [11, 22, 33].includes(birthday),
+    isMasterMaturity: [11, 22, 33].includes(maturity),
   };
 }
 
@@ -239,45 +268,45 @@ export interface ArchetypeData {
 // Arquétipos traduzidos para EN, PT, ES (Padrão: EN)
 export const NUMBER_ARCHETYPES_BY_LANG: Record<'en' | 'pt' | 'es', Record<number, Omit<ArchetypeData, 'keywords'>>> = {
   en: {
-    1: { title: 'The Pioneer / The Leader', element: 'Fire', keyword: 'Independence, Courage, Creation', color: '#ef4444' },
-    2: { title: 'The Diplomat / The Peacemaker', element: 'Water', keyword: 'Sensitivity, Cooperation, Harmony', color: '#06b6d4' },
-    3: { title: 'The Communicator / The Artist', element: 'Air', keyword: 'Expression, Enthusiasm, Creativity', color: '#f59e0b' },
-    4: { title: 'The Builder / The Strategist', element: 'Earth', keyword: 'Discipline, Order, Solidity', color: '#10b981' },
-    5: { title: 'The Explorer / The Catalyst', element: 'Air/Fire', keyword: 'Freedom, Adventure, Transformation', color: '#8b5cf6' },
-    6: { title: 'The Nurturer / The Harmonizer', element: 'Earth/Water', keyword: 'Love, Family, Responsibility', color: '#ec4899' },
-    7: { title: 'The Mystic / The Seeker', element: 'Water/Spirit', keyword: 'Intuition, Analysis, Inner Wisdom', color: '#6366f1' },
-    8: { title: 'The Sovereign / The Achiever', element: 'Earth/Fire', keyword: 'Power, Prosperity, Material Mastery', color: '#d97706' },
-    9: { title: 'The Humanitarian / The Cosmic Guide', element: 'Fire/Ether', keyword: 'Compassion, Universal Wisdom, Completion', color: '#14b8a6' },
+    1: { title: 'The Leader', element: 'Fire', keyword: 'Independence, Courage, Creation', color: '#ef4444' },
+    2: { title: 'The Diplomat', element: 'Water', keyword: 'Sensitivity, Cooperation, Harmony', color: '#06b6d4' },
+    3: { title: 'The Communicator', element: 'Air', keyword: 'Expression, Enthusiasm, Creativity', color: '#f59e0b' },
+    4: { title: 'The Builder', element: 'Earth', keyword: 'Discipline, Order, Solidity', color: '#10b981' },
+    5: { title: 'The Explorer', element: 'Air/Fire', keyword: 'Freedom, Adventure, Transformation', color: '#8b5cf6' },
+    6: { title: 'The Harmonizer', element: 'Earth/Water', keyword: 'Love, Family, Responsibility', color: '#ec4899' },
+    7: { title: 'The Seeker', element: 'Water/Spirit', keyword: 'Intuition, Analysis, Inner Wisdom', color: '#6366f1' },
+    8: { title: 'The Sovereign', element: 'Earth/Fire', keyword: 'Power, Prosperity, Material Mastery', color: '#d97706' },
+    9: { title: 'The Humanitarian', element: 'Fire/Ether', keyword: 'Compassion, Universal Wisdom, Completion', color: '#14b8a6' },
     11: { title: 'The Illuminator', element: 'Divine Light', keyword: 'Supreme Intuition, Spiritual Vision, Channel', color: '#a855f7' },
     22: { title: 'The Master Builder', element: 'Cosmos', keyword: 'Global Construction, Manifesting Giant Dreams', color: '#eab308' },
     33: { title: 'The Master Teacher', element: 'Universal Love', keyword: 'Spiritual Healing, Collective Elevation, Compassion', color: '#38bdf8' },
   },
   pt: {
-    1: { title: 'O Pioneiro / O Líder', element: 'Fogo', keyword: 'Independência, Coragem, Criação', color: '#ef4444' },
-    2: { title: 'O Diplomata / O Pacifista', element: 'Água', keyword: 'Sensibilidade, Cooperação, Harmonia', color: '#06b6d4' },
-    3: { title: 'O Comunicador / O Artista', element: 'Ar', keyword: 'Expressão, Entusiasmo, Criatividade', color: '#f59e0b' },
-    4: { title: 'O Construtor / O Estrategista', element: 'Terra', keyword: 'Disciplina, Ordem, Solidez', color: '#10b981' },
-    5: { title: 'O Explorador / O Transformador', element: 'Ar/Fogo', keyword: 'Liberdade, Aventura, Mudança', color: '#8b5cf6' },
-    6: { title: 'O Protetor / O Harmônico', element: 'Terra/Água', keyword: 'Amor, Família, Responsabilidade', color: '#ec4899' },
-    7: { title: 'O Místico / O Sábio', element: 'Água/Espírito', keyword: 'Intuição, Análise, Conexão Divina', color: '#6366f1' },
-    8: { title: 'O Soberano / O Realizador', element: 'Terra/Fogo', keyword: 'Poder, Prosperidade, Conquista Material', color: '#d97706' },
-    9: { title: 'O Humanitário / O Guia Cósmico', element: 'Fogo/Éter', keyword: 'Compaixão, Sabedoria Universal, Conclusão', color: '#14b8a6' },
+    1: { title: 'O Líder', element: 'Fogo', keyword: 'Independência, Coragem, Criação', color: '#ef4444' },
+    2: { title: 'O Diplomata', element: 'Água', keyword: 'Sensibilidade, Cooperação, Harmonia', color: '#06b6d4' },
+    3: { title: 'O Comunicador', element: 'Ar', keyword: 'Expressão, Entusiasmo, Criatividade', color: '#f59e0b' },
+    4: { title: 'O Construtor', element: 'Terra', keyword: 'Disciplina, Ordem, Solidez', color: '#10b981' },
+    5: { title: 'O Explorador', element: 'Ar/Fogo', keyword: 'Liberdade, Aventura, Mudança', color: '#8b5cf6' },
+    6: { title: 'O Pacificador', element: 'Terra/Água', keyword: 'Amor, Família, Responsabilidade', color: '#ec4899' },
+    7: { title: 'O Buscador', element: 'Água/Espírito', keyword: 'Intuição, Análise, Conexão Divina', color: '#6366f1' },
+    8: { title: 'O Soberano', element: 'Terra/Fogo', keyword: 'Poder, Prosperidade, Conquista Material', color: '#d97706' },
+    9: { title: 'O Humanitário', element: 'Fogo/Éter', keyword: 'Compaixão, Sabedoria Universal, Conclusão', color: '#14b8a6' },
     11: { title: 'O Iluminador', element: 'Luz Divina', keyword: 'Intuição Suprema, Visão Espiritual, Canalizador', color: '#a855f7' },
     22: { title: 'O Mestre Arquiteto', element: 'Cosmos', keyword: 'Construção Global, Materialização de Sonhos Gigantes', color: '#eab308' },
     33: { title: 'O Mestre Avatar', element: 'Amor Universal', keyword: 'Cura Espiritual, Elevação Coletiva, Compaixão Crística', color: '#38bdf8' },
   },
   es: {
-    1: { title: 'El Pionero / El Líder', element: 'Fuego', keyword: 'Independencia, Coraje, Creación', color: '#ef4444' },
-    2: { title: 'El Diplomático / El Pacificador', element: 'Agua', keyword: 'Sensibilidad, Cooperación, Armonía', color: '#06b6d4' },
-    3: { title: 'El Comunicador / El Artista', element: 'Aire', keyword: 'Expresión, Entusiasmo, Creatividad', color: '#f59e0b' },
-    4: { title: 'El Constructor / El Estratega', element: 'Tierra', keyword: 'Disciplina, Orden, Solidez', color: '#10b981' },
-    5: { title: 'El Explorador / El Catalizador', element: 'Aire/Fuego', keyword: 'Libertad, Aventura, Transformación', color: '#8b5cf6' },
-    6: { title: 'El Protector / El Armónico', element: 'Tierra/Agua', keyword: 'Amor, Familia, Responsabilidad', color: '#ec4899' },
-    7: { title: 'El Místico / El Sabio', element: 'Agua/Espíritu', keyword: 'Intuición, Análisis, Sabiduría Interior', color: '#6366f1' },
-    8: { title: 'El Soberano / El Realizador', element: 'Tierra/Fuego', keyword: 'Poder, Prosperidad, Conquista Material', color: '#d97706' },
-    9: { title: 'El Humanitario / El Guía Cósmico', element: 'Fuego/Éter', keyword: 'Compasión, Sabiduría Universal, Culminación', color: '#14b8a6' },
+    1: { title: 'El Líder', element: 'Fuego', keyword: 'Independencia, Coraje, Creación', color: '#ef4444' },
+    2: { title: 'El Diplomático', element: 'Agua', keyword: 'Sensibilidad, Cooperación, Armonía', color: '#06b6d4' },
+    3: { title: 'El Comunicador', element: 'Aire', keyword: 'Expresión, Entusiasmo, Creatividad', color: '#f59e0b' },
+    4: { title: 'El Constructor', element: 'Tierra', keyword: 'Disciplina, Orden, Solidez', color: '#10b981' },
+    5: { title: 'El Explorador', element: 'Aire/Fuego', keyword: 'Libertad, Aventura, Transformación', color: '#8b5cf6' },
+    6: { title: 'El Pacificador', element: 'Tierra/Agua', keyword: 'Amor, Familia, Responsabilidad', color: '#ec4899' },
+    7: { title: 'El Buscador', element: 'Agua/Espíritu', keyword: 'Intuición, Análisis, Sabiduría Interior', color: '#6366f1' },
+    8: { title: 'El Soberano', element: 'Tierra/Fuego', keyword: 'Poder, Prosperidad, Conquista Material', color: '#d97706' },
+    9: { title: 'El Humanitario', element: 'Fuego/Éter', keyword: 'Compasión, Sabiduría Universal, Culminación', color: '#14b8a6' },
     11: { title: 'El Iluminador', element: 'Luz Divina', keyword: 'Intuición Suprema, Visión Espiritual, Canalizador', color: '#a855f7' },
-    22: { title: 'El Maestro Arquitecto', element: 'Cosmos', keyword: 'Construcción Global, Materialización de Grandes Sueños', color: '#eab308' },
+    22: { title: 'El Maestro Constructor', element: 'Cosmos', keyword: 'Construcción Global, Materialización de Grandes Sueños', color: '#eab308' },
     33: { title: 'El Maestro Avatar', element: 'Amor Universal', keyword: 'Sanación Espiritual, Elevación Colectiva, Compasión', color: '#38bdf8' },
   },
 };
@@ -347,9 +376,11 @@ export function getSoulDictum(num: number, lang: 'en' | 'pt' | 'es' = 'en'): str
   return dict[num] || dict[1]!;
 }
 
-// Re-exportações das interpretações aprofundadas dos 5 pilares e personas (1-9, 11, 22, 33)
+// Re-exportações das interpretações aprofundadas dos pilares (1-9, 11, 22, 33)
 export { getSoulUrgeDeep, SOUL_URGE_INTERPRETATIONS as SOUL_URGE_DEEP_BY_LANG } from './interpretations/soulUrge';
 export { getPersonalityDeep, PERSONALITY_INTERPRETATIONS as PERSONALITY_DEEP_BY_LANG } from './interpretations/personality';
+export { getBirthdayDeep, BIRTHDAY_INTERPRETATIONS as BIRTHDAY_DEEP_BY_LANG } from './interpretations/birthday';
+export { getMaturityDeep, MATURITY_INTERPRETATIONS as MATURITY_DEEP_BY_LANG } from './interpretations/maturity';
 
 
 

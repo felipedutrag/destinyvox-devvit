@@ -1,4 +1,4 @@
-﻿import type { NumerologyProfile, ArchetypeData } from '../../shared/numerology';
+import type { NumerologyProfile, ArchetypeData } from '../../shared/numerology';
 
 export interface CosmicReadingResult {
   profile: NumerologyProfile;
@@ -7,6 +7,8 @@ export interface CosmicReadingResult {
     expression: ArchetypeData;
     soulUrge: ArchetypeData;
     personality: ArchetypeData;
+    birthday: ArchetypeData;
+    maturity: ArchetypeData;
     personalYear: ArchetypeData;
   };
   interpretation: {
@@ -14,9 +16,11 @@ export interface CosmicReadingResult {
     hiddenTalents: string;
     shadowAndChallenges: string;
     yearlyForecast: string;
-    monthlyForecast?: string;
-    dailyForecast?: string;
+    monthlyForecast?: string | undefined;
+    dailyForecast?: string | undefined;
     cosmicMotto: string;
+    birthdayTalent?: string | undefined;
+    maturityMission?: string | undefined;
   };
 }
 

@@ -18,6 +18,8 @@ interface TabDossierProps {
     expressionLabel: string;
     soulUrgeLabel: string;
     personalityLabel: string;
+    birthdayLabel?: string;
+    maturityLabel?: string;
     personalYearLabel: (year: number) => string;
     postCommentSuccess: string;
     postingCommentBtn: string;
@@ -103,6 +105,18 @@ export const TabDossier: React.FC<TabDossierProps> = ({
             <span className="font-mono text-[11px] sm:text-xs uppercase tracking-wider text-[var(--text-muted)] font-medium">{t.personalityLabel}</span>
             <span className="font-editorial text-xl sm:text-2xl text-[var(--text-main)] font-semibold">#{profile.personality}</span>
           </div>
+          {profile.birthday !== undefined && (
+            <div className="flex justify-between items-baseline">
+              <span className="font-mono text-[11px] sm:text-xs uppercase tracking-wider text-[var(--text-muted)] font-medium">{t.birthdayLabel || 'Birthday'}</span>
+              <span className="font-editorial text-xl sm:text-2xl text-[var(--text-main)] font-semibold">#{profile.birthday}</span>
+            </div>
+          )}
+          {profile.maturity !== undefined && (
+            <div className="flex justify-between items-baseline">
+              <span className="font-mono text-[11px] sm:text-xs uppercase tracking-wider text-[var(--text-muted)] font-medium">{t.maturityLabel || 'Maturity'}</span>
+              <span className="font-editorial text-xl sm:text-2xl text-[var(--text-main)] font-semibold">#{profile.maturity}</span>
+            </div>
+          )}
           <div className="flex justify-between items-baseline">
             <span className="font-mono text-[11px] sm:text-xs uppercase tracking-wider text-[var(--text-muted)] font-medium">{t.personalYearLabel(new Date().getFullYear())}</span>
             <span className="font-editorial text-xl sm:text-2xl text-[var(--text-main)] font-semibold">#{profile.personalYear}</span>

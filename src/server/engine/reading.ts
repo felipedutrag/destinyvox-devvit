@@ -43,6 +43,8 @@ export async function getOrGenerateProfile(
     expression: getArchetype(profile.expression, langKey),
     soulUrge: getArchetype(profile.soulUrge, langKey),
     personality: getArchetype(profile.personality, langKey),
+    birthday: getArchetype(profile.birthday, langKey),
+    maturity: getArchetype(profile.maturity, langKey),
     personalYear: getArchetype(profile.personalYear, langKey),
   };
 

@@ -32,6 +32,8 @@ export function useSharing(
       `* **${isEn ? 'Expression / Destiny (Name)' : isEs ? 'Expresión / Destino (Nombre)' : 'Expressão / Destino (Nome)'}:** #${profile.expression} — *${archetypes.expression.title}*\n` +
       `* **${isEn ? 'Soul Urge' : isEs ? 'Deseo del Alma' : 'Desejo da Alma'}:** #${profile.soulUrge} — *${archetypes.soulUrge.title}*\n` +
       `* **${isEn ? 'Personality' : isEs ? 'Personalidad' : 'Personalidade'}:** #${profile.personality}\n` +
+      (profile.birthday ? `* **${isEn ? 'Birthday (Innate Talent)' : isEs ? 'Cumpleaños (Don Innato)' : 'Aniversário (Talento Nato)'}:** #${profile.birthday}\n` : '') +
+      (profile.maturity ? `* **${isEn ? 'Maturity (Ultimate Goal)' : isEs ? 'Madurez (Meta Suprema)' : 'Maturidade (Meta Suprema)'}:** #${profile.maturity}\n` : '') +
       `* **${isEn ? 'Current Cycle' : isEs ? 'Ciclo Actual' : 'Ciclo Atual'} (${new Date().getFullYear()}):** ${isEn ? 'Personal Year' : isEs ? 'Año Personal' : 'Ano Pessoal'} #${profile.personalYear} — *${archetypes.personalYear.title}*\n\n` +
       `> *"${interpretation.cosmicMotto}"*\n\n` +
       `---\n` +

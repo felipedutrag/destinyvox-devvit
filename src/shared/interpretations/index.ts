@@ -12,6 +12,8 @@ import {
   MONTHLY_FORECAST_INTERPRETATIONS,
   DAILY_FORECAST_INTERPRETATIONS,
 } from './cycles';
+import { BIRTHDAY_INTERPRETATIONS } from './birthday';
+import { MATURITY_INTERPRETATIONS } from './maturity';
 
 export * from './lifePath';
 export * from './expression';
@@ -19,6 +21,8 @@ export * from './shadow';
 export * from './cycles';
 export * from './soulUrge';
 export * from './personality';
+export * from './birthday';
+export * from './maturity';
 export * from './utils';
 
 export type InterpretationLanguage = 'en' | 'pt' | 'es';
@@ -43,6 +47,8 @@ export interface CosmicInterpretation {
   monthlyForecast: string;
   dailyForecast: string;
   cosmicMotto: string;
+  birthdayTalent?: string | undefined;
+  maturityMission?: string | undefined;
 }
 
 export function extractFirstName(fullName?: string): string {
@@ -101,6 +107,13 @@ export function buildCosmicInterpretation(
   const monthlyForecast = interpolateFirstName(rawMonthlyForecast, profile.fullName);
   const dailyForecast = interpolateFirstName(rawDailyForecast, profile.fullName);
 
+  const birthdayDict = BIRTHDAY_INTERPRETATIONS[langKey] || {};
+  const maturityDict = MATURITY_INTERPRETATIONS[langKey] || {};
+  const rawBirthday = profile.birthday ? (birthdayDict[profile.birthday] || birthdayDict[1] || '') : '';
+  const rawMaturity = profile.maturity ? (maturityDict[profile.maturity] || maturityDict[1] || '') : '';
+  const birthdayTalent = rawBirthday ? interpolateFirstName(rawBirthday, profile.fullName) : undefined;
+  const maturityMission = rawMaturity ? interpolateFirstName(rawMaturity, profile.fullName) : undefined;
+
   return {
     destinyOverview,
     hiddenTalents,
@@ -109,5 +122,7 @@ export function buildCosmicInterpretation(
     monthlyForecast,
     dailyForecast,
     cosmicMotto,
+    birthdayTalent,
+    maturityMission,
   };
 }

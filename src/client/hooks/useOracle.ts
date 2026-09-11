@@ -23,10 +23,6 @@ export function useOracle(
   const [oracleChat, setOracleChat] = useState<OracleChatMessage[]>([]);
   const [isAskingOracle, setIsAskingOracle] = useState<boolean>(false);
   const [isOracleExpanded, setIsOracleExpanded] = useState<boolean>(true);
-  const [keyboardHeight, setKeyboardHeight] = useState<number>(0);
-  const [viewportHeight, setViewportHeight] = useState<number>(() =>
-    typeof window !== 'undefined' && window.visualViewport ? window.visualViewport.height : 0
-  );
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const oracleFormRef = useRef<HTMLFormElement>(null);
 
@@ -50,10 +46,10 @@ export function useOracle(
     // Consulta imediata ao abrir o modal
     void syncCredits();
 
-    // Polling contínuo em tempo real a cada 3 segundos
+    // Polling contínuo em tempo real a cada 5 segundos
     const interval = setInterval(() => {
       void syncCredits();
-    }, 3000);
+    }, 5000);
 
     return () => {
       isMounted = false;
@@ -61,9 +57,15 @@ export function useOracle(
     };
   }, [isOracleOpen]);
 
-  const handleAskOracle = async (e?: FormEvent) => {
-    if (e) e.preventDefault();
-    if (!oracleQuestion.trim() || !readingData) return;
+  const handleAskOracle = async (questionOrEvent?: FormEvent | string) => {
+    let q = '';
+    if (typeof questionOrEvent === 'string') {
+      q = questionOrEvent.trim();
+    } else {
+      if (questionOrEvent) questionOrEvent.preventDefault();
+      q = oracleQuestion.trim();
+    }
+    if (!q || !readingData) return;
 
     if (credits <= 0) {
       setOracleChat((prev) => [
@@ -81,7 +83,6 @@ export function useOracle(
       return;
     }
 
-    const q = oracleQuestion.trim();
     setOracleQuestion('');
     setOracleChat((prev) => [...prev, { sender: 'user', text: q }]);
     setIsAskingOracle(true);
@@ -121,56 +122,11 @@ export function useOracle(
     if (isOracleOpen) {
       chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [oracleChat, isAskingOracle, isOracleOpen, isOracleExpanded]);
-
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const handleVisualResize = () => {
-      const vv = window.visualViewport;
-      if (vv) {
-        setViewportHeight(vv.height);
-        const heightDiff = window.innerHeight - vv.height;
-        if (heightDiff > 60) {
-          setKeyboardHeight(heightDiff);
-        } else {
-          setKeyboardHeight(0);
-        }
-      } else {
-        setViewportHeight(window.innerHeight);
-        setKeyboardHeight(0);
-      }
-
-      if (isOracleOpen) {
-        setTimeout(() => {
-          chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-        }, 50);
-      }
-    };
-
-    handleVisualResize();
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', handleVisualResize);
-      window.visualViewport.addEventListener('scroll', handleVisualResize);
-    }
-    window.addEventListener('resize', handleVisualResize);
-
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener('resize', handleVisualResize);
-        window.visualViewport.removeEventListener('scroll', handleVisualResize);
-      }
-      window.removeEventListener('resize', handleVisualResize);
-    };
-  }, [isOracleOpen]);
+  }, [oracleChat.length, isAskingOracle, isOracleOpen]);
 
   const openOracle = () => {
     setIsOracleOpen(true);
     setIsOracleExpanded(true);
-    setTimeout(() => {
-      chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 60);
   };
 
   const closeOracle = () => {
@@ -182,8 +138,8 @@ export function useOracle(
   return {
     isOracleOpen,
     isOracleExpanded,
-    viewportHeight,
-    keyboardHeight,
+    viewportHeight: 0,
+    keyboardHeight: 0,
     oracleQuestion,
     oracleChat,
     isAskingOracle,
