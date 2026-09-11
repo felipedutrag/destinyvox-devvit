@@ -108,6 +108,15 @@ export async function checkSupabaseVip(
           // Erro de escrita de cache ignorado
         }
         return true;
+      } else {
+        // Se o Supabase retornou o usuário como inativo, limpa o Redis imediatamente
+        try {
+          await redis.del(`destinyvox_vip_${cleanUser}`);
+          await redis.del(`destinyvox_vip_${normUser}`);
+        } catch {
+          // Erro de remoção de cache ignorado
+        }
+        return false;
       }
     }
   } catch (err: unknown) {
@@ -202,6 +211,24 @@ export async function getSupabaseUserVip(username: string): Promise<{
           user.status === 'true' ||
           user.status === 'active' ||
           credits > 0;
+
+        const normUser = cleanUser.toLowerCase();
+        if (isVip) {
+          try {
+            await redis.set(`destinyvox_vip_${cleanUser}`, 'active');
+            await redis.set(`destinyvox_vip_${normUser}`, 'active');
+          } catch {
+            // ignore
+          }
+        } else {
+          try {
+            await redis.del(`destinyvox_vip_${cleanUser}`);
+            await redis.del(`destinyvox_vip_${normUser}`);
+          } catch {
+            // ignore
+          }
+        }
+
         return { isVip, credits, plan: user.plan || '' };
       }
     }

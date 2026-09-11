@@ -51,16 +51,18 @@ export const oracleProcedures = {
 
       if (username) {
         // 1. Consulta VIP e créditos diretamente no Supabase
+        let supabaseChecked = false;
         try {
           const vipInfo = await getSupabaseUserVip(username);
           hasAccess = vipInfo.isVip || vipInfo.credits > 0;
           remainingCredits = vipInfo.credits;
+          supabaseChecked = true;
         } catch {
           // ignore
         }
 
-        // 2. Cache no Redis caso o Supabase não tenha respondido
-        if (!hasAccess) {
+        // 2. Cache no Redis apenas se o Supabase não respondeu
+        if (!supabaseChecked && !hasAccess) {
           try {
             const cached =
               (await redis.get(`destinyvox_vip_${username}`)) ||

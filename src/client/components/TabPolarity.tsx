@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import { renderParagraphs } from './renderParagraphs';
 
@@ -14,33 +14,33 @@ interface TabPolarityProps {
 
 export const TabPolarity: React.FC<TabPolarityProps> = ({ interpretation, t }) => {
   return (
-    <div className="space-y-5 animate-fadeIn">
+    <div className="space-y-6 animate-fadeIn">
       {/* Luz / Potencial */}
-      <div className="border border-[var(--border-main)] p-5 sm:p-6 bg-[var(--bg-card)] space-y-4">
-        <div className="border-b border-[var(--border-main)] pb-3 space-y-2">
-          <span className="inline-block font-mono text-[8px] sm:text-[9px] tracking-widest uppercase border border-[var(--border-main)] px-2 py-0.5 text-[var(--accent-gold)]">
+      <div className="border border-[var(--border-main)] p-5 sm:p-7 md:p-8 bg-[var(--bg-card)] space-y-5">
+        <div className="border-b border-[var(--border-main)] pb-3.5 space-y-2">
+          <span className="inline-block font-mono text-[9px] sm:text-[11px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium">
             {t.polarityHighBadge}
           </span>
-          <h3 className="font-editorial text-lg sm:text-xl text-[var(--text-main)] font-normal">
+          <h3 className="font-editorial text-xl sm:text-2xl md:text-3xl text-[var(--text-main)] font-normal tracking-tight">
             {t.polarityHighTitle}
           </h3>
         </div>
-        <div className="font-editorial text-sm sm:text-base text-[var(--text-muted)] font-normal">
+        <div className="font-editorial text-base sm:text-lg md:text-xl text-[var(--text-muted)] font-normal leading-relaxed">
           {renderParagraphs(interpretation.hiddenTalents)}
         </div>
       </div>
 
       {/* Sombra / Inibicoes */}
-      <div className="border border-[var(--border-main)] p-5 sm:p-6 bg-[var(--bg-card)] space-y-4">
-        <div className="border-b border-[var(--border-main)] pb-3 space-y-2">
-          <span className="inline-block font-mono text-[8px] sm:text-[9px] tracking-widest uppercase border border-[var(--border-main)] px-2 py-0.5 text-[var(--accent-gold)]">
+      <div className="border border-[var(--border-main)] p-5 sm:p-7 md:p-8 bg-[var(--bg-card)] space-y-5">
+        <div className="border-b border-[var(--border-main)] pb-3.5 space-y-2">
+          <span className="inline-block font-mono text-[9px] sm:text-[11px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium">
             {t.polarityShadowBadge}
           </span>
-          <h3 className="font-editorial text-lg sm:text-xl text-[var(--text-main)] font-normal">
+          <h3 className="font-editorial text-xl sm:text-2xl md:text-3xl text-[var(--text-main)] font-normal tracking-tight">
             {t.polarityShadowTitle}
           </h3>
         </div>
-        <div className="font-editorial text-sm sm:text-base text-[var(--text-muted)] font-normal">
+        <div className="font-editorial text-base sm:text-lg md:text-xl text-[var(--text-muted)] font-normal leading-relaxed">
           {renderParagraphs(interpretation.shadowAndChallenges)}
         </div>
       </div>

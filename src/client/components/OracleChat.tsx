@@ -240,15 +240,15 @@ export const OracleChat: React.FC<OracleChatProps> = ({
             </div>
 
             {oracleChat.map((msg, idx) => (
-              <div key={idx} className="space-y-1">
-                <div className="font-mono text-[8px] tracking-widest uppercase text-[var(--text-subtle)]">
+              <div key={idx} className="space-y-1.5">
+                <div className="font-mono text-[9px] sm:text-[10px] tracking-widest uppercase text-[var(--text-subtle)] font-medium">
                   {msg.sender === 'user' ? t.youWord : t.oracleTitle.toUpperCase()}
                 </div>
                 <div
                   className={
                     msg.sender === 'user'
-                      ? 'bg-[var(--bg-card-alt)] border border-[var(--border-main)] p-2.5 text-[var(--text-main)] text-xs sm:text-sm font-normal'
-                      : 'border-l-2 border-[var(--accent-gold-line)] pl-3 py-1 font-editorial text-sm sm:text-base text-[var(--text-main)] leading-relaxed'
+                      ? 'bg-[var(--bg-card-alt)] border border-[var(--border-main)] p-3 text-[var(--text-main)] text-sm sm:text-base font-normal'
+                      : 'border-l-2 border-[var(--accent-gold-line)] pl-3.5 py-1 font-editorial text-base sm:text-lg md:text-xl text-[var(--text-main)] leading-relaxed'
                   }
                 >
                   {msg.sender === 'user' ? msg.text : renderParagraphs(msg.text)}
@@ -257,8 +257,8 @@ export const OracleChat: React.FC<OracleChatProps> = ({
             ))}
 
             {isAskingOracle && (
-              <div className="font-mono text-[9px] text-[var(--accent-gold)] tracking-widest uppercase animate-pulse flex items-center gap-2">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] animate-ping" />
+              <div className="font-mono text-[10px] sm:text-xs text-[var(--accent-gold)] tracking-widest uppercase animate-pulse flex items-center gap-2 font-medium">
+                <span className="inline-block w-2 h-2 rounded-full bg-[var(--accent-gold)] animate-ping" />
                 {t.oracleConsulting}
               </div>
             )}

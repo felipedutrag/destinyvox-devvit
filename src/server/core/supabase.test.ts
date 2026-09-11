@@ -57,6 +57,7 @@ describe('supabase VIP checker', () => {
 
     const result = await checkSupabaseVip('testuser');
     expect(result).toBe(false);
+    expect(mockRedisDel).toHaveBeenCalledWith('destinyvox_vip_testuser');
   });
 
   it('atualiza o status de VIP no Supabase via upsertSupabaseVipUser', async () => {

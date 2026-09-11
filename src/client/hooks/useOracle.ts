@@ -10,7 +10,15 @@ export function useOracle(
   initialCredits: number = 0
 ) {
   const [isOracleOpen, setIsOracleOpen] = useState<boolean>(false);
-  const [credits, setCredits] = useState<number>(initialCredits);
+  const [serverCredits, setServerCredits] = useState<number | null>(null);
+  const credits = serverCredits !== null ? serverCredits : initialCredits;
+  const setCredits = (val: number | ((prev: number) => number)) => {
+    setServerCredits((current) => {
+      const base = current !== null ? current : initialCredits;
+      return typeof val === 'function' ? val(base) : val;
+    });
+  };
+
   const [oracleQuestion, setOracleQuestion] = useState<string>('');
   const [oracleChat, setOracleChat] = useState<OracleChatMessage[]>([]);
   const [isAskingOracle, setIsAskingOracle] = useState<boolean>(false);
@@ -22,13 +30,6 @@ export function useOracle(
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const oracleFormRef = useRef<HTMLFormElement>(null);
 
-  // Sincroniza créditos se o valor inicial mudar
-  useEffect(() => {
-    if (initialCredits > 0) {
-      setCredits(initialCredits);
-    }
-  }, [initialCredits]);
-
   // Sincronização em tempo real (Realtime Polling) enquanto o chat do Oráculo estiver aberto
   useEffect(() => {
     if (!isOracleOpen) return;
@@ -39,7 +40,7 @@ export function useOracle(
       try {
         const res = await trpc.destinyvox.getMyCredits.query();
         if (isMounted && typeof res.credits === 'number') {
-          setCredits(res.credits);
+          setServerCredits(res.credits);
         }
       } catch {
         // Ignora erros momentâneos de rede em background
@@ -47,10 +48,12 @@ export function useOracle(
     };
 
     // Consulta imediata ao abrir o modal
-    syncCredits();
+    void syncCredits();
 
     // Polling contínuo em tempo real a cada 3 segundos
-    const interval = setInterval(syncCredits, 3000);
+    const interval = setInterval(() => {
+      void syncCredits();
+    }, 3000);
 
     return () => {
       isMounted = false;

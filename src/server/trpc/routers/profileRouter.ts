@@ -6,7 +6,6 @@ import {
   type CosmicReadingResult,
 } from '../../destinyVoxEngine';
 import { encryptUsername } from '../../core/crypto';
-import { syncUserVipFromStripe } from '../../core/stripeSync';
 import {
   getSupabaseUserProfile,
   saveSupabaseUserCharts,
@@ -25,18 +24,21 @@ export const profileProcedures = {
     }
     const username = rawUsername.replace(/^u\//i, '').trim();
 
-    // 1. Consulta VIP e créditos no Supabase
+    // 1. Consulta VIP e créditos no Supabase (Fonte Primária de Verdade)
     let isVip = false;
     let credits = 0;
+    let supabaseChecked = false;
     try {
       const vipInfo = await getSupabaseUserVip(username);
       isVip = vipInfo.isVip || vipInfo.credits > 0;
       credits = vipInfo.credits;
+      supabaseChecked = true;
     } catch {
-      // ignore
+      // Falha ao conectar ao Supabase, usará Redis como contingência
     }
 
-    if (!isVip) {
+    // Só recorre ao Redis se o Supabase não pôde ser consultado
+    if (!supabaseChecked && !isVip) {
       try {
         const vipFlag =
           (await redis.get(`destinyvox_vip_${username}`)) ||
@@ -46,18 +48,6 @@ export const profileProcedures = {
         }
       } catch {
         // Ignorar erro ao ler flag VIP do Redis
-      }
-    }
-
-    // Fallback de sincronização Stripe se necessário
-    if (!isVip) {
-      try {
-        const syncRes = await syncUserVipFromStripe(username);
-        if (syncRes.isVip) {
-          isVip = true;
-        }
-      } catch {
-        // Ignora falha de rede da Stripe para não travar o carregamento do perfil
       }
     }
 

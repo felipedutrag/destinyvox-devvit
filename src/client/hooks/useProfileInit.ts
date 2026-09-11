@@ -73,8 +73,8 @@ export function useProfileInit(
 
       try {
         const saved = await trpc.destinyvox.getSavedProfile.query();
-        if (saved.isVip) setIsVip(true);
-        if (typeof saved.credits === 'number') setCredits(saved.credits);
+        setIsVip(Boolean(saved.isVip));
+        setCredits(typeof saved.credits === 'number' ? saved.credits : 0);
         if (saved.username) setRedditUsername(saved.username);
         if (saved.userToken) setUserToken(saved.userToken);
         if (saved.charts && saved.charts.length > 0) {
