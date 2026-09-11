@@ -61,7 +61,8 @@
       "enable": true,
       "domains": [
         "generativelanguage.googleapis.com",
-        "zesbznfykirwzoubatio.supabase.co"
+        "zesbznfykirwzoubatio.supabase.co",
+        "api.telegram.org"
       ]
     }
   },

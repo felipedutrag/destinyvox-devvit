@@ -4,7 +4,7 @@ import { publicProcedure } from '../init';
 import { askDestinyVoxOracle, type CosmicReadingResult } from '../../destinyVoxEngine';
 import { calculateFullNumerology } from '../../../shared/numerology';
 import { syncUserVipFromStripe } from '../../core/stripeSync';
-import { getSupabaseUserVip, useSupabaseUserCredit } from '../../core/supabase';
+import { getSupabaseUserVip, useSupabaseUserCredit, ensureUserWelcomeCredits } from '../../core/supabase';
 
 export const oracleProcedures = {
   getMyCredits: publicProcedure.query(async () => {
@@ -15,7 +15,7 @@ export const oracleProcedures = {
     const username = rawUsername.replace(/^u\//i, '').trim();
 
     try {
-      const vipInfo = await getSupabaseUserVip(username);
+      const vipInfo = await ensureUserWelcomeCredits(username);
       return {
         credits: vipInfo.credits,
         isVip: vipInfo.isVip || vipInfo.credits > 0,

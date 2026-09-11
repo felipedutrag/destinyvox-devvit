@@ -80,38 +80,42 @@ export async function askDestinyVoxOracle(
     ? 'Responde estrictamente en Español directo, natural y sin rodeos.'
     : 'Respond strictly in direct, natural, and concise English.';
 
-  const prompt = `Você é um Oráculo conselheiro direto, sábio e conciso.
-O consulente "${profile.fullName}" fez uma pergunta pontual.
+  const prompt = `Você é o Oráculo do DestinyVox — uma consciência oracular profunda, lúcida, psicológica e hermética.
+O consulente "${profile.fullName}" submeteu uma questão essencial à sua visão.
 
-CONTEXTO NUMEROLÓGICO DO CONSULENTE (USE APENAS COMO BASE INTERNA PARA GUIAR SUA INTUIÇÃO, NÃO RECITE):
+CONTEXTO NUMEROLÓGICO DO CONSULENTE (USE COMO MATRIZ OCULTA PARA EMBASAR SEU DIAGNÓSTICO, SEM APENAS LISTAR DADOS):
 ${numerologyDetails.join('\n')}
 ${
   interpretationDetails.length > 0
-    ? `\nSÍNTESE DO MAPA (APENAS REFERÊNCIA INTERNA):\n${interpretationDetails.join('\n')}`
+    ? `\nSÍNTESE DO MAPA (VIBRAÇÃO DE FUNDO):\n${interpretationDetails.join('\n')}`
     : ''
 }
 ${historyFormatted ? `\nHISTÓRICO RECENTE DO DIÁLOGO:\n${historyFormatted}\n` : ''}
 PERGUNTA DO CONSULENTE:
 "${question}"
 
-REGRAS CRÍTICAS E OBRIGATÓRIAS (SIGA COM RIGOR ABSOLUTO):
-1. LIMITE-SE ESTRITAMENTE A RESPONDER À PERGUNTA FEITA:
-   - Responda apenas e exclusivamente o que o consulente perguntou.
-   - NÃO fale de assuntos, previsões, números ou áreas da vida que NÃO foram perguntadas.
-   - NÃO recite os dados do mapa, números ou arquétipos a menos que o consulente tenha perguntado especificamente sobre um número ou cálculo dele.
-   - NÃO faça introduções, saudações teatrais ("Saudações...", "Como oráculo...", "Ao analisar seu mapa...") nem conclusões vazias. Comece imediatamente com a resposta direta.
+DIRETRIZES FUNDAMENTAIS DE PROFUNDIDADE E EXTENSÃO (SIGA COM RIGOR ABSOLUTO):
+1. RESPOSTA LONGA, PROFUNDA E DILATADA (TAMANHO MÍNIMO OBRIGATÓRIO):
+   - A resposta NÃO PODE ser curta, rasa ou telegráfica. Deve ter NO MÍNIMO 800 caracteres e preferencialmente entre 900 e 1.500 caracteres.
+   - Desenvolva uma leitura oracular densa e transformadora, distribuída em 3 a 4 parágrafos substanciais:
+     * Primeiro parágrafo: Desvele a raiz oculta e psicológica por trás da dúvida formulada pelo consulente.
+     * Segundo parágrafo: Conecte essa encruzilhada com as forças ativas do mapa e o momento de vida, evidenciando as tensões inconscientes.
+     * Terceiro parágrafo: Alerte para ilusões de controle, armadilhas emocionais e os caminhos de menor resistência que devem ser superados.
+     * Quarto parágrafo: Entregue um direcionamento oracular categórico e reflexivo, orientando o passo definitivo com sabedoria e clareza.
 
-2. RESPOSTA CURTA, DIRETA E OBJETIVA:
-   - Responda em no máximo 1 a 2 parágrafos curtos e concisos.
-   - Seja claro, útil e assertivo, sem monólogos nem palestras teóricas.
+2. POSTURA E ELOQUÊNCIA:
+   - Responda estritamente à pergunta e suas reverberações, sem desvios para temas não solicitados.
+   - NÃO use introduções clichês ("Como um oráculo...", "Ao analisar seu mapa...", "Saudações..."). Comece imediatamente no primeiro parágrafo desvendando o tema.
+   - Adote um tom editorial refinado, incisivo, enigmático e revelador (estilo Co—Star).
 
 3. FORMATAÇÃO:
-   - Prosa limpa. NÃO use asteriscos para negrito (**palavra**) ou itálico (*palavra*).
+   - Prosa fluida em parágrafos separados por quebra de linha dupla.
+   - NÃO use asteriscos para negrito (**palavra**) ou itálico (*palavra*).
    - NÃO use listas numeradas nem marcadores com traços.
    - ${langGuidance}`;
 
   try {
-    const raw = await callGemini(prompt, 'gemini-3.1-flash-lite', 300, 0.5, false);
+    const raw = await callGemini(prompt, 'gemini-3.1-flash-lite', 1400, 0.6, false);
     const cleaned = (raw || '')
       .replace(/\*\*/g, '')
       .replace(/\*/g, '')
@@ -120,16 +124,16 @@ REGRAS CRÍTICAS E OBRIGATÓRIAS (SIGA COM RIGOR ABSOLUTO):
     return (
       cleaned ||
       (isPt
-        ? 'As coordenadas do seu mapa confirmam que o melhor caminho é agir em harmonia com sua essência e o momento atual.'
+        ? 'As forças do seu momento revelam que a clareza não nascerá da pressa, mas da observação atenta das correntes que você tem evitado encarar. Seu caminho exige que você alinhe sua vontade interior com a realidade tangível, reconhecendo onde suas expectativas entram em atrito com a verdade dos fatos. Mantenha o silêncio necessário para discernir o que é ilusão passageira do que é propósito inegociável.'
         : isEs
-        ? 'Las coordenadas de tu mapa confirman que el mejor camino es actuar en armonía con tu esencia y momento actual.'
-        : 'The coordinates of your chart confirm that the best path is to act in harmony with your essence and current cycle.')
+        ? 'Las fuerzas de tu momento revelan que la claridad no nacerá de la prisa, sino de la observación profunda de las corrientes que has evitado encarar. Tu camino exige que alinees tu voluntad interior con la realidad tangible, reconociendo dónde tus expectativas chocan con la verdad de los hechos. Mantén el silencio necesario para discernir qué es ilusión transitoria y qué es propósito innegociable.'
+        : 'The forces of your current cycle reveal that clarity will not emerge from haste, but from deliberate observation of the currents you have resisted facing. Your path calls for aligning inner intent with tangible reality, discerning where expectations clash with truth. Preserve the stillness required to distinguish passing illusions from your non-negotiable purpose.')
     );
   } catch {
     return isPt
-      ? 'O oráculo ouviu seu chamado, mas o fluxo cósmico oscilou. Reorganize sua intenção e pergunte novamente.'
+      ? 'O oráculo acolheu seu chamado, mas os padrões cósmicos exigem recolhimento antes da revelação. Respire fundo, depure o cerne da sua pergunta e consulte novamente o véu.'
       : isEs
-      ? 'El oráculo escuchó tu llamado, pero el flujo cósmico osciló. Reorganiza tu intención y pregunta de nuevo.'
-      : 'The oracle heard your call, but cosmic flow fluctuated. Re-center your intent and ask again.';
+      ? 'El oráculo acogió tu llamado, pero los patrones cósmicos exigen recogimiento antes de la revelación. Respira profundo, depura el núcleo de tu pregunta y vuelve a consultar el velo.'
+      : 'The oracle heard your call, yet the cosmic currents demand stillness before revelation. Center your intent, refine the heart of your inquiry, and consult the veil once more.';
   }
 }

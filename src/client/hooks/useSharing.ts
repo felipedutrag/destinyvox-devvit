@@ -88,9 +88,17 @@ export function useSharing(
     );
   };
 
-  const handleOpenPortal = (ev?: MouseEvent<HTMLElement>) => {
+  const handleOpenPortal = (ev?: MouseEvent<HTMLElement>, source: 'dossier' | 'oracle_chat' = 'dossier') => {
     if (ev) ev.preventDefault();
     const effectiveUser = redditUsername.trim();
+
+    // Dispara alerta Telegram em background
+    void trpc.destinyvox.notifyPortalClick.mutate({
+      source,
+      username: effectiveUser,
+      lifePath: readingData?.profile.lifePath,
+      personalYear: readingData?.profile.personalYear,
+    }).catch(() => {});
 
     const portalUrl = new URL('https://destinyvox.online/');
     if (effectiveUser) {

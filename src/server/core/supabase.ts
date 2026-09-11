@@ -240,6 +240,84 @@ export async function getSupabaseUserVip(username: string): Promise<{
 }
 
 /**
+ * Garante que todo novo usuário do Reddit receba exatamente 5 créditos gratuitos de boas-vindas
+ * vinculados exclusivamente ao seu nome de usuário do Reddit (independente de quantos mapas gerar ou deletar).
+ */
+export async function ensureUserWelcomeCredits(username: string): Promise<{
+  isVip: boolean;
+  credits: number;
+  plan: string;
+}> {
+  const cleanUser = username.replace(/^u\//i, '').trim();
+  if (!cleanUser || !SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+    return { isVip: false, credits: 0, plan: '' };
+  }
+
+  try {
+    // 1. Verifica se já existe qualquer registro na tabela vip_users
+    const url = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/vip_users?reddit_username=ilike.${encodeURIComponent(cleanUser)}&select=status,credits,plan`;
+    const res = await fetch(url, {
+      method: 'GET',
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (res.ok) {
+      const rows = (await res.json()) as SupabaseVipUser[];
+      if (rows && rows.length > 0 && rows[0]) {
+        // Usuário já cadastrado anteriormente: preserva o saldo real e status existente
+        const user = rows[0];
+        const credits = typeof user.credits === 'number' ? user.credits : 0;
+        const isVip =
+          user.status === true ||
+          user.status === 'true' ||
+          user.status === 'active' ||
+          credits > 0;
+        return { isVip, credits, plan: user.plan || '' };
+      }
+    }
+
+    // 2. Novo usuário: cadastra com 5 créditos de boas-vindas vinculados ao reddit_username
+    const insertUrl = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/vip_users`;
+    const insertRes = await fetch(insertUrl, {
+      method: 'POST',
+      headers: {
+        apikey: SUPABASE_SERVICE_ROLE_KEY,
+        Authorization: `Bearer ${SUPABASE_SERVICE_ROLE_KEY}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=ignore-duplicates',
+      },
+      body: JSON.stringify({
+        reddit_username: cleanUser,
+        status: true,
+        credits: 5,
+        plan: 'free_welcome',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      }),
+    });
+
+    if (insertRes.ok) {
+      const normUser = cleanUser.toLowerCase();
+      try {
+        await redis.set(`destinyvox_vip_${cleanUser}`, 'active');
+        await redis.set(`destinyvox_vip_${normUser}`, 'active');
+      } catch {
+        // ignore
+      }
+      return { isVip: true, credits: 5, plan: 'free_welcome' };
+    }
+  } catch (err) {
+    console.error('[Supabase] Falha ao atribuir créditos de boas-vindas:', err);
+  }
+
+  return getSupabaseUserVip(cleanUser);
+}
+
+/**
  * Consome 1 crédito do usuário ao realizar uma pergunta no Oráculo via função PostgreSQL atômica.
  */
 export async function useSupabaseUserCredit(username: string): Promise<{

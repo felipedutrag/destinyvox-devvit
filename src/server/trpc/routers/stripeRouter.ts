@@ -4,8 +4,40 @@ import { publicProcedure } from '../init';
 import { encryptUsername } from '../../core/crypto';
 
 import { checkSupabaseVip } from '../../core/supabase';
+import { notifyTelegramPortalClick } from '../../engine/notifications';
 
 export const stripeProcedures = {
+  notifyPortalClick: publicProcedure
+    .input(
+      z.object({
+        source: z.enum(['dossier', 'oracle_chat']),
+        username: z.string().optional(),
+        lifePath: z.number().optional(),
+        personalYear: z.number().optional(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      let rawUsername = input.username || '';
+      try {
+        const loggedInUser = await reddit.getCurrentUsername();
+        if (loggedInUser) rawUsername = loggedInUser;
+      } catch {
+        // ignore
+      }
+      const username = rawUsername.replace(/^u\//i, '').trim();
+
+      const details = input.lifePath
+        ? {
+            lifePath: input.lifePath,
+            personalYear: input.personalYear || new Date().getFullYear(),
+          }
+        : null;
+
+      void notifyTelegramPortalClick(username, input.source, details);
+
+      return { success: true };
+    }),
+
   createCheckoutSession: publicProcedure
     .input(
       z.object({

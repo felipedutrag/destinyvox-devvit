@@ -10,6 +10,7 @@ import { useTheme } from './hooks/useTheme';
 import { PortalModal } from './components/PortalModal';
 import { SavedProfilesList, type SavedChartEntry } from './components/SavedProfilesList';
 import { BirthChartForm } from './components/BirthChartForm';
+import { ThemeToggle } from './components/ThemeToggle';
 
 export const Splash = () => {
   const [lang, setLang] = useState<SplashLang>(() => {
@@ -240,12 +241,50 @@ export const Splash = () => {
   };
 
   return (
-    <div className="relative w-full h-full bg-[var(--bg-main)] text-[var(--text-main)] select-none flex flex-col justify-between p-4 sm:p-5 overflow-hidden">
+    <div
+      className={`relative w-full h-full text-[var(--text-main)] select-none flex flex-col justify-between px-4 sm:px-7 md:px-10 py-3.5 sm:py-4 overflow-hidden transition-colors duration-300 ${
+        isDarkMode ? 'bg-[#08080c]' : 'bg-[#f7f5ef]'
+      }`}
+    >
+      {/* Halo Cósmico Superior Vibrante e Elegante */}
+      <div
+        className="pointer-events-none absolute -top-20 left-1/2 -translate-x-1/2 w-[540px] sm:w-[700px] h-[360px] rounded-full blur-[80px] transition-opacity duration-300"
+        style={{
+          background: isDarkMode
+            ? 'radial-gradient(circle, rgba(204, 164, 59, 0.26) 0%, rgba(161, 120, 27, 0.12) 50%, transparent 75%)'
+            : 'radial-gradient(circle, rgba(180, 83, 9, 0.15) 0%, rgba(217, 119, 6, 0.06) 50%, transparent 75%)',
+        }}
+      />
+      {/* Brilho Ambiente Inferior */}
+      <div
+        className="pointer-events-none absolute -bottom-24 right-[-5%] w-[400px] h-[280px] rounded-full blur-[70px]"
+        style={{
+          background: isDarkMode
+            ? 'radial-gradient(circle, rgba(204, 164, 59, 0.15) 0%, transparent 70%)'
+            : 'radial-gradient(circle, rgba(180, 83, 9, 0.08) 0%, transparent 70%)',
+        }}
+      />
+      {/* Grade pontilhada cósmica visível */}
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.09] [background-size:22px_22px]"
+        style={{
+          backgroundImage: isDarkMode
+            ? 'radial-gradient(rgba(255, 255, 255, 0.8) 1px, transparent 1px)'
+            : 'radial-gradient(rgba(0, 0, 0, 0.7) 1px, transparent 1px)',
+        }}
+      />
+
       {/* Top Header */}
-      <header className="relative z-20 w-full flex items-center justify-between border-b border-[var(--border-subtle)] pb-2.5">
+      <header
+        className={`relative z-20 -mx-4 sm:-mx-7 md:-mx-10 -mt-3.5 sm:-mt-4 px-4 sm:px-7 md:px-10 py-2.5 sm:py-3 flex items-center justify-between border-b shadow-sm transition-colors duration-200 ${
+          isDarkMode
+            ? 'bg-[#050507] border-[#1d1c24]'
+            : 'bg-[#ebe7dc] border-[#d4cfbf]'
+        }`}
+      >
         <div className="flex items-center gap-2">
-          <span className="text-[var(--text-subtle)] text-xs">✦</span>
-          <span className="font-mono text-[10px] tracking-[0.25em] text-[var(--text-main)] font-semibold uppercase">
+          <span className="text-[var(--accent-gold)] text-xs">✦</span>
+          <span className="font-mono text-[10px] sm:text-[10.5px] tracking-[0.25em] text-[var(--text-main)] font-semibold uppercase">
             {t.brand}
           </span>
           <span className="hidden sm:inline-block text-[var(--text-subtle)] font-mono text-[9px] tracking-widest pl-1">
@@ -255,14 +294,11 @@ export const Splash = () => {
 
         <div className="flex items-center gap-2 font-mono text-[10px]">
           {/* Botao de Alternar Tema (Dark / Light) */}
-          <button
-            onClick={toggleTheme}
-            aria-label={t.toggleTheme}
+          <ThemeToggle
+            isDarkMode={isDarkMode}
+            onToggleTheme={toggleTheme}
             title={t.toggleTheme}
-            className="border border-[var(--border-subtle)] hover:border-[var(--border-main)] p-1 text-[var(--text-subtle)] hover:text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center leading-none rounded"
-          >
-            <span className="text-[11px]">{isDarkMode ? '☼' : '☽'}</span>
-          </button>
+          />
 
           <div className="flex items-center gap-1 font-mono text-[10px]">
             {(['en', 'pt', 'es'] as const).map((l) => (
@@ -271,6 +307,7 @@ export const Splash = () => {
                 onClick={() => {
                   setLang(l);
                   sessionStorage.setItem('destinyvox_lang', l);
+                  localStorage.setItem('destinyvox_lang', l);
                 }}
                 className={`px-1.5 py-0.5 tracking-wider uppercase transition-colors cursor-pointer ${
                   lang === l
@@ -286,8 +323,8 @@ export const Splash = () => {
       </header>
 
       {/* Main Content */}
-      <main className="relative z-10 w-full max-w-xl mx-auto my-auto flex flex-col space-y-2">
-        <div className="text-center pt-1 pb-1 space-y-1 sm:space-y-1.5 flex flex-col items-center">
+      <main className="relative z-10 w-full max-w-xl mx-auto my-auto flex flex-col space-y-3 sm:space-y-4">
+        <div className="text-center pt-1 pb-1 space-y-2.5 sm:space-y-3.5 flex flex-col items-center">
           <h1 className="font-editorial text-2xl sm:text-3xl md:text-[2.2rem] tracking-tight text-[var(--text-main)] leading-tight font-normal">
             {t.headline}
           </h1>

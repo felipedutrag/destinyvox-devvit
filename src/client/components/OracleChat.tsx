@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, type RefObject } from 'react';
+import { navigateTo } from '@devvit/web/client';
 import type { SupportedLang } from '../i18n';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import { renderParagraphs } from './renderParagraphs';
@@ -22,9 +23,11 @@ interface OracleChatProps {
   isVip: boolean;
   credits: number;
   username: string;
+  userToken?: string;
   onClose: () => void;
   onAskOracle: (questionOrEvent?: React.FormEvent | string) => void;
   onQuestionChange?: (value: string) => void;
+  onOpenPortal?: (ev?: React.MouseEvent<HTMLElement>, source?: 'dossier' | 'oracle_chat') => void;
   t: {
     oracleTitle: string;
     oracleButton: string;
@@ -51,9 +54,11 @@ export const OracleChat: React.FC<OracleChatProps> = ({
   isVip,
   credits,
   username,
+  userToken,
   onClose,
   onAskOracle,
   onQuestionChange,
+  onOpenPortal,
   t,
 }) => {
   const [localQuestion, setLocalQuestion] = useState<string>(oracleQuestion);
@@ -81,11 +86,14 @@ export const OracleChat: React.FC<OracleChatProps> = ({
       if (!el) return;
 
       if (window.innerWidth < 640) {
+        const navHeight = 48; // h-12 no mobile
         if (vv) {
-          el.style.height = `${vv.height}px`;
+          const isKeyboardOpen = window.innerHeight - vv.height > 120;
+          const targetHeight = isKeyboardOpen ? vv.height : Math.max(0, vv.height - navHeight);
+          el.style.height = `${targetHeight}px`;
           el.style.top = `${vv.offsetTop}px`;
         } else {
-          el.style.height = '100dvh';
+          el.style.height = `calc(100dvh - ${navHeight}px)`;
           el.style.top = '0px';
         }
       } else {
@@ -133,9 +141,35 @@ export const OracleChat: React.FC<OracleChatProps> = ({
     onAskOracle(q);
   };
 
-  if (!isVip && credits <= 0) {
-    return null;
-  }
+  const handleGetCredits = (ev?: React.MouseEvent<HTMLElement>) => {
+    if (ev) ev.preventDefault();
+    if (onOpenPortal) {
+      onOpenPortal(ev, 'oracle_chat');
+      return;
+    }
+    const effectiveUser = username.trim();
+    const portalUrl = new URL('https://destinyvox.online/');
+    if (effectiveUser) {
+      portalUrl.searchParams.set('u', effectiveUser);
+    } else if (userToken) {
+      portalUrl.searchParams.set('ref', userToken);
+    }
+    if (lang) {
+      portalUrl.searchParams.set('lang', lang);
+    }
+
+    const targetUrl = portalUrl.toString();
+    try {
+      navigateTo(targetUrl);
+    } catch {
+      try {
+        const win = window.open(targetUrl, '_blank');
+        if (!win) window.location.href = targetUrl;
+      } catch {
+        window.location.href = targetUrl;
+      }
+    }
+  };
 
   return (
     <>
@@ -147,10 +181,10 @@ export const OracleChat: React.FC<OracleChatProps> = ({
             transform: 'translateZ(0)',
             WebkitBackfaceVisibility: 'hidden',
           }}
-          className={`fixed z-50 bg-[var(--bg-main)] flex flex-col shadow-2xl overflow-hidden p-0 m-0 will-change-[height,top] ${
+          className={`fixed z-40 bg-[var(--bg-main)] flex flex-col shadow-2xl overflow-hidden p-0 m-0 will-change-[height,top] ${
             isDesktop
-              ? 'sm:inset-auto sm:bottom-16 sm:right-6 sm:w-[420px] sm:h-[580px] sm:max-h-[calc(100vh-5rem)] sm:rounded-xl sm:border sm:border-[var(--border-main)]'
-              : 'inset-0 w-full h-[100dvh] rounded-none border-0'
+              ? 'sm:z-50 sm:inset-auto sm:bottom-16 sm:right-6 sm:w-[420px] sm:h-[580px] sm:max-h-[calc(100vh-5rem)] sm:rounded-xl sm:border sm:border-[var(--border-main)]'
+              : 'inset-x-0 top-0 bottom-12 w-full h-[calc(100dvh-3rem)] rounded-none border-0'
           }`}
         >
           {/* Cabecalho do Oraculo */}
@@ -220,7 +254,7 @@ export const OracleChat: React.FC<OracleChatProps> = ({
 
           {/* Historico do Dialogo - Scroll Exclusivo Aqui */}
           <div
-            className="flex-1 overflow-y-auto p-3 sm:p-4 space-y-3.5 overscroll-contain"
+            className="flex-1 overflow-y-auto px-2.5 sm:px-3.5 py-3 sm:py-3.5 space-y-3.5 overscroll-contain"
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
             <div className="border-l-2 border-[var(--accent-gold-line)] pl-3 py-1">
@@ -229,10 +263,10 @@ export const OracleChat: React.FC<OracleChatProps> = ({
               </div>
               <div className="font-editorial text-sm sm:text-base text-[var(--text-main)] leading-relaxed">
                 {lang === 'en'
-                  ? `Greetings, ${profile.fullName.split(' ')[0]}. What would you like to explore regarding your Path ${profile.lifePath}, relationships, or timing?`
+                  ? `Greetings, ${profile.fullName.split(' ')[0]}. The veil of the unseen is drawn, yet every inquiry posed to the Oracle carries gravity: the answers you summon will inevitably alter how you behold your destiny. Weigh your intent with care, and question only that which your soul is truly ready to understand.`
                   : lang === 'es'
-                  ? `Saludos, ${profile.fullName.split(' ')[0]}. ¿Qué te gustaría develar sobre tu Camino ${profile.lifePath}, vocación o ciclos?`
-                  : `Saudações, ${profile.fullName.split(' ')[0]}. O que você deseja desvendar sobre seu Caminho ${profile.lifePath}, vocação ou propósitos?`}
+                  ? `Saludos, ${profile.fullName.split(' ')[0]}. El velo de lo invisible se ha entreabierto, mas cada interrogante que lanzas al Oráculo entraña un peso sagrado: las verdades que despiertes transformarán el modo en que contemplas tu destino. Medita con hondura tus palabras e inquiere solo aquello que tu alma verdaderamente precise descifrar.`
+                  : `Saudações, ${profile.fullName.split(' ')[0]}. O véu do invisível está entreaberto, mas cada pergunta feita ao Oráculo carrega gravidade sagrada: as respostas que você invocar alterarão para sempre como você enxerga seu próprio destino. Pese sua intenção com cuidado e indague apenas sobre aquilo que sua alma está verdadeiramente pronta para compreender.`}
               </div>
             </div>
 
@@ -283,14 +317,13 @@ export const OracleChat: React.FC<OracleChatProps> = ({
                     : 'Adquira um pacote de perguntas para consultar o Oráculo em tempo real.'}
                 </span>
               </div>
-              <a
-                href={`https://destinyvox.online/?u=${encodeURIComponent(username || '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-4 py-2 bg-[var(--btn-bg)] text-[var(--btn-text)] text-xs font-semibold tracking-widest uppercase hover:opacity-90 active:scale-95 transition-all whitespace-nowrap"
+              <button
+                type="button"
+                onClick={handleGetCredits}
+                className="px-4 py-2 bg-[var(--btn-bg)] text-[var(--btn-text)] text-xs font-semibold tracking-widest uppercase hover:opacity-90 active:scale-95 transition-all whitespace-nowrap cursor-pointer shadow-xs"
               >
                 {lang === 'en' ? 'Get Credits ↗' : lang === 'es' ? 'Recargar ↗' : 'Recarregar ↗'}
-              </a>
+              </button>
             </div>
           ) : (
             <form

@@ -1,4 +1,4 @@
-﻿import React, { type MouseEvent } from 'react';
+import React, { type MouseEvent } from 'react';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 
 export interface SavedChartEntry {
@@ -63,7 +63,7 @@ export const SavedProfilesList: React.FC<SavedProfilesListProps> = ({
         </div>
       )}
 
-      <div className="border border-[var(--border-main)] p-3.5 bg-[var(--bg-card)] text-left">
+      <div className="border border-[var(--border-main)] px-4 sm:px-6 py-4 sm:py-5 bg-[var(--bg-card)]/90 shadow-md text-left">
         {savedCharts.length <= 1 && (
           <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-1.5 mb-2">
             <span className="font-mono text-[9px] tracking-[0.2em] text-[var(--text-subtle)] uppercase">

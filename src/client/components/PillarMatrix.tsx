@@ -111,8 +111,8 @@ export const PillarMatrix: React.FC<PillarMatrixProps> = ({
   };
 
   return (
-    <section className="relative border-b border-[var(--border-subtle)] bg-[var(--bg-card)] z-20 shadow-xs">
-      <div className="max-w-3xl mx-auto relative flex items-center">
+    <section className="relative border-b border-[var(--border-subtle)] bg-[var(--bg-card)] z-20 shadow-xs w-full max-w-full overflow-hidden">
+      <div className="max-w-3xl mx-auto relative flex items-center w-full min-w-0 overflow-hidden">
         {/* Botão de Scroll Esquerda (Desktop/Tablet) */}
         <button
           type="button"
@@ -126,7 +126,7 @@ export const PillarMatrix: React.FC<PillarMatrixProps> = ({
         {/* Trilho de Scroll do Carrossel */}
         <div
           ref={scrollRef}
-          className="w-full flex items-stretch gap-1.5 sm:gap-2.5 overflow-x-auto no-scrollbar scroll-smooth px-2.5 sm:px-9 py-2 sm:py-2.5 snap-x snap-mandatory select-none"
+          className="w-full min-w-0 flex-1 flex items-stretch gap-1.5 sm:gap-2.5 overflow-x-auto no-scrollbar scroll-smooth px-2.5 sm:px-9 py-2 sm:py-2.5 snap-x snap-mandatory select-none"
         >
           {pillars.map((pillar) => {
             const isSelected = activeTab === 'overview' && selectedPillar === pillar.id;
@@ -136,10 +136,10 @@ export const PillarMatrix: React.FC<PillarMatrixProps> = ({
                 data-pillar-id={pillar.id}
                 type="button"
                 onClick={() => onSelectPillar(pillar.id)}
-                className={`flex-shrink-0 w-[92px] sm:w-[104px] md:w-[108px] snap-center py-2 px-1.5 sm:py-2.5 sm:px-2 rounded border transition-all duration-150 cursor-pointer text-center relative flex flex-col items-center justify-between ${
+                className={`flex-shrink-0 w-[92px] sm:w-[104px] md:w-[108px] snap-center py-2 px-1.5 sm:py-2.5 sm:px-2 rounded transition-all duration-150 cursor-pointer text-center relative flex flex-col items-center justify-between ${
                   isSelected
-                    ? 'bg-[var(--bg-card-alt)] border-[var(--accent-gold)] shadow-xs scale-[1.02]'
-                    : 'bg-[var(--bg-main)] border-[var(--border-subtle)] hover:border-[var(--border-main)] hover:bg-[var(--bg-card-alt)]/60 opacity-85 hover:opacity-100'
+                    ? 'bg-[var(--bg-card-alt)] border-[0.75px] border-[var(--accent-gold)] shadow-none'
+                    : 'bg-[var(--bg-main)] border-[0.75px] border-[var(--border-subtle)] hover:border-[var(--border-main)] hover:bg-[var(--bg-card-alt)]/60 opacity-85 hover:opacity-100'
                 }`}
               >
                 {/* Tag de categoria superior */}

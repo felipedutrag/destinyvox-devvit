@@ -33,7 +33,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* O Ditame / Mantra Co-Star */}
-      <div className="border border-[var(--border-main)] p-4 sm:p-6 bg-[var(--bg-card)] space-y-2.5">
+      <div className="border border-[var(--border-main)] px-3.5 sm:px-5 py-3 sm:py-4 bg-[var(--bg-card)] space-y-2.5">
         <div className="flex items-center justify-between">
           <span className="inline-block font-mono text-[9px] sm:text-[11px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium">
             {t.dictumBadge} #{currentPillarNumber}
@@ -52,7 +52,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
       </div>
 
       {/* Texto Editorial do Pilar Selecionado */}
-      <div className="border border-[var(--border-subtle)] p-5 sm:p-7 md:p-8 space-y-5 bg-[var(--bg-card-alt)]">
+      <div className="border border-[var(--border-subtle)] px-3.5 sm:px-5 md:px-6 py-4 sm:py-5 space-y-4 bg-[var(--bg-card-alt)]">
         <div className="border-b border-[var(--border-main)] pb-3.5 space-y-2">
           <span className="inline-block font-mono text-[9px] sm:text-[10px] tracking-widest uppercase border border-[var(--border-main)] px-2.5 py-0.5 text-[var(--accent-gold)] font-medium whitespace-nowrap">
             {selectedPillar === 'lifePath' && t.pillar01Badge}
@@ -71,9 +71,9 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
         </div>
 
         {/* Cartão de Contexto do Pilar Pitagórico (O que é e O que analisa) */}
-        <div className="p-3.5 sm:p-4 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2 rounded-sm text-xs sm:text-sm text-[var(--text-main)] font-editorial leading-relaxed">
+        <div className="px-3 sm:px-3.5 py-2.5 sm:py-3 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2 rounded-sm text-[13px] sm:text-[15px] text-[var(--text-main)] font-editorial leading-relaxed">
           <p>
-            <strong className="font-mono text-[10px] sm:text-xs text-[var(--accent-gold)] uppercase tracking-wider block sm:inline sm:mr-1.5 font-semibold">
+            <strong className="font-mono text-[10.5px] sm:text-xs text-[var(--accent-gold)] uppercase tracking-wider block sm:inline sm:mr-1.5 font-semibold">
               {t.whatIsLabel}:
             </strong>
             <span className="text-[var(--text-muted)]">
@@ -81,7 +81,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
             </span>
           </p>
           <p>
-            <strong className="font-mono text-[10px] sm:text-xs text-[var(--accent-gold)] uppercase tracking-wider block sm:inline sm:mr-1.5 font-semibold">
+            <strong className="font-mono text-[10.5px] sm:text-xs text-[var(--accent-gold)] uppercase tracking-wider block sm:inline sm:mr-1.5 font-semibold">
               {t.whatItAnalyzesLabel}:
             </strong>
             <span className="text-[var(--text-muted)]">
@@ -93,7 +93,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
         {/* Conteudo especifico conforme o pilar clicado */}
         <div className="font-editorial text-base sm:text-lg md:text-xl text-[var(--text-muted)] leading-relaxed space-y-4 font-normal">
           {selectedPillar === 'lifePath' && (
-            <div className="p-4 sm:p-5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
+            <div className="px-3 sm:px-4 py-3 sm:py-3.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
               <span className="font-mono text-[10px] sm:text-xs tracking-widest text-[var(--accent-gold)] block font-semibold uppercase">
                 {t.lifePathPurposeLabel}
               </span>
@@ -104,7 +104,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
           )}
 
           {selectedPillar === 'expression' && (
-            <div className="p-4 sm:p-5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
+            <div className="px-3 sm:px-4 py-3 sm:py-3.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
               <span className="font-mono text-[10px] sm:text-xs tracking-widest text-[var(--accent-gold)] block font-semibold uppercase">
                 {t.expressionGiftsLabel}
               </span>
@@ -115,7 +115,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
           )}
 
           {selectedPillar === 'soulUrge' && (
-            <div className="p-4 sm:p-5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
+            <div className="px-3 sm:px-4 py-3 sm:py-3.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
               <span className="font-mono text-[10px] sm:text-xs tracking-widest text-[var(--accent-gold)] block font-semibold uppercase">
                 {t.soulUrgeMotivationLabel}
               </span>
@@ -132,7 +132,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
           )}
 
           {selectedPillar === 'personality' && (
-            <div className="p-4 sm:p-5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
+            <div className="px-3 sm:px-4 py-3 sm:py-3.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
               <span className="font-mono text-[10px] sm:text-xs tracking-widest text-[var(--accent-gold)] block font-semibold uppercase">
                 {t.personalityAuricLabel}
               </span>
@@ -149,7 +149,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
           )}
 
           {selectedPillar === 'birthday' && (
-            <div className="p-4 sm:p-5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
+            <div className="px-3 sm:px-4 py-3 sm:py-3.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
               <span className="font-mono text-[10px] sm:text-xs tracking-widest text-[var(--accent-gold)] block font-semibold uppercase">
                 {t.birthdayGiftsLabel}
               </span>
@@ -169,7 +169,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
           )}
 
           {selectedPillar === 'maturity' && (
-            <div className="p-4 sm:p-5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
+            <div className="px-3 sm:px-4 py-3 sm:py-3.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
               <span className="font-mono text-[10px] sm:text-xs tracking-widest text-[var(--accent-gold)] block font-semibold uppercase">
                 {t.maturityDirectiveLabel}
               </span>
@@ -189,7 +189,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
           )}
 
           {selectedPillar === 'personalYear' && (
-            <div className="p-4 sm:p-5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
+            <div className="px-3 sm:px-4 py-3 sm:py-3.5 bg-[var(--bg-card)] border border-[var(--border-subtle)] space-y-2.5">
               <span className="font-mono text-[10px] sm:text-xs tracking-widest text-[var(--accent-gold)] block font-semibold uppercase">
                 {t.personalYearDirectiveLabel}
               </span>

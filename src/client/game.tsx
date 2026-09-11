@@ -2,7 +2,7 @@ import './index.css';
 
 import { Component, useState, useRef, type ReactNode, type ErrorInfo } from 'react';
 import { createRoot } from 'react-dom/client';
-import { i18n } from './i18n';
+import { i18n, type SupportedLang } from './i18n';
 
 // Componentes da Interface
 import { Header, type SavedChart } from './components/Header';
@@ -38,18 +38,27 @@ class ErrorBoundary extends Component<{ children: ReactNode }, { hasError: boole
 
   override render() {
     if (this.state.hasError) {
+      let lang: SupportedLang = 'en';
+      if (typeof window !== 'undefined') {
+        const stored = sessionStorage.getItem('destinyvox_lang') || localStorage.getItem('destinyvox_lang');
+        if (stored && ['en', 'pt', 'es'].includes(stored)) {
+          lang = stored as SupportedLang;
+        }
+      }
+      const t = i18n[lang];
+
       return (
         <div className="w-screen h-screen bg-[#050505] text-[#f5f5f5] flex flex-col items-center justify-center p-6 text-center font-mono">
           <div className="border border-neutral-800 p-6 max-w-md bg-[#080808] space-y-3">
-            <span className="text-neutral-500 text-xs tracking-widest uppercase block">[ RENDERING ANOMALY ]</span>
+            <span className="text-neutral-500 text-xs tracking-widest uppercase block">{t.renderError}</span>
             <p className="font-editorial text-sm text-neutral-300">
-              {this.state.error || 'An error occurred while formatting the chart.'}
+              {this.state.error || t.renderErrorDefault}
             </p>
             <button
               onClick={() => window.location.reload()}
               className="mt-2 border border-neutral-700 bg-white text-black px-4 py-2 text-xs font-semibold hover:bg-neutral-200 transition-colors uppercase tracking-widest cursor-pointer"
             >
-              RELOAD
+              {t.reload}
             </button>
           </div>
         </div>
@@ -81,10 +90,10 @@ export const DestinyVoxApp = () => {
           <div className="text-xs text-[var(--text-subtle)] tracking-[0.3em] uppercase">✦ DESTINYVOX</div>
           <div className="w-12 h-[1px] bg-[var(--border-main)] mx-auto my-4" />
           <div className="font-editorial italic text-base text-[var(--text-muted)]">
-            &ldquo;Tudo no universo é número e proporção.&rdquo;
+            {t.loadingQuote}
           </div>
           <div className="text-[10px] text-[var(--text-subtle)] tracking-widest uppercase pt-2 animate-pulse">
-            [ {profileInit.loadingStep} ]
+            [ {profileInit.loadingStep || t.loadingStep} ]
           </div>
         </div>
       </div>
@@ -94,13 +103,13 @@ export const DestinyVoxApp = () => {
   if (profileInit.error || !profileInit.readingData) {
     return (
       <div className="w-full h-full bg-[var(--bg-main)] text-[var(--text-main)] flex flex-col items-center justify-center p-6 text-center font-mono">
-        <span className="text-[var(--text-subtle)] text-xs tracking-widest uppercase mb-2">[ ERRO DE SINCRONIZAÇÃO ]</span>
-        <p className="font-editorial text-sm text-[var(--text-muted)] max-w-sm mb-4">{profileInit.error || 'Não foi possível ler as efemérides.'}</p>
+        <span className="text-[var(--text-subtle)] text-xs tracking-widest uppercase mb-2">{t.syncError}</span>
+        <p className="font-editorial text-sm text-[var(--text-muted)] max-w-sm mb-4">{profileInit.error || t.syncErrorMsg}</p>
         <button
           onClick={() => window.location.reload()}
           className="border border-[var(--border-main)] bg-[var(--bg-card)] px-4 py-2 text-xs text-[var(--text-main)] hover:bg-[var(--bg-card-alt)] transition-colors uppercase tracking-widest cursor-pointer"
         >
-          RECONECTAR
+          {t.reconnect}
         </button>
       </div>
     );
@@ -109,7 +118,13 @@ export const DestinyVoxApp = () => {
   const { profile, interpretation } = profileInit.readingData;
 
   return (
-    <div className="relative w-full h-full bg-[var(--bg-main)] text-[var(--text-main)] select-none flex flex-col overflow-hidden">
+    <div
+      style={{
+        paddingLeft: 'env(safe-area-inset-left, 0px)',
+        paddingRight: 'env(safe-area-inset-right, 0px)',
+      }}
+      className="relative w-full h-full max-w-full bg-[var(--bg-main)] text-[var(--text-main)] select-none flex flex-col overflow-hidden"
+    >
       {/* 1. HEADER EDITORIAL */}
       <Header
         brand={t.brand}
@@ -169,7 +184,7 @@ export const DestinyVoxApp = () => {
       {/* 3. CONTEÚDO PRINCIPAL */}
       <main
         ref={mainScrollRef}
-        className="flex-1 z-10 max-w-3xl mx-auto w-full overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 pb-20 sm:pb-24"
+        className="flex-1 z-10 max-w-3xl mx-auto w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-5 md:px-6 py-4 sm:py-5 md:py-6 space-y-5 pb-14 sm:pb-16 box-border"
       >
         {activeTab === 'overview' && (
           <TabArchetype
@@ -211,21 +226,22 @@ export const DestinyVoxApp = () => {
             onResetChart={charts.handleResetChart}
           />
         )}
-
-        <footer className="pt-6 pb-2 border-t border-[var(--border-subtle)] flex items-center justify-between font-mono text-[8px] text-[var(--text-subtle)] tracking-widest">
-          <span>DESTINYVOX EPHEMERIS</span>
-          <span className="border border-[var(--border-main)] px-1 py-0.2 text-[7px] text-[var(--text-muted)]">v0.0.31</span>
-        </footer>
       </main>
 
       {/* 4. NAVBAR FIXADO NO BOTTOM (ARCHETYPE, POLARITY, ORACLE AI, CYCLES, DOSSIER) */}
-      <nav className="fixed bottom-0 left-0 right-0 z-30 bg-[var(--bg-main)]/95 backdrop-blur-md border-t border-[var(--border-main)] shadow-lg">
-        <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-1 sm:px-3 h-12 sm:h-14 font-mono text-[9px] sm:text-[10px] md:text-[11px] tracking-wider uppercase">
+      <nav
+        style={{
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+        }}
+        className="fixed bottom-0 left-0 right-0 z-50 bg-[var(--bg-main)]/95 backdrop-blur-md border-t border-[var(--border-main)] shadow-lg max-w-full"
+      >
+        <div className="w-full max-w-3xl mx-auto flex items-center justify-between px-1 sm:px-3 h-12 sm:h-14 font-mono text-[8px] sm:text-[9px] md:text-[10px] tracking-wider uppercase">
           {/* 1. ARCHETYPE */}
           <button
             type="button"
             onClick={() => {
-              if (oracle.isOracleOpen) oracle.closeOracle();
+              if (window.innerWidth < 640 && oracle.isOracleOpen) oracle.closeOracle();
               setActiveTab('overview');
             }}
             className={`flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 ${
@@ -236,7 +252,7 @@ export const DestinyVoxApp = () => {
           >
             <span className="truncate px-0.5">{profileInit.lang === 'en' ? 'ARCHETYPE' : profileInit.lang === 'es' ? 'ARQUETIPO' : 'ARQUÉTIPO'}</span>
             {activeTab === 'overview' && !oracle.isOracleOpen && (
-              <span className="w-4 sm:w-5 h-[2px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
+              <span className="w-3.5 sm:w-4 h-[1.5px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
             )}
           </button>
 
@@ -244,7 +260,7 @@ export const DestinyVoxApp = () => {
           <button
             type="button"
             onClick={() => {
-              if (oracle.isOracleOpen) oracle.closeOracle();
+              if (window.innerWidth < 640 && oracle.isOracleOpen) oracle.closeOracle();
               setActiveTab('talents');
             }}
             className={`flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 ${
@@ -255,45 +271,41 @@ export const DestinyVoxApp = () => {
           >
             <span className="truncate px-0.5">{profileInit.lang === 'en' ? 'POLARITY' : profileInit.lang === 'es' ? 'POLARIDAD' : 'POLARIDADE'}</span>
             {activeTab === 'talents' && !oracle.isOracleOpen && (
-              <span className="w-4 sm:w-5 h-[2px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
+              <span className="w-3.5 sm:w-4 h-[1.5px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
             )}
           </button>
 
-          {/* 3. ORACLE AI (EM LEVE DESTAQUE CENTRAL) */}
-          {(profileInit.isVip || oracle.credits > 0) ? (
-            <button
-              type="button"
-              onClick={() => {
-                if (oracle.isOracleOpen) {
-                  oracle.closeOracle();
-                } else {
-                  oracle.openOracle();
-                }
-              }}
-              className="flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 px-0.5"
+          {/* 3. ORACLE AI (SEMPRE VISÍVEL NO CENTRO DA NAVBAR - DESTAQUE AMPLIADO) */}
+          <button
+            type="button"
+            onClick={() => {
+              if (oracle.isOracleOpen) {
+                oracle.closeOracle();
+              } else {
+                oracle.openOracle();
+              }
+            }}
+            className="flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 px-0.5"
+          >
+            <div
+              className={`flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-3.5 py-1.5 rounded-full border transition-all ${
+                oracle.isOracleOpen
+                  ? 'border-[var(--accent-gold)] bg-[var(--accent-gold)]/15 text-[var(--accent-gold)] shadow-[0_0_14px_rgba(204,164,59,0.35)] font-bold'
+                  : 'border-[var(--border-main)] bg-[var(--bg-card-alt)] hover:border-[var(--accent-gold)] text-[var(--text-main)] hover:text-[var(--accent-gold)] shadow-xs'
+              }`}
             >
-              <div
-                className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 rounded-full border transition-all ${
-                  oracle.isOracleOpen
-                    ? 'border-[var(--accent-gold)] bg-[var(--accent-gold)]/15 text-[var(--accent-gold)] shadow-[0_0_12px_rgba(204,164,59,0.3)] font-bold'
-                    : 'border-[var(--border-main)] bg-[var(--bg-card-alt)] hover:border-[var(--accent-gold)] text-[var(--text-main)] hover:text-[var(--accent-gold)] shadow-xs'
-                }`}
-              >
-                <HermeticStarIcon className="w-3 sm:w-3.5 h-3 sm:h-3.5 shrink-0 rounded-[2px]" />
-                <span className="font-semibold text-[8px] sm:text-[9.5px] md:text-[10px] whitespace-nowrap">
-                  {profileInit.lang === 'en' ? 'ORACLE AI' : 'ORÁCULO AI'}
-                </span>
-              </div>
-            </button>
-          ) : (
-            <div className="flex-1" />
-          )}
+              <HermeticStarIcon className="w-4 sm:w-4.5 h-4 sm:h-4.5 shrink-0 rounded-[2.5px]" />
+              <span className="font-semibold text-[8.5px] sm:text-[10px] md:text-[10.5px] whitespace-nowrap">
+                {profileInit.lang === 'en' ? 'ORACLE AI' : 'ORÁCULO AI'}
+              </span>
+            </div>
+          </button>
 
           {/* 4. CYCLES */}
           <button
             type="button"
             onClick={() => {
-              if (oracle.isOracleOpen) oracle.closeOracle();
+              if (window.innerWidth < 640 && oracle.isOracleOpen) oracle.closeOracle();
               setActiveTab('year');
             }}
             className={`flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 ${
@@ -304,7 +316,7 @@ export const DestinyVoxApp = () => {
           >
             <span className="truncate px-0.5">{profileInit.lang === 'en' ? 'CYCLES' : profileInit.lang === 'es' ? 'CICLOS' : 'CICLOS'}</span>
             {activeTab === 'year' && !oracle.isOracleOpen && (
-              <span className="w-4 sm:w-5 h-[2px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
+              <span className="w-3.5 sm:w-4 h-[1.5px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
             )}
           </button>
 
@@ -312,7 +324,7 @@ export const DestinyVoxApp = () => {
           <button
             type="button"
             onClick={() => {
-              if (oracle.isOracleOpen) oracle.closeOracle();
+              if (window.innerWidth < 640 && oracle.isOracleOpen) oracle.closeOracle();
               setActiveTab('share');
             }}
             className={`flex-1 flex flex-col items-center justify-center h-full transition-all cursor-pointer py-1 ${
@@ -323,31 +335,31 @@ export const DestinyVoxApp = () => {
           >
             <span className="truncate px-0.5">{profileInit.lang === 'en' ? 'DOSSIER' : profileInit.lang === 'es' ? 'DOSSIER' : 'DOSSIÊ'}</span>
             {activeTab === 'share' && !oracle.isOracleOpen && (
-              <span className="w-4 sm:w-5 h-[2px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
+              <span className="w-3.5 sm:w-4 h-[1.5px] bg-[var(--accent-gold)] rounded-full mt-1 animate-fadeIn" />
             )}
           </button>
         </div>
       </nav>
 
-      {/* 5. ORÁCULO AI (BOTÃO FLUTUANTE + CHAT) */}
-      {(profileInit.isVip || oracle.credits > 0) && (
-        <OracleChat
-          isOracleOpen={oracle.isOracleOpen}
-          oracleQuestion={oracle.oracleQuestion}
-          oracleChat={oracle.oracleChat}
-          isAskingOracle={oracle.isAskingOracle}
-          chatBottomRef={oracle.chatBottomRef}
-          oracleFormRef={oracle.oracleFormRef}
-          profile={profile}
-          lang={profileInit.lang}
-          isVip={profileInit.isVip || oracle.credits > 0}
-          credits={oracle.credits}
-          username={profileInit.redditUsername}
-          onClose={oracle.closeOracle}
-          onAskOracle={oracle.handleAskOracle}
-          t={t}
-        />
-      )}
+      {/* 5. ORÁCULO AI */}
+      <OracleChat
+        isOracleOpen={oracle.isOracleOpen}
+        oracleQuestion={oracle.oracleQuestion}
+        oracleChat={oracle.oracleChat}
+        isAskingOracle={oracle.isAskingOracle}
+        chatBottomRef={oracle.chatBottomRef}
+        oracleFormRef={oracle.oracleFormRef}
+        profile={profile}
+        lang={profileInit.lang}
+        isVip={profileInit.isVip || oracle.credits > 0}
+        credits={oracle.credits}
+        username={profileInit.redditUsername}
+        userToken={profileInit.userToken}
+        onClose={oracle.closeOracle}
+        onAskOracle={oracle.handleAskOracle}
+        onOpenPortal={sharing.handleOpenPortal}
+        t={t}
+      />
     </div>
   );
 };

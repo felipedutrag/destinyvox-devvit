@@ -1,6 +1,7 @@
 import React from 'react';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import { formatAmericanDate } from '../i18n';
+import { ThemeToggle } from './ThemeToggle';
 
 export interface SavedChart {
   id: string;
@@ -52,7 +53,7 @@ export const Header: React.FC<HeaderProps> = ({
   t,
 }) => {
   return (
-    <header className="h-12 border-b border-[var(--border-subtle)] px-3 sm:px-6 flex items-center justify-between z-30 bg-[var(--bg-main)]">
+    <header className="h-12 border-b border-[var(--border-subtle)] px-2.5 sm:px-4 md:px-5 flex items-center justify-between relative z-20 bg-[var(--bg-main)] w-full max-w-full">
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <span className="text-[var(--text-subtle)] text-xs">✦</span>
         <span className="font-mono text-[11px] tracking-[0.25em] text-[var(--text-main)] font-medium uppercase truncate">
@@ -66,14 +67,11 @@ export const Header: React.FC<HeaderProps> = ({
       {/* Botoes do Topo: Novo Mapa, Alternar Tema & Dropdown de Mapas */}
       <div className="flex items-center gap-1.5 sm:gap-2 font-mono text-[10px]">
         {/* Botao de Alternar Tema (Dark / Light) */}
-        <button
-          onClick={onToggleTheme}
-          aria-label={t.toggleTheme}
+        <ThemeToggle
+          isDarkMode={isDarkMode}
+          onToggleTheme={onToggleTheme}
           title={t.toggleTheme}
-          className="border border-[var(--border-subtle)] hover:border-[var(--border-main)] p-1.5 text-[var(--text-subtle)] hover:text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center leading-none rounded"
-        >
-          <span className="text-[11px]">{isDarkMode ? '☼' : '☽'}</span>
-        </button>
+        />
 
         <button
           onClick={onResetChart}
@@ -103,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
                 className="fixed inset-0 z-40"
                 onClick={() => setIsDropdownOpen(false)}
               />
-              <div className="absolute right-0 mt-1.5 w-64 sm:w-72 bg-[var(--bg-main)] border border-[var(--border-main)] shadow-2xl z-50 py-1.5 font-mono text-[11px] animate-in fade-in zoom-in-95 duration-100">
+              <div className="absolute right-0 mt-1.5 w-64 sm:w-72 max-w-[calc(100vw-1.5rem)] bg-[var(--bg-main)] border border-[var(--border-main)] shadow-2xl z-50 py-1.5 font-mono text-[11px] animate-in fade-in zoom-in-95 duration-100">
                 <div className="px-3 py-1.5 border-b border-[var(--border-subtle)] flex items-center justify-between text-[9px] text-[var(--text-subtle)] uppercase tracking-wider">
                   <span>{t.savedChartsTitle}</span>
                   <button

@@ -7,7 +7,7 @@ import {
 import { buildCosmicInterpretation } from '../../shared/interpretations';
 import type { CosmicReadingResult } from './types';
 import { notifyTelegramNewChart } from './notifications';
-import { saveSupabaseUserProfile } from '../core/supabase';
+import { saveSupabaseUserProfile, ensureUserWelcomeCredits } from '../core/supabase';
 
 /**
  * Gera a leitura e interpretação numerológica profunda a partir da biblioteca enciclopédica local,
@@ -57,7 +57,12 @@ export async function getOrGenerateProfile(
   };
 
   if (username) {
-    // 1. Persistência permanente no Supabase
+    // 1. Assegura a concessão única de 5 créditos de boas-vindas vinculados ao Reddit username
+    ensureUserWelcomeCredits(username).catch((err) =>
+      console.error('[Supabase] Erro ao atribuir créditos de boas-vindas:', err)
+    );
+
+    // 2. Persistência permanente no Supabase
     saveSupabaseUserProfile(username, {
       fullName,
       birthDate,

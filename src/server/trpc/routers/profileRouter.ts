@@ -10,7 +10,7 @@ import {
   getSupabaseUserProfile,
   saveSupabaseUserCharts,
   deleteSupabaseUserProfile,
-  getSupabaseUserVip,
+  ensureUserWelcomeCredits,
   type SavedChartItem,
 } from '../../core/supabase';
 
@@ -29,7 +29,7 @@ export const profileProcedures = {
     let credits = 0;
     let supabaseChecked = false;
     try {
-      const vipInfo = await getSupabaseUserVip(username);
+      const vipInfo = await ensureUserWelcomeCredits(username);
       isVip = vipInfo.isVip || vipInfo.credits > 0;
       credits = vipInfo.credits;
       supabaseChecked = true;

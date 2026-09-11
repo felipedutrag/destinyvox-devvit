@@ -2,8 +2,18 @@ import { useState, useEffect, useRef, type Dispatch, type SetStateAction, type F
 import { trpc } from '../trpc';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import type { SavedChart } from '../components/Header';
-import type { SupportedLang } from '../i18n';
+import { i18n, type SupportedLang } from '../i18n';
 import { calculatePersonalYear, getArchetype } from '../../shared/numerology';
+
+function getInitialLang(): SupportedLang {
+  if (typeof window !== 'undefined') {
+    const storedLang = sessionStorage.getItem('destinyvox_lang') || localStorage.getItem('destinyvox_lang');
+    if (storedLang && ['en', 'pt', 'es'].includes(storedLang)) {
+      return storedLang as SupportedLang;
+    }
+  }
+  return 'en';
+}
 
 // Garante que o perfil salvo tenha o Ano Pessoal e Arquétipo anual atualizados conforme a data corrente (ano, mês e dia)
 function syncProfileCycles(data: CosmicReadingResult, lang: SupportedLang): CosmicReadingResult {
@@ -43,13 +53,13 @@ export function useProfileInit(
 ) {
   const [readingData, setReadingData] = useState<CosmicReadingResult | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [loadingStep, setLoadingStep] = useState<string>('Decoding Pythagorean geometry...');
+  const [loadingStep, setLoadingStep] = useState<string>(() => i18n[getInitialLang()].loadingStep);
   const [error, setError] = useState<string>('');
   const [isVip, setIsVip] = useState<boolean>(false);
   const [credits, setCredits] = useState<number>(0);
   const [redditUsername, setRedditUsername] = useState<string>('');
   const [userToken, setUserToken] = useState<string>('');
-  const [lang, setLang] = useState<SupportedLang>('en');
+  const [lang, setLang] = useState<SupportedLang>(getInitialLang);
 
   const hasInitializedRef = useRef(false);
 
@@ -63,6 +73,7 @@ export function useProfileInit(
       const storedLang = sessionStorage.getItem('destinyvox_lang') || localStorage.getItem('destinyvox_lang');
       const savedLang: SupportedLang = storedLang && ['en', 'pt', 'es'].includes(storedLang) ? (storedLang as SupportedLang) : 'en';
       setLang(savedLang);
+      setLoadingStep(i18n[savedLang].loadingStep);
 
       try {
         const cached = localStorage.getItem('destinyvox_cached_charts');
@@ -145,7 +156,13 @@ export function useProfileInit(
           }
         } catch (err: unknown) {
           console.error('Erro ao gerar:', err);
-          setError(savedLang === 'en' ? 'Failed to connect with the cosmos. Try reloading.' : 'Falha ao conectar com o cosmos. Tente recarregar a página.');
+          setError(
+            savedLang === 'en'
+              ? 'Failed to connect with the cosmos. Try reloading.'
+              : savedLang === 'es'
+              ? 'Fallo al conectar con el cosmos. Intenta recargar la página.'
+              : 'Falha ao conectar com o cosmos. Tente recarregar a página.'
+          );
         }
       }
 
@@ -210,7 +227,13 @@ export function useProfileInit(
       }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : '';
-      charts.setNewChartError(msg || (lang === 'en' ? 'Failed to calculate new chart.' : 'Falha ao calcular novo mapa.'));
+      charts.setNewChartError(
+        msg || (lang === 'en'
+          ? 'Failed to calculate new chart.'
+          : lang === 'es'
+          ? 'Fallo al calcular el nuevo mapa.'
+          : 'Falha ao calcular novo mapa.')
+      );
     } finally {
       charts.setIsCalculatingNewChart(false);
     }

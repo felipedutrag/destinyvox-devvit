@@ -43,7 +43,7 @@ interface TabDossierProps {
   onPostToRedditComments: () => void;
   onShareToOtherSubs?: () => void;
   onJoinCommunity?: () => void;
-  onOpenPortal: () => void;
+  onOpenPortal: (ev?: React.MouseEvent<HTMLElement>, source?: 'dossier' | 'oracle_chat') => void;
   onResetChart: () => void;
 }
 
@@ -60,7 +60,7 @@ export const TabDossier: React.FC<TabDossierProps> = ({
 }) => {
   return (
     <div className="space-y-5 animate-fadeIn">
-      <div className="border border-[var(--border-main)] p-6 sm:p-8 bg-[var(--bg-card)] space-y-6 max-w-lg mx-auto">
+      <div className="border border-[var(--border-main)] px-4 sm:px-6 py-5 sm:py-7 bg-[var(--bg-card)] space-y-5 max-w-lg mx-auto">
         {/* Cabecalho do Recibo */}
         <div className="border-b border-dashed border-[var(--border-main)] pb-4 text-center space-y-1">
           <div className="font-editorial text-2xl sm:text-3xl tracking-[0.15em] uppercase text-[var(--text-main)] font-normal">
@@ -146,7 +146,7 @@ export const TabDossier: React.FC<TabDossierProps> = ({
             {/* 1. Portal Externo (Destaque Principal / Preto) */}
             <button
               type="button"
-              onClick={onOpenPortal}
+              onClick={(e) => onOpenPortal(e, 'dossier')}
               className="w-full h-12 bg-[var(--btn-bg)] text-[var(--btn-text)] hover:opacity-90 active:opacity-80 font-mono text-xs sm:text-sm font-semibold tracking-[0.2em] uppercase transition-all flex items-center justify-center gap-2 cursor-pointer shadow-xs"
             >
               <span>✦ ORACLE AI ↗</span>

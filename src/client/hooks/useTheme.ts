@@ -94,6 +94,13 @@ export function useTheme() {
         // ignore
       }
     }
+
+    // Atualiza dinamicamente a cor do container/chrome nativo do Reddit WebView
+    const themeColor = isDarkMode ? '#000000' : '#ffffff';
+    const themeMetas = document.querySelectorAll('meta[name="theme-color"]');
+    themeMetas.forEach((meta) => {
+      meta.setAttribute('content', themeColor);
+    });
   }, [isDarkMode]);
 
   const toggleTheme = () => {
