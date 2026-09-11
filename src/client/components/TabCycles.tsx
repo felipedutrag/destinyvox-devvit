@@ -1,12 +1,18 @@
 import React from 'react';
 import type { SupportedLang } from '../i18n';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
-import { calculatePersonalMonth, calculatePersonalDay, getArchetype } from '../../shared/numerology';
 import {
-  dayInterpretationsByLang,
-  monthInterpretationsByLang,
-  monthNamesByLang,
-} from '../i18n';
+  calculatePersonalYear,
+  calculatePersonalMonth,
+  calculatePersonalDay,
+  getArchetype,
+} from '../../shared/numerology';
+import {
+  DAILY_FORECAST_INTERPRETATIONS,
+  MONTHLY_FORECAST_INTERPRETATIONS,
+  YEARLY_FORECAST_INTERPRETATIONS,
+} from '../../shared/interpretations';
+import { monthNamesByLang } from '../i18n';
 import { renderParagraphs } from './renderParagraphs';
 
 interface TabCyclesProps {
@@ -33,13 +39,33 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
   const currentYear = now.getFullYear();
   const currentMonthNum = now.getMonth() + 1;
   const currentDayNum = now.getDate();
-  const personalMonth = calculatePersonalMonth(profile.personalYear, currentMonthNum);
+  const currentPersonalYear = profile.birthDate
+    ? calculatePersonalYear(profile.birthDate, currentYear)
+    : profile.personalYear;
+  const personalMonth = calculatePersonalMonth(currentPersonalYear, currentMonthNum);
   const personalDay = calculatePersonalDay(personalMonth, currentDayNum);
 
-  const currentMonthName = monthNamesByLang[lang][currentMonthNum - 1] || 'Current';
+  const currentMonthName = monthNamesByLang[lang]?.[currentMonthNum - 1] || 'Current';
   const dayArch = getArchetype(personalDay, lang);
   const monthArch = getArchetype(personalMonth, lang);
-  const yearArch = getArchetype(profile.personalYear, lang);
+  const yearArch = getArchetype(currentPersonalYear, lang);
+
+  const dailyText =
+    DAILY_FORECAST_INTERPRETATIONS[lang]?.[personalDay] ||
+    DAILY_FORECAST_INTERPRETATIONS.en[personalDay] ||
+    interpretation.dailyForecast;
+
+  const monthlyFn =
+    MONTHLY_FORECAST_INTERPRETATIONS[lang]?.[personalMonth] ||
+    MONTHLY_FORECAST_INTERPRETATIONS.en[personalMonth];
+  const monthlyText = monthlyFn
+    ? monthlyFn(currentMonthName)
+    : interpretation.monthlyForecast;
+
+  const yearlyText =
+    YEARLY_FORECAST_INTERPRETATIONS[lang]?.[currentPersonalYear] ||
+    YEARLY_FORECAST_INTERPRETATIONS.en[currentPersonalYear] ||
+    interpretation.yearlyForecast;
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -55,7 +81,7 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
         </div>
 
         <div className="font-editorial text-base sm:text-lg md:text-xl text-[var(--text-muted)] font-normal leading-relaxed">
-          {renderParagraphs(interpretation.dailyForecast || dayInterpretationsByLang[lang][personalDay] || dayInterpretationsByLang.en[1])}
+          {renderParagraphs(dailyText)}
         </div>
 
         <div className="pt-3 border-t border-[var(--border-subtle)] flex flex-wrap gap-2">
@@ -82,7 +108,7 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
         </div>
 
         <div className="font-editorial text-base sm:text-lg md:text-xl text-[var(--text-muted)] font-normal leading-relaxed">
-          {renderParagraphs(interpretation.monthlyForecast || (monthInterpretationsByLang[lang]?.[personalMonth]?.(currentMonthName) ?? monthInterpretationsByLang.en[1]!(currentMonthName)))}
+          {renderParagraphs(monthlyText)}
         </div>
 
         <div className="pt-3 border-t border-[var(--border-subtle)] flex flex-wrap gap-2">
@@ -104,12 +130,12 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
             {t.annualCycleBadge(currentYear)}
           </span>
           <h3 className="font-editorial text-xl sm:text-2xl md:text-3xl text-[var(--text-main)] font-normal tracking-tight">
-            {t.personalYearTitle(profile.personalYear, yearArch.title)}
+            {t.personalYearTitle(currentPersonalYear, yearArch.title)}
           </h3>
         </div>
 
         <div className="font-editorial text-base sm:text-lg md:text-xl text-[var(--text-muted)] font-normal leading-relaxed">
-          {renderParagraphs(interpretation.yearlyForecast)}
+          {renderParagraphs(yearlyText)}
         </div>
 
         <div className="pt-3 border-t border-[var(--border-subtle)] flex flex-wrap gap-2">
