@@ -28,28 +28,40 @@ menu.post('/post-create', async (c) => {
 menu.post('/delete-bot-comments', async (c) => {
   try {
     const { reddit } = await import('@devvit/web/server');
-    const appUser = (await reddit.getAppUser()) || { username: 'dgapp' };
-    const comments = await reddit
-      .getCommentsByUser({
-        username: appUser.username,
-        sort: 'new',
-        limit: 100,
-      })
-      .all();
+    const appUser = await reddit.getAppUser();
+    const username = appUser?.username;
+    if (!username) {
+      return c.json<UiResponse>({ showToast: 'Usuário do bot não identificado.' }, 400);
+    }
 
-    let count = 0;
-    for (const comment of comments) {
-      try {
-        await comment.delete();
-        count++;
-      } catch {
-        // Ignorar falha ao deletar comentário individual
+    let totalDeleted = 0;
+    for (let batch = 0; batch < 5; batch++) {
+      const comments = await reddit
+        .getCommentsByUser({
+          username,
+          sort: 'new',
+          limit: 100,
+        })
+        .all();
+
+      if (!comments || comments.length === 0) break;
+
+      let batchDeleted = 0;
+      for (const comment of comments) {
+        try {
+          await comment.delete();
+          batchDeleted++;
+          totalDeleted++;
+        } catch {
+          // ignora falha individual
+        }
       }
+      if (batchDeleted === 0) break;
     }
 
     return c.json<UiResponse>(
       {
-        showToast: `🗑️ ${count} comentários do bot foram apagados com sucesso!`,
+        showToast: `🗑️ ${totalDeleted} comentários do bot foram apagados com sucesso!`,
       },
       200
     );
