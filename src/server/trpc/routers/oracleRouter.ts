@@ -7,6 +7,25 @@ import { syncUserVipFromStripe } from '../../core/stripeSync';
 import { getSupabaseUserVip, useSupabaseUserCredit } from '../../core/supabase';
 
 export const oracleProcedures = {
+  getMyCredits: publicProcedure.query(async () => {
+    const rawUsername = await reddit.getCurrentUsername();
+    if (!rawUsername) {
+      return { credits: 0, isVip: false, username: '' };
+    }
+    const username = rawUsername.replace(/^u\//i, '').trim();
+
+    try {
+      const vipInfo = await getSupabaseUserVip(username);
+      return {
+        credits: vipInfo.credits,
+        isVip: vipInfo.isVip || vipInfo.credits > 0,
+        username,
+      };
+    } catch {
+      return { credits: 0, isVip: false, username };
+    }
+  }),
+
   askOracle: publicProcedure
     .input(
       z.object({

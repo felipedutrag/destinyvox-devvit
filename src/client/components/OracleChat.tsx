@@ -19,6 +19,8 @@ interface OracleChatProps {
   profile: CosmicReadingResult['profile'];
   lang: SupportedLang;
   isVip: boolean;
+  credits: number;
+  username: string;
   onOpen: () => void;
   onClose: () => void;
   onAskOracle: (e: React.FormEvent) => void;
@@ -48,13 +50,15 @@ export const OracleChat: React.FC<OracleChatProps> = ({
   profile,
   lang,
   isVip,
+  credits,
+  username,
   onOpen,
   onClose,
   onAskOracle,
   onQuestionChange,
   t,
 }) => {
-  if (!isVip) {
+  if (!isVip && credits <= 0) {
     return null;
   }
 
@@ -67,11 +71,16 @@ export const OracleChat: React.FC<OracleChatProps> = ({
             type="button"
             onClick={onOpen}
             aria-label={t.oracleTitle}
-            className="flex items-center px-4 py-2 bg-[var(--btn-bg)] text-[var(--btn-text)] border border-[var(--border-main)] rounded-full shadow-2xl hover:opacity-95 active:scale-95 transition-all cursor-pointer group"
+            className="flex items-center gap-2 px-4 py-2 bg-[var(--btn-bg)] text-[var(--btn-text)] border border-[var(--border-main)] rounded-full shadow-2xl hover:opacity-95 active:scale-95 transition-all cursor-pointer group"
           >
             <span className="font-mono text-[11px] tracking-widest uppercase font-semibold">
               ORACLE AI
             </span>
+            {credits > 0 && (
+              <span className="font-mono text-[9px] px-1.5 py-0.5 rounded-full bg-[var(--accent-gold)] text-black font-bold">
+                {credits}
+              </span>
+            )}
           </button>
         )}
       </div>
@@ -127,8 +136,48 @@ export const OracleChat: React.FC<OracleChatProps> = ({
               </div>
             </div>
 
-            {/* Controle de Fechar (sem botao de maximizar) */}
-            <div className="flex items-center gap-1.5 flex-shrink-0 font-mono text-[10px]">
+            {/* Controle de Fechar e Créditos em Tempo Real */}
+            <div className="flex items-center gap-2 flex-shrink-0 font-mono text-[10px]">
+              {/* Badge de Créditos em Tempo Real */}
+              <div
+                className="flex items-center gap-1.5 px-2.5 py-1 bg-[var(--bg-card)] border border-[var(--border-main)] rounded-full text-[10px] shadow-sm"
+                title={
+                  lang === 'en'
+                    ? `${credits} Oracle credit${credits === 1 ? '' : 's'} available`
+                    : lang === 'es'
+                    ? `${credits} crédito${credits === 1 ? '' : 's'} disponible${credits === 1 ? '' : 's'}`
+                    : `${credits} crédito${credits === 1 ? '' : 's'} disponível${credits === 1 ? '' : 'is'}`
+                }
+              >
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-[var(--accent-gold)] animate-pulse" />
+                <span className="text-[var(--text-subtle)] uppercase tracking-wider text-[8px] sm:text-[9px]">
+                  {lang === 'en' ? 'Credits' : lang === 'es' ? 'Créditos' : 'Créditos'}
+                </span>
+                <span className="font-bold text-[var(--accent-gold)] font-mono text-xs">
+                  {credits}
+                </span>
+              </div>
+
+              {/* Botão de Adquirir Mais Créditos */}
+              <a
+                href={`https://destinyvox.online/?u=${encodeURIComponent(username || '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={
+                  lang === 'en'
+                    ? 'Get more Oracle credits'
+                    : lang === 'es'
+                    ? 'Obtener más créditos'
+                    : 'Adquirir mais créditos'
+                }
+                className="px-2.5 py-1 bg-[var(--btn-bg)] text-[var(--btn-text)] border border-[var(--border-main)] rounded text-[9px] font-mono font-semibold uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all flex items-center gap-1"
+              >
+                <span>+</span>
+                <span className="hidden sm:inline">
+                  {lang === 'en' ? 'Refill' : lang === 'es' ? 'Recargar' : 'Recarga'}
+                </span>
+              </a>
+
               <button
                 type="button"
                 onClick={onClose}
@@ -184,32 +233,61 @@ export const OracleChat: React.FC<OracleChatProps> = ({
             <div ref={chatBottomRef} />
           </div>
 
-          {/* Input Minimalista fixado no rodape do chat */}
-          <form
-            ref={oracleFormRef}
-            onSubmit={onAskOracle}
-            className="p-2 sm:p-2.5 border-t border-[var(--border-main)] flex gap-2 bg-[var(--bg-main)] flex-shrink-0 z-10"
-          >
-            <input
-              type="text"
-              placeholder={t.oraclePlaceholder}
-              value={oracleQuestion}
-              onChange={(e) => onQuestionChange(e.target.value)}
-              onFocus={() => {
-                setTimeout(() => {
-                  chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-                }, 100);
-              }}
-              className="flex-1 bg-[var(--input-bg)] border border-[var(--border-main)] rounded-none px-3 py-2 text-xs text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--text-main)] font-mono"
-            />
-            <button
-              type="submit"
-              disabled={isAskingOracle}
-              className="bg-[var(--btn-bg)] text-[var(--btn-text)] hover:opacity-90 px-3.5 py-2 font-mono text-xs font-semibold tracking-widest uppercase cursor-pointer disabled:opacity-50 transition-opacity"
+          {/* Rodapé do Chat: Formulário de pergunta ou Banner de recarga de créditos */}
+          {credits <= 0 ? (
+            <div className="p-3 sm:p-4 border-t border-[var(--border-main)] bg-[var(--bg-card-alt)] flex flex-col sm:flex-row items-center justify-between gap-3 flex-shrink-0 z-10 font-mono text-xs">
+              <div className="text-center sm:text-left">
+                <span className="font-semibold text-[var(--accent-gold)] block text-xs">
+                  {lang === 'en'
+                    ? '✦ 0 credits remaining'
+                    : lang === 'es'
+                    ? '✦ 0 créditos disponibles'
+                    : '✦ 0 créditos restantes'}
+                </span>
+                <span className="text-[10px] text-[var(--text-subtle)]">
+                  {lang === 'en'
+                    ? 'Acquire question packs to consult the Oracle in real time.'
+                    : lang === 'es'
+                    ? 'Adquiere un paquete para consultar al Oráculo en tiempo real.'
+                    : 'Adquira um pacote de perguntas para consultar o Oráculo em tempo real.'}
+                </span>
+              </div>
+              <a
+                href={`https://destinyvox.online/?u=${encodeURIComponent(username || '')}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="px-4 py-2 bg-[var(--btn-bg)] text-[var(--btn-text)] text-xs font-semibold tracking-widest uppercase hover:opacity-90 active:scale-95 transition-all whitespace-nowrap"
+              >
+                {lang === 'en' ? 'Get Credits ↗' : lang === 'es' ? 'Recargar ↗' : 'Recarregar ↗'}
+              </a>
+            </div>
+          ) : (
+            <form
+              ref={oracleFormRef}
+              onSubmit={onAskOracle}
+              className="p-2 sm:p-2.5 border-t border-[var(--border-main)] flex gap-2 bg-[var(--bg-main)] flex-shrink-0 z-10"
             >
-              ⟶
-            </button>
-          </form>
+              <input
+                type="text"
+                placeholder={t.oraclePlaceholder}
+                value={oracleQuestion}
+                onChange={(e) => onQuestionChange(e.target.value)}
+                onFocus={() => {
+                  setTimeout(() => {
+                    chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+                  }, 100);
+                }}
+                className="flex-1 bg-[var(--input-bg)] border border-[var(--border-main)] rounded-none px-3 py-2 text-xs text-[var(--text-main)] placeholder-[var(--text-subtle)] focus:outline-none focus:border-[var(--text-main)] font-mono"
+              />
+              <button
+                type="submit"
+                disabled={isAskingOracle || credits <= 0}
+                className="bg-[var(--btn-bg)] text-[var(--btn-text)] hover:opacity-90 px-3.5 py-2 font-mono text-xs font-semibold tracking-widest uppercase cursor-pointer disabled:opacity-50 transition-opacity"
+              >
+                ⟶
+              </button>
+            </form>
+          )}
         </div>
       )}
     </>

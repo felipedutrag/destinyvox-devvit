@@ -46,6 +46,7 @@ export function useProfileInit(
   const [loadingStep, setLoadingStep] = useState<string>('Decoding Pythagorean geometry...');
   const [error, setError] = useState<string>('');
   const [isVip, setIsVip] = useState<boolean>(false);
+  const [credits, setCredits] = useState<number>(0);
   const [redditUsername, setRedditUsername] = useState<string>('');
   const [userToken, setUserToken] = useState<string>('');
   const [lang, setLang] = useState<SupportedLang>('en');
@@ -73,6 +74,7 @@ export function useProfileInit(
       try {
         const saved = await trpc.destinyvox.getSavedProfile.query();
         if (saved.isVip) setIsVip(true);
+        if (typeof saved.credits === 'number') setCredits(saved.credits);
         if (saved.username) setRedditUsername(saved.username);
         if (saved.userToken) setUserToken(saved.userToken);
         if (saved.charts && saved.charts.length > 0) {
@@ -221,6 +223,8 @@ export function useProfileInit(
     loadingStep,
     error,
     isVip,
+    credits,
+    setCredits,
     redditUsername,
     userToken,
     lang,

@@ -70,7 +70,7 @@ export const DestinyVoxApp = () => {
   const profileInit = useProfileInit(setChartsList, charts);
   const t = i18n[profileInit.lang];
 
-  const oracle = useOracle(profileInit.readingData, profileInit.lang);
+  const oracle = useOracle(profileInit.readingData, profileInit.lang, profileInit.credits);
   const sharing = useSharing(profileInit.readingData, profileInit.lang, profileInit.redditUsername, profileInit.userToken);
 
   if (profileInit.isLoading) {
@@ -197,7 +197,7 @@ export const DestinyVoxApp = () => {
       <main
         ref={mainScrollRef}
         className={`flex-1 z-10 max-w-3xl mx-auto w-full overflow-y-auto p-4 sm:p-6 md:p-8 space-y-6 ${
-          profileInit.isVip ? 'pb-20 sm:pb-24' : 'pb-6 sm:pb-8'
+          (profileInit.isVip || oracle.credits > 0) ? 'pb-20 sm:pb-24' : 'pb-6 sm:pb-8'
         }`}
       >
         {activeTab === 'overview' && (
@@ -242,8 +242,8 @@ export const DestinyVoxApp = () => {
         )}
       </main>
 
-      {/* 5. ORÁCULO (Visível apenas para quem realizou o pagamento / VIP) */}
-      {profileInit.isVip && (
+      {/* 5. ORÁCULO (Visível apenas para quem realizou o pagamento / VIP ou possui créditos) */}
+      {(profileInit.isVip || oracle.credits > 0) && (
         <OracleChat
           isOracleOpen={oracle.isOracleOpen}
           viewportHeight={oracle.viewportHeight}
@@ -254,7 +254,9 @@ export const DestinyVoxApp = () => {
           oracleFormRef={oracle.oracleFormRef}
           profile={profile}
           lang={profileInit.lang}
-          isVip={profileInit.isVip}
+          isVip={profileInit.isVip || oracle.credits > 0}
+          credits={oracle.credits}
+          username={profileInit.redditUsername}
           onOpen={oracle.openOracle}
           onClose={oracle.closeOracle}
           onAskOracle={oracle.handleAskOracle}

@@ -30,7 +30,7 @@ export const profileProcedures = {
     let credits = 0;
     try {
       const vipInfo = await getSupabaseUserVip(username);
-      isVip = vipInfo.isVip;
+      isVip = vipInfo.isVip || vipInfo.credits > 0;
       credits = vipInfo.credits;
     } catch {
       // ignore

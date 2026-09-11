@@ -4,8 +4,13 @@ import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import type { SupportedLang } from '../i18n';
 import type { OracleChatMessage } from '../components/OracleChat';
 
-export function useOracle(readingData: CosmicReadingResult | null, lang: SupportedLang) {
+export function useOracle(
+  readingData: CosmicReadingResult | null,
+  lang: SupportedLang,
+  initialCredits: number = 0
+) {
   const [isOracleOpen, setIsOracleOpen] = useState<boolean>(false);
+  const [credits, setCredits] = useState<number>(initialCredits);
   const [oracleQuestion, setOracleQuestion] = useState<string>('');
   const [oracleChat, setOracleChat] = useState<OracleChatMessage[]>([]);
   const [isAskingOracle, setIsAskingOracle] = useState<boolean>(false);
@@ -17,9 +22,61 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
   const chatBottomRef = useRef<HTMLDivElement>(null);
   const oracleFormRef = useRef<HTMLFormElement>(null);
 
+  // Sincroniza créditos se o valor inicial mudar
+  useEffect(() => {
+    if (initialCredits > 0) {
+      setCredits(initialCredits);
+    }
+  }, [initialCredits]);
+
+  // Sincronização em tempo real (Realtime Polling) enquanto o chat do Oráculo estiver aberto
+  useEffect(() => {
+    if (!isOracleOpen) return;
+
+    let isMounted = true;
+
+    const syncCredits = async () => {
+      try {
+        const res = await trpc.destinyvox.getMyCredits.query();
+        if (isMounted && typeof res.credits === 'number') {
+          setCredits(res.credits);
+        }
+      } catch {
+        // Ignora erros momentâneos de rede em background
+      }
+    };
+
+    // Consulta imediata ao abrir o modal
+    syncCredits();
+
+    // Polling contínuo em tempo real a cada 3 segundos
+    const interval = setInterval(syncCredits, 3000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [isOracleOpen]);
+
   const handleAskOracle = async (e?: FormEvent) => {
     if (e) e.preventDefault();
     if (!oracleQuestion.trim() || !readingData) return;
+
+    if (credits <= 0) {
+      setOracleChat((prev) => [
+        ...prev,
+        {
+          sender: 'oracle',
+          text:
+            lang === 'en'
+              ? '✦ You have 0 Oracle credits. Please acquire more question credits to continue consulting.'
+              : lang === 'es'
+              ? '✦ Tienes 0 créditos para el Oráculo. Por favor adquiere más preguntas para continuar consultando.'
+              : '✦ Você possui 0 créditos para o Oráculo. Adquira mais perguntas para continuar consultando.',
+        },
+      ]);
+      return;
+    }
 
     const q = oracleQuestion.trim();
     setOracleQuestion('');
@@ -36,6 +93,9 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
       });
 
       setOracleChat((prev) => [...prev, { sender: 'oracle', text: res.answer }]);
+      if (typeof res.remainingCredits === 'number') {
+        setCredits(res.remainingCredits);
+      }
     } catch {
       setOracleChat((prev) => [
         ...prev,
@@ -131,5 +191,7 @@ export function useOracle(readingData: CosmicReadingResult | null, lang: Support
     toggleExpand,
     handleAskOracle,
     setOracleQuestion,
+    credits,
+    setCredits,
   };
 }
