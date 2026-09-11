@@ -61,6 +61,7 @@ export const OracleChat: React.FC<OracleChatProps> = ({
   const [isDesktop, setIsDesktop] = useState<boolean>(() =>
     typeof window !== 'undefined' ? window.innerWidth >= 640 : false
   );
+  const [isExpanded, setIsExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -98,7 +99,7 @@ export const OracleChat: React.FC<OracleChatProps> = ({
         )}
       </div>
 
-      {/* JANELA DO ORACULO (FULLSCREEN NO MOBILE, CHAT FLUTUANTE NO CANTO INFERIOR DIREITO NO DESKTOP) */}
+      {/* JANELA DO ORACULO (FULLSCREEN NO MOBILE, CHAT FLUTUANTE NO DESKTOP, SEM PADDING EXTERNO) */}
       {isOracleOpen && (
         <div
           style={
@@ -106,7 +107,11 @@ export const OracleChat: React.FC<OracleChatProps> = ({
               ? { height: `${viewportHeight}px` }
               : undefined
           }
-          className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[410px] sm:h-[580px] sm:max-h-[calc(100vh-3rem)] z-50 bg-[var(--bg-main)] flex flex-col sm:rounded-xl sm:border sm:border-[var(--border-main)] shadow-2xl overflow-hidden animate-fadeIn"
+          className={`fixed z-50 bg-[var(--bg-main)] flex flex-col shadow-2xl overflow-hidden animate-fadeIn p-0 m-0 ${
+            isDesktop && !isExpanded
+              ? 'sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[420px] sm:h-[580px] sm:max-h-[calc(100vh-3rem)] sm:rounded-xl sm:border sm:border-[var(--border-main)]'
+              : 'inset-0 w-full h-full rounded-none border-0'
+          }`}
         >
           {/* Cabecalho do Oraculo */}
           <div className="p-3 sm:p-3.5 border-b border-[var(--border-main)] bg-[var(--bg-card-alt)] flex items-center justify-between gap-2 flex-shrink-0 z-10">
@@ -193,12 +198,26 @@ export const OracleChat: React.FC<OracleChatProps> = ({
                 </span>
               </a>
 
+              {isDesktop && (
+                <button
+                  type="button"
+                  onClick={() => setIsExpanded((prev) => !prev)}
+                  title={isExpanded ? t.oracleMinimize : t.oracleExpand}
+                  aria-label={isExpanded ? t.oracleMinimize : t.oracleExpand}
+                  className="p-1.5 border border-[var(--border-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-card-alt)] text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center rounded text-xs"
+                >
+                  <span className="leading-none font-bold">
+                    {isExpanded ? '⤡' : '⤢'}
+                  </span>
+                </button>
+              )}
+
               <button
                 type="button"
                 onClick={onClose}
                 title={t.oracleClose}
                 aria-label={t.oracleClose}
-                className="p-1.5 border border-[var(--border-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-card-alt)] text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center"
+                className="p-1.5 border border-[var(--border-main)] bg-[var(--bg-card)] hover:bg-[var(--bg-card-alt)] text-[var(--text-main)] transition-colors cursor-pointer flex items-center justify-center rounded"
               >
                 <span className="text-xs leading-none font-bold">✕</span>
               </button>
