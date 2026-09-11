@@ -19,6 +19,7 @@ export * from './shadow';
 export * from './cycles';
 export * from './soulUrge';
 export * from './personality';
+export * from './utils';
 
 export type InterpretationLanguage = 'en' | 'pt' | 'es';
 
@@ -44,6 +45,27 @@ export interface CosmicInterpretation {
   cosmicMotto: string;
 }
 
+export function extractFirstName(fullName?: string): string {
+  if (!fullName) return '';
+  const trimmed = fullName.trim();
+  const first = trimmed.split(/\s+/)[0] || '';
+  if (!first) return '';
+  return first.charAt(0).toUpperCase() + first.slice(1).toLowerCase();
+}
+
+export function interpolateFirstName(text: string, fullNameOrFirstName?: string): string {
+  if (!text) return '';
+  const firstName = extractFirstName(fullNameOrFirstName);
+  if (!firstName) {
+    return text
+      .replace(/^\{name\},\s*([a-z])/gm, (_, char) => char.toUpperCase())
+      .replace(/\{name\},\s*/g, '')
+      .replace(/,\s*\{name\}/g, '')
+      .replace(/\{name\}/g, 'friend');
+  }
+  return text.replace(/\{name\}/g, firstName);
+}
+
 export function buildCosmicInterpretation(
   profile: NumerologyProfile,
   language: string = 'en',
@@ -64,13 +86,20 @@ export function buildCosmicInterpretation(
   const monthDict = MONTHLY_FORECAST_INTERPRETATIONS[langKey];
   const dayDict = DAILY_FORECAST_INTERPRETATIONS[langKey];
 
-  const destinyOverview = lpDict[profile.lifePath] || lpDict[1]!;
-  const hiddenTalents = expDict[profile.expression] || expDict[1]!;
-  const shadowAndChallenges = shadowDict[profile.lifePath] || shadowDict[1]!;
-  const yearlyForecast = yearDict[profile.personalYear] || yearDict[1]!;
-  const monthlyForecast = (monthDict[personalMonth] || monthDict[1]!)(monthName);
-  const dailyForecast = dayDict[personalDay] || dayDict[1]!;
+  const rawDestinyOverview = lpDict[profile.lifePath] || lpDict[1]!;
+  const rawHiddenTalents = expDict[profile.expression] || expDict[1]!;
+  const rawShadowAndChallenges = shadowDict[profile.lifePath] || shadowDict[1]!;
+  const rawYearlyForecast = yearDict[profile.personalYear] || yearDict[1]!;
+  const rawMonthlyForecast = (monthDict[personalMonth] || monthDict[1]!)(monthName);
+  const rawDailyForecast = dayDict[personalDay] || dayDict[1]!;
   const cosmicMotto = getSoulDictum(profile.lifePath, langKey);
+
+  const destinyOverview = interpolateFirstName(rawDestinyOverview, profile.fullName);
+  const hiddenTalents = interpolateFirstName(rawHiddenTalents, profile.fullName);
+  const shadowAndChallenges = interpolateFirstName(rawShadowAndChallenges, profile.fullName);
+  const yearlyForecast = interpolateFirstName(rawYearlyForecast, profile.fullName);
+  const monthlyForecast = interpolateFirstName(rawMonthlyForecast, profile.fullName);
+  const dailyForecast = interpolateFirstName(rawDailyForecast, profile.fullName);
 
   return {
     destinyOverview,

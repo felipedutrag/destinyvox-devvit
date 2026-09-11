@@ -11,6 +11,7 @@ import {
   DAILY_FORECAST_INTERPRETATIONS,
   MONTHLY_FORECAST_INTERPRETATIONS,
   YEARLY_FORECAST_INTERPRETATIONS,
+  interpolateFirstName,
 } from '../../shared/interpretations';
 import { monthNamesByLang } from '../i18n';
 import { renderParagraphs } from './renderParagraphs';
@@ -50,22 +51,26 @@ export const TabCycles: React.FC<TabCyclesProps> = ({
   const monthArch = getArchetype(personalMonth, lang);
   const yearArch = getArchetype(currentPersonalYear, lang);
 
-  const dailyText =
+  const rawDaily =
     DAILY_FORECAST_INTERPRETATIONS[lang]?.[personalDay] ||
     DAILY_FORECAST_INTERPRETATIONS.en[personalDay] ||
-    interpretation.dailyForecast;
+    interpretation.dailyForecast ||
+    '';
+  const dailyText = interpolateFirstName(rawDaily, profile.fullName);
 
   const monthlyFn =
     MONTHLY_FORECAST_INTERPRETATIONS[lang]?.[personalMonth] ||
     MONTHLY_FORECAST_INTERPRETATIONS.en[personalMonth];
-  const monthlyText = monthlyFn
-    ? monthlyFn(currentMonthName)
-    : interpretation.monthlyForecast;
+  const rawMonthly =
+    (monthlyFn ? monthlyFn(currentMonthName) : interpretation.monthlyForecast) || '';
+  const monthlyText = interpolateFirstName(rawMonthly, profile.fullName);
 
-  const yearlyText =
+  const rawYearly =
     YEARLY_FORECAST_INTERPRETATIONS[lang]?.[currentPersonalYear] ||
     YEARLY_FORECAST_INTERPRETATIONS.en[currentPersonalYear] ||
-    interpretation.yearlyForecast;
+    interpretation.yearlyForecast ||
+    '';
+  const yearlyText = interpolateFirstName(rawYearly, profile.fullName);
 
   return (
     <div className="space-y-6 animate-fadeIn">

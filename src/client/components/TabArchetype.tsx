@@ -121,7 +121,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
                   )}
                 </p>
                 <div className="text-[var(--text-main)] font-editorial text-base sm:text-lg md:text-xl border-t border-[var(--border-subtle)] pt-3 leading-relaxed">
-                  {renderParagraphs(getSoulUrgeDeep(profile.soulUrge, lang))}
+                  {renderParagraphs(getSoulUrgeDeep(profile.soulUrge, lang, profile.fullName))}
                 </div>
               </div>
             </div>
@@ -141,7 +141,7 @@ export const TabArchetype: React.FC<TabArchetypeProps> = ({
                   )}
                 </p>
                 <div className="text-[var(--text-main)] font-editorial text-base sm:text-lg md:text-xl border-t border-[var(--border-subtle)] pt-3 leading-relaxed">
-                  {renderParagraphs(getPersonalityDeep(profile.personality, lang))}
+                  {renderParagraphs(getPersonalityDeep(profile.personality, lang, profile.fullName))}
                 </div>
               </div>
             </div>

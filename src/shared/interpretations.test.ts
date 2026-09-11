@@ -107,4 +107,54 @@ describe('Interpretations Library & Engine', () => {
     expect(interpretation.yearlyForecast).toBeTruthy();
     expect(interpretation.cosmicMotto).toBeTruthy();
   });
+
+  it('personalizes all English interpretations with the first name and leaves no leftover {name} tags', () => {
+    const profile = calculateFullNumerology('Marie Curie', '1867-11-07');
+    const interpretation = buildCosmicInterpretation(profile, 'en');
+
+    // First name should be "Marie"
+    expect(interpretation.destinyOverview).toContain('Marie');
+    expect(interpretation.destinyOverview).not.toContain('{name}');
+
+    expect(interpretation.hiddenTalents).toContain('Marie');
+    expect(interpretation.hiddenTalents).not.toContain('{name}');
+
+    expect(interpretation.shadowAndChallenges).toContain('Marie');
+    expect(interpretation.shadowAndChallenges).not.toContain('{name}');
+
+    expect(interpretation.yearlyForecast).toContain('Marie');
+    expect(interpretation.yearlyForecast).not.toContain('{name}');
+
+    expect(interpretation.monthlyForecast).toContain('Marie');
+    expect(interpretation.monthlyForecast).not.toContain('{name}');
+
+    expect(interpretation.dailyForecast).toContain('Marie');
+    expect(interpretation.dailyForecast).not.toContain('{name}');
+
+    const soulUrge = getSoulUrgeDeep(profile.soulUrge, 'en', profile.fullName);
+    expect(soulUrge).toContain('Marie');
+    expect(soulUrge).not.toContain('{name}');
+
+    const personality = getPersonalityDeep(profile.personality, 'en', profile.fullName);
+    expect(personality).toContain('Marie');
+    expect(personality).not.toContain('{name}');
+  });
+
+  it('verifies that every single English interpretation contains {name}', () => {
+    const requiredNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 11, 22, 33];
+
+    for (const num of requiredNumbers) {
+      expect(LIFE_PATH_INTERPRETATIONS.en[num], `Life Path #${num} en`).toContain('{name}');
+      expect(EXPRESSION_INTERPRETATIONS.en[num], `Expression #${num} en`).toContain('{name}');
+      expect(SHADOW_INTERPRETATIONS.en[num], `Shadow #${num} en`).toContain('{name}');
+      expect(SOUL_URGE_INTERPRETATIONS.en[num], `Soul Urge #${num} en`).toContain('{name}');
+      expect(PERSONALITY_INTERPRETATIONS.en[num], `Personality #${num} en`).toContain('{name}');
+    }
+
+    for (let c = 1; c <= 9; c++) {
+      expect(YEARLY_FORECAST_INTERPRETATIONS.en[c], `Yearly #${c} en`).toContain('{name}');
+      expect(MONTHLY_FORECAST_INTERPRETATIONS.en[c]!('April'), `Monthly #${c} en`).toContain('{name}');
+      expect(DAILY_FORECAST_INTERPRETATIONS.en[c], `Daily #${c} en`).toContain('{name}');
+    }
+  });
 });
