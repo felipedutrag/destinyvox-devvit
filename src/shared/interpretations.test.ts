@@ -72,13 +72,13 @@ describe('Interpretations Library & Engine', () => {
     const interpretation = buildCosmicInterpretation(profile, 'pt-BR');
 
     expect(interpretation.destinyOverview).toBeTruthy();
-    expect(interpretation.destinyOverview.split('\n\n').length).toBe(3);
+    expect(interpretation.destinyOverview.split('\n\n').length).toBe(6);
 
     expect(interpretation.hiddenTalents).toBeTruthy();
-    expect(interpretation.hiddenTalents.split('\n\n').length).toBe(3);
+    expect(interpretation.hiddenTalents.split('\n\n').length).toBe(6);
 
     expect(interpretation.shadowAndChallenges).toBeTruthy();
-    expect(interpretation.shadowAndChallenges.split('\n\n').length).toBe(3);
+    expect(interpretation.shadowAndChallenges.split('\n\n').length).toBe(6);
 
     expect(interpretation.yearlyForecast).toBeTruthy();
     expect(interpretation.monthlyForecast).toBeTruthy();
