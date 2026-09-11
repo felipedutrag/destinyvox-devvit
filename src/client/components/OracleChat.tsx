@@ -1,4 +1,4 @@
-import React, { type RefObject } from 'react';
+import React, { useState, useEffect, type RefObject } from 'react';
 import type { SupportedLang } from '../i18n';
 import type { CosmicReadingResult } from '../../server/destinyVoxEngine';
 import { renderParagraphs } from './renderParagraphs';
@@ -58,6 +58,19 @@ export const OracleChat: React.FC<OracleChatProps> = ({
   onQuestionChange,
   t,
 }) => {
+  const [isDesktop, setIsDesktop] = useState<boolean>(() =>
+    typeof window !== 'undefined' ? window.innerWidth >= 640 : false
+  );
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleResize = () => {
+      setIsDesktop(window.innerWidth >= 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   if (!isVip && credits <= 0) {
     return null;
   }
@@ -85,13 +98,15 @@ export const OracleChat: React.FC<OracleChatProps> = ({
         )}
       </div>
 
-      {/* JANELA / MODAL DO ORACULO (SEMPRE FULL SCREEN) */}
+      {/* JANELA DO ORACULO (FULLSCREEN NO MOBILE, CHAT FLUTUANTE NO CANTO INFERIOR DIREITO NO DESKTOP) */}
       {isOracleOpen && (
         <div
-          style={{
-            height: viewportHeight > 0 ? `${viewportHeight}px` : undefined,
-          }}
-          className="fixed inset-0 z-50 bg-[var(--bg-main)] flex flex-col p-2 sm:p-4 shadow-2xl animate-fadeIn"
+          style={
+            !isDesktop && viewportHeight > 0
+              ? { height: `${viewportHeight}px` }
+              : undefined
+          }
+          className="fixed inset-0 sm:inset-auto sm:bottom-6 sm:right-6 sm:w-[410px] sm:h-[580px] sm:max-h-[calc(100vh-3rem)] z-50 bg-[var(--bg-main)] flex flex-col sm:rounded-xl sm:border sm:border-[var(--border-main)] shadow-2xl overflow-hidden animate-fadeIn"
         >
           {/* Cabecalho do Oraculo */}
           <div className="p-3 sm:p-3.5 border-b border-[var(--border-main)] bg-[var(--bg-card-alt)] flex items-center justify-between gap-2 flex-shrink-0 z-10">
